@@ -21,7 +21,9 @@ const SATVIK = {
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-const mapsUrl = (p) => `https://www.google.com/maps/search/${encodeURIComponent(p.name)}/@${p.lat},${p.lng},17z`;
+const mapsUrl = (p) => p.lat != null
+  ? `https://www.google.com/maps/search/${encodeURIComponent(p.name)}/@${p.lat},${p.lng},17z`
+  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.maps || `${p.name} ${p.area}`)}`;
 
 const ids = new Set();
 for (const p of places) {
@@ -52,6 +54,7 @@ function card(p) {
   ].join('');
   return `
       <article class="place" data-city="${slug(p.city)}" data-type="${p.type}">
+        ${p.found ? '<span class="found">New find · not tried yet</span>' : ''}
         <span class="kind">${esc(TYPES[p.type])} · ${esc(p.cuisine)}</span>
         <h3>${esc(p.name)}</h3>
         <p class="where">${esc(p.area ? `${p.area}, ${p.city}` : p.city)}</p>

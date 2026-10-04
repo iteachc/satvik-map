@@ -61,6 +61,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 14px; }
 
 .place { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.found { justify-self: start; font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--turmeric); border: 1px solid var(--turmeric); border-radius: 999px; padding: 0 9px; }
 .kind { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .place h3 { font-family: var(--display); font-weight: 400; font-size: 23px; line-height: 1.15; margin: 0; overflow-wrap: anywhere; }
 .where { margin: 0; color: var(--muted); font-size: 15px; }
@@ -114,7 +115,7 @@ footer { border-top: 1px solid var(--line); padding-top: 18px; color: var(--mute
 
   <footer>
     <span>Ratings and review counts are from Google Maps, {{UPDATED}}. Kitchens and recipes change, so always ask before you order.</span>
-    <span>Started from a personal list of favourite satvik spots. Closed places have been taken off.</span>
+    <span>Started from a personal list of favourite satvik spots. Places tagged "New find" were found through other guides and checked on Google Maps, but haven't been tried yet. Closed places have been taken off.</span>
   </footer>
 </div>
 
