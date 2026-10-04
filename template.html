@@ -1,0 +1,150 @@
+<title>The Satvik List</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&family=Young+Serif&display=swap">
+<style>
+/* Layout: a statement up top, three plain answers, a filter strip, then one section per city with a grid of place cards. */
+:root {
+  --bg: #f3f6ee;
+  --card: #ffffff;
+  --ink: #17221a;
+  --muted: #58665b;
+  --line: #dce3d4;
+  --leaf: #2d6a38;
+  --leaf-soft: #e2eedd;
+  --turmeric: #a86f00;
+  --turmeric-soft: #faefd0;
+  --display: "Young Serif", Georgia, serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1511; --card: #17201a; --ink: #edf2ea; --muted: #a3b1a6; --line: #29362d;
+    --leaf: #8ccf98; --leaf-soft: #1b2d20; --turmeric: #f0c14b; --turmeric-soft: #322810;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1511; --card: #17201a; --ink: #edf2ea; --muted: #a3b1a6; --line: #29362d;
+  --leaf: #8ccf98; --leaf-soft: #1b2d20; --turmeric: #f0c14b; --turmeric-soft: #322810;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.55; padding-inline: 16px; padding-block: 32px 56px; }
+.wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 40px; }
+
+.hero { display: grid; gap: 14px; max-width: 760px; }
+.eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--leaf); }
+.hero h1 { font-family: var(--display); font-weight: 400; font-size: clamp(36px, 7vw, 64px); line-height: 1.04; margin: 0; text-wrap: balance; }
+.hero h1 em { font-style: normal; color: var(--leaf); }
+.hero p { margin: 0; font-size: 19px; color: var(--muted); max-width: 60ch; }
+.hero p strong { color: var(--ink); font-weight: 700; }
+
+.answers { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px 28px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-block: 22px; }
+.answers h2 { font-family: var(--display); font-weight: 400; font-size: 21px; margin: 0 0 4px; }
+.answers p { margin: 0; color: var(--muted); font-size: 16px; }
+
+.filters { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: var(--bg); padding-block: 12px; display: grid; gap: 10px; border-bottom: 1px solid var(--line); }
+.chiprow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chiprow .label { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); min-width: 44px; }
+.chip { font: inherit; font-size: 15px; font-weight: 500; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 6px 14px; cursor: pointer; min-height: 38px; }
+.chip .n { color: var(--muted); font-variant-numeric: tabular-nums; margin-left: 4px; }
+.chip[aria-pressed="true"] { background: var(--leaf); border-color: var(--leaf); color: var(--card); }
+.chip[aria-pressed="true"] .n { color: var(--card); opacity: .8; }
+.chip:focus-visible { outline: 3px solid var(--turmeric); outline-offset: 2px; }
+.count { font-size: 15px; color: var(--muted); margin: 0; }
+
+.city { display: grid; gap: 16px; scroll-margin-top: 140px; }
+.city > h2 { font-family: var(--display); font-weight: 400; font-size: 32px; margin: 0; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.city > h2 small { font-family: var(--body); font-size: 15px; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 14px; }
+
+.place { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.kind { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.place h3 { font-family: var(--display); font-weight: 400; font-size: 23px; line-height: 1.15; margin: 0; overflow-wrap: anywhere; }
+.where { margin: 0; color: var(--muted); font-size: 15px; }
+.stats { margin: 0; font-size: 15px; font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; gap: 2px 10px; }
+.stats .star { color: var(--turmeric); font-weight: 700; }
+.badge { justify-self: start; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 2px 9px; }
+.badge.all { background: var(--leaf); color: var(--card); }
+.badge.sauce { background: var(--leaf-soft); color: var(--leaf); }
+.badge.ask { background: transparent; color: var(--muted); padding-inline: 0; font-weight: 500; }
+.tip { margin: 0; background: var(--turmeric-soft); border-radius: 8px; padding: 8px 12px; font-size: 15px; }
+.tip b { color: var(--turmeric); font-weight: 700; }
+.maps { font-weight: 700; color: var(--leaf); text-decoration: none; font-size: 15px; justify-self: start; padding-block: 4px; }
+.maps:hover { text-decoration: underline; text-underline-offset: 3px; }
+.maps:focus-visible { outline: 3px solid var(--turmeric); outline-offset: 2px; border-radius: 4px; }
+
+@media (max-width: 640px) {
+  .filters { gap: 6px; padding-block: 8px; }
+  .chiprow { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
+  .chiprow::-webkit-scrollbar { display: none; }
+  .chip { flex: 0 0 auto; min-height: 36px; padding: 5px 12px; }
+  .count { font-size: 14px; }
+}
+
+.empty { color: var(--muted); }
+footer { border-top: 1px solid var(--line); padding-top: 18px; color: var(--muted); font-size: 15px; display: grid; gap: 6px; max-width: 70ch; }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">No onion · No garlic · No compromise</span>
+    <h1>Good food doesn't need <em>onion and garlic.</em></h1>
+    <p><strong>The Satvik List</strong> is {{TOTAL}} places in {{CITY_NAMES}} where you can eat satvik and still eat really well: kulchas, dosas, thalis, wood-fired pizza, kulfi.</p>
+  </header>
+
+  <div class="answers">
+    <div><h2>What's satvik food?</h2><p>Food cooked without onion and garlic. Plenty of families eat this way every day, or on fasts and festival days.</p></div>
+    <div><h2>How do I order?</h2><p>Most places here will make dishes without onion and garlic if you ask. Places marked <b>Fully satvik</b> don't use them at all.</p></div>
+    <div><h2>Eating Jain?</h2><p>Jain food also leaves out root vegetables like potato, carrot and ginger. Say "Jain" when you order, and double-check.</p></div>
+  </div>
+
+  <nav class="filters" aria-label="Filter places">
+    <div class="chiprow" role="group" aria-label="City"><span class="label">City</span>{{CITY_CHIPS}}</div>
+    <div class="chiprow" role="group" aria-label="Type of food"><span class="label">Food</span>{{TYPE_CHIPS}}</div>
+    <p class="count" id="count" aria-live="polite">Showing all {{TOTAL}} places</p>
+  </nav>
+
+  <main class="wrap" style="gap:44px">
+    {{SECTIONS}}
+    <p class="empty" id="empty" hidden>Nothing matches those filters yet. Try another city or type of food.</p>
+  </main>
+
+  <footer>
+    <span>Ratings and review counts are from Google Maps, {{UPDATED}}. Kitchens and recipes change, so always ask before you order.</span>
+    <span>Started from a personal list of favourite satvik spots. Closed places have been taken off.</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var state = { city: 'all', type: 'all' };
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.place'));
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.city'));
+  var count = document.getElementById('count');
+  var empty = document.getElementById('empty');
+
+  function apply() {
+    var shown = 0;
+    cards.forEach(function (c) {
+      var ok = (state.city === 'all' || c.dataset.city === state.city) && (state.type === 'all' || c.dataset.type === state.type);
+      c.hidden = !ok;
+      if (ok) shown++;
+    });
+    sections.forEach(function (s) { s.hidden = !s.querySelector('.place:not([hidden])'); });
+    count.textContent = shown === cards.length ? 'Showing all ' + shown + ' places' : 'Showing ' + shown + ' of ' + cards.length + ' places';
+    empty.hidden = shown !== 0;
+  }
+
+  document.querySelectorAll('.chip').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var key = b.dataset.key;
+      state[key] = b.dataset.value;
+      document.querySelectorAll('.chip[data-key="' + key + '"]').forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+      apply();
+    });
+  });
+})();
+</script>
