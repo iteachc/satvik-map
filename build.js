@@ -98,6 +98,17 @@ fs.mkdirSync(path.join(root, 'dist'), { recursive: true });
 const out = path.join(root, 'dist', 'satvik-list.html');
 fs.writeFileSync(out, html);
 
+// Standalone copy for GitHub Pages (docs/index.html). The artifact host wraps the page in a
+// document skeleton; here we add our own, moving the <title>/fonts/<style> into <head>.
+const split = html.indexOf('<div class="wrap">');
+const standalone = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+  + '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+  + '<meta name="description" content="Places in Delhi NCR, Bengaluru, Mumbai and Vadodara where you can eat well without onion and garlic.">\n'
+  + '<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>\n'
+  + html.slice(0, split) + '\n</head>\n<body>\n' + html.slice(split) + '\n</body>\n</html>\n';
+fs.mkdirSync(path.join(root, 'docs'), { recursive: true });
+fs.writeFileSync(path.join(root, 'docs', 'index.html'), standalone);
+
 const hidden = places.filter((p) => !shown.includes(p));
 console.log(`Built ${path.relative(root, out)}: ${shown.length} places shown (${cities.map((c) => `${c} ${byCity.get(c).length}`).join(', ')}), ${hidden.length} left off.`);
 for (const p of hidden) console.log(`  - ${p.name} (${p.city}): ${p.hide || 'rating below ' + MIN_RATING}`);

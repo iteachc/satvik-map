@@ -4,14 +4,22 @@ A guide to places where you can eat well without onion and garlic (satvik food).
 Started from the Google Maps list "Satvik food (without onion and garlic)".
 Built the same way as the Delhi Outings page (`../Dad events`): JSON data + template + build script.
 
-**Page:** https://claude.ai/artifact/RUHuQEfMaef8mzs9NQsrCb (private until shared from its Share menu)
+**Website (GitHub Pages):** https://iteachc.github.io/satvik-list/ — served from `docs/index.html` on `main`.
+**Claude page:** https://claude.ai/artifact/RUHuQEfMaef8mzs9NQsrCb (private until shared from its Share menu)
+
+`node build.js` writes both `dist/satvik-list.html` (for the Claude page) and `docs/index.html`
+(a standalone copy for GitHub Pages). Commit and push `docs/` to update the website.
+
+Places tagged "New find" (`found: true`) come from other guides, not the original list. They show only
+facts (rating, area, price) with no notes or satvik claims until they've been tried.
 
 ## Files
 | File | What it is |
 |---|---|
 | `data/places.json` | All 70 places from the Maps list: city, area, coordinates, Google rating and review count, price, cuisine, `type` (meal / pizza / quick / sweet), `satvik` level, `tip`, and `hide` with a reason for places left off the page. |
 | `template.html` | Page design and the city/food filters. |
-| `build.js` | `node build.js` → `dist/satvik-list.html`. Prints which places were left off and why. |
+| `build.js` | `node build.js` → `dist/satvik-list.html` and `docs/index.html`. Prints which places were left off and why. |
+| `docs/index.html` | The GitHub Pages website (generated, don't edit by hand). |
 
 ## How places are labelled
 - `satvik: "all"` — the list says nothing there has onion or garlic (e.g. Satvik Kitchen, Bengaluru).
