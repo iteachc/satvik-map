@@ -78,7 +78,7 @@ h1 em { font-style: normal; color: var(--leaf); }
 .views button { font: inherit; font-size: 13.5px; font-weight: 700; line-height: 1; border: 0; background: none; color: var(--muted); border-radius: 999px; padding: 0 12px; min-height: 28px; cursor: pointer; }
 .views button[aria-pressed="true"] { background: var(--leaf); color: var(--card); }
 .lede { margin: 0; font-size: 14.5px; line-height: 1.45; color: var(--muted); }
-.lede strong { color: var(--ink); }
+.lede strong, .lede b { color: var(--ink); }
 
 .filters { display: grid; gap: 8px; min-width: 0; }
 .chiprow { display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
@@ -133,9 +133,10 @@ h1 em { font-style: normal; color: var(--leaf); }
 .card h3 { padding-right: 30px; }
 .where { margin: 0; color: var(--muted); font-size: 15px; }
 .stats { margin: 0; font-size: 15px; font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; gap: 2px 12px; }
-.badge { justify-self: start; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 2px 9px; }
+.badges { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.badge { font-size: 13px; font-weight: 700; border-radius: 6px; padding: 1px 8px; border: 1px solid transparent; }
 .badge.all { background: var(--leaf); color: var(--card); }
-.badge.ask { color: var(--muted); padding-inline: 0; font-weight: 500; }
+.badge.veg { border-color: var(--line); color: var(--ink); }
 .note { margin: 0; font-size: 16px; line-height: 1.45; color: var(--ink); }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0 18px; }
 .maps { font-weight: 700; text-decoration: none; font-size: 15px; padding-block: 6px; }
@@ -198,7 +199,7 @@ h1 em { font-style: normal; color: var(--leaf); }
         <button type="button" data-view="list" aria-pressed="false">List</button>
       </div>
     </div>
-    <p class="lede"><strong>Satvik food</strong> is cooked without onion and garlic. These are my picks: {{TOTAL}} places in {{CITY_NAMES}}.</p>
+    <p class="lede"><strong>Satvik food</strong> is cooked without onion and garlic. These are my picks: {{TOTAL}} places in {{CITY_NAMES}}. Unless marked <b>Fully satvik</b>, ask for no onion, no garlic when you order.</p>
 
     <nav class="filters" aria-label="Filters">
       <div class="chiprow" role="group" aria-label="City"><span class="label">City</span>{{JUMP_CHIPS}}</div>
@@ -213,7 +214,6 @@ h1 em { font-style: normal; color: var(--leaf); }
 
     <details class="about" id="about">
       <summary>About these places</summary>
-      <p>Places marked <b>Fully satvik</b> don't use onion or garlic at all. Everywhere else, ask for no onion, no garlic when you order.</p>
       <p>Eating Jain? Jain food also leaves out root vegetables like potato, carrot and ginger. Say "Jain" when you order, and double-check.</p>
       {{FINDS_ABOUT}}
     </details>

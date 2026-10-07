@@ -12,7 +12,6 @@ const template = fs.readFileSync(path.join(root, 'template.html'), 'utf8');
 
 const MIN_RATING = 3.6;
 const TYPES = { meal: 'Meals', pizza: 'Pizza & Italian', quick: 'Quick bites', sweet: 'Sweets & desserts' };
-const SATVIK = ['all', 'sauce', 'ask'];
 // The city buttons and list sections, in this order, with the names people use; Gurgaon and Delhi split the
 // data's "Delhi NCR". `trim` drops the end of an area that the city name already says
 // ("Cyber Hub, Gurugram" → "Cyber Hub, Gurgaon").
@@ -42,7 +41,7 @@ for (const p of places) {
   ids.add(p.id);
   if (!TYPES[p.type]) throw new Error(`${p.id}: unknown type "${p.type}"`);
   if (p.note != null && typeof p.note !== 'string') throw new Error(`${p.id}: note must be text`);
-  if (!SATVIK.includes(p.satvik)) throw new Error(`${p.id}: unknown satvik value "${p.satvik}"`);
+  for (const k of ['fullySatvik', 'pureVeg']) if (p[k] != null && typeof p[k] !== 'boolean') throw new Error(`${p.id}: ${k} must be true or false`);
 }
 
 const waiting = places.filter((p) => p.found && !SHOW_NEW_FINDS);
@@ -56,7 +55,7 @@ const cityOf = (p) => {
   return c;
 };
 // Best first: fully satvik, then rating, then number of reviews.
-const rank = (p) => (p.satvik === 'all' && !p.found ? 1 : 0);
+const rank = (p) => (p.fullySatvik && !p.found ? 1 : 0);
 const cities = CITIES.map((c) => ({
   ...c,
   places: shown.filter(c.match).sort((a, b) => rank(b) - rank(a) || b.rating - a.rating || b.reviews - a.reviews),
@@ -80,10 +79,10 @@ const where = (p) => {
 };
 
 // One card per place. The List view shows them all; the Map view copies one into its popup card.
-// Honesty rules: "Fully satvik" comes only from your own notes (satvik "all"), `note` is your note, and new finds
+// Honesty rules: "Fully satvik" comes only from your own notes (fullySatvik: true), `note` is your note, and new finds
 // carry no note and no satvik claim.
 function card(p) {
-  const full = p.satvik === 'all' && !p.found;
+  const full = p.fullySatvik && !p.found;
   const note = p.found ? '' : p.note;
   return `
         <article class="place" id="p-${p.id}" data-id="${p.id}">
@@ -93,7 +92,7 @@ function card(p) {
           <p class="where">${esc(where(p))}</p>
           ${note ? `<p class="note">${esc(note)}</p>` : ''}
           ${p.price ? `<p class="stats">${esc(p.price)} per person</p>` : ''}
-          <span class="badge ${full ? 'all' : 'ask'}">${full ? 'Fully satvik' : 'Ask for no onion, no garlic'}</span>
+          ${full || p.pureVeg ? `<p class="badges">${full ? '<span class="badge all">Fully satvik</span>' : ''}${p.pureVeg ? '<span class="badge veg">Pure veg</span>' : ''}</p>` : ''}
           <div class="actions">
             <a class="maps" href="${esc(mapsUrl(p))}" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="${p.id}">Show on map</button>
@@ -116,7 +115,7 @@ const data = cities.flatMap((c) => c.places.map((p) => ({
   lat: p.lat,
   lng: p.lng,
   type: p.type,
-  full: p.satvik === 'all' && !p.found,
+  full: !!p.fullySatvik && !p.found,
   found: !!p.found,
 })));
 
