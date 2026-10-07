@@ -23,11 +23,14 @@ It opens on Gurugram. A link like `…/satvik-map/#bengaluru` opens on another a
 - Every place shown needs `lat`/`lng`. The build stops if a pin lands more than 60 km from the rest of its city.
 - **Fully satvik** shows only for `satvik: "all"` (from your own notes). Everywhere else the card says
   "Ask for no onion, no garlic". A `tip` is your note and shows as "Note:".
-- Places tagged "New find" (`found: true`) come from other guides. They show only facts (rating, reviews, area,
-  price) with no note and no satvik claim until they've been tried.
+- The map shows only places from your Google Maps list "Satvik food (without onion and garlic)" plus the ones
+  you've asked for by name. The 15 "new finds" (`found: true`) from other guides stay in the data but are left off
+  until you've tried them. Set `SHOW_NEW_FINDS = true` in `build.js` to show them: they get a "New find · not
+  tried yet" tag and only facts (rating, reviews, area, price), with no note and no satvik claim.
 - "Open in Google Maps" searches the place's name at its coordinates, the same link the list uses.
 
 ## Data notes
-- Coordinates for the 15 new finds, and the four Gurugram places added for the map (Om Chole Bhature Delhi Wale,
-  Jumbo King Burgers, and the Haldiram's at MGF Metropolitan and Ambience Mall), were read from Google Maps on 7 Oct 2026.
+- The four Gurugram places added for the map (Om Chole Bhature Delhi Wale, Jumbo King Burgers, and the Haldiram's
+  at MGF Metropolitan and Ambience Mall) were read from Google Maps on 7 Oct 2026, as were coordinates for the
+  new finds (ready for when they go on the map).
 - These additions are only in this repo; The Satvik List's `data/places.json` doesn't have them yet.
