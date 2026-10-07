@@ -145,7 +145,7 @@ const html = template
   .replace('{{JUMP_CHIPS}}', jumpChips)
   .replace('{{TYPE_CHIPS}}', typeChips)
   .replace('{{FINDS_SWITCH}}', foundCount ? `<button type="button" class="switch" id="finds" role="switch" aria-checked="true"><span class="track" aria-hidden="true"></span>New finds <span class="n">${foundCount}</span></button>` : '')
-  .replace('{{FINDS_ABOUT}}', foundCount ? " Places tagged <b>New find</b> were found through other guides and checked on Google Maps, but haven't been tried yet." : '')
+  .replace('{{FINDS_ABOUT}}', foundCount ? "<p>Places tagged <b>New find</b> were found through other guides and checked on Google Maps, but haven't been tried yet.</p>" : '')
   .replace('{{LINKS}}', `<p class="links">Made by iteachc: <a href="${esc(GITHUB)}" target="_blank" rel="me noopener">GitHub</a> · `
     + `<button type="button" class="copy" data-copy="${esc(DISCORD)}" title="Copy Discord username">Discord: ${esc(DISCORD)}</button></p>`)
   .replace('{{START}}', START)
