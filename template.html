@@ -116,6 +116,8 @@ h1 em { font-style: normal; color: var(--leaf); }
 .about { font-size: 14.5px; color: var(--muted); }
 .about summary { cursor: pointer; font-weight: 700; color: var(--leaf); width: max-content; padding-block: 11px; margin-block: -9px; }
 .about p { margin: 8px 0 0; }
+.about ul { margin: 4px 0 0; padding-left: 18px; }
+.about li + li { margin-top: 4px; }
 .about b { color: var(--ink); }
 .links { margin: 0; font-size: 14px; color: var(--muted); }
 .links a, .links .copy { position: relative; font: inherit; font-weight: 700; color: var(--leaf); text-decoration: none; background: none; border: 0; padding: 4px 0; cursor: pointer; }
@@ -240,7 +242,13 @@ h1 em { font-style: normal; color: var(--leaf); }
 
     <details class="about" id="about">
       <summary>About these places</summary>
-      <p>Eating Jain? Jain food also leaves out root vegetables like potato, carrot and ginger. Say "Jain" when you order, and double-check.</p>
+      <p>My focus is satvik food: no onion, no garlic. Jain food goes further and also leaves out root vegetables like potato, carrot and ginger, so if you eat Jain, check with the kitchen.</p>
+      <p><b>Tips for ordering</b></p>
+      <ul>
+        <li>If they don't know "satvik", say "Jain, but potato and ginger are fine."</li>
+        <li>In Bombay, the usual way to ask is "half Jain": no onion, no garlic.</li>
+        <li>In North India, many places serve food without onion and garlic during Navratri, in the run-up to Ram Navami and Dussehra.</li>
+      </ul>
       {{FINDS_ABOUT}}
     </details>
   </header>
