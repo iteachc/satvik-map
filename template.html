@@ -293,33 +293,27 @@ h1 em { font-style: normal; color: var(--leaf); }
     p.marker = m;
   });
 
+  // The city, food type and new-finds switch together decide which places show, on the map and in the list.
   function visible(p) {
-    return (state.type === 'all' || p.type === state.type) && (state.finds || !p.found);
+    return inCity(p) && (state.type === 'all' || p.type === state.type) && (state.finds || !p.found);
   }
-  function inCity(p) { return !current || current === 'all' || p.in === current; }
+  function inCity(p) { return current === 'all' || p.in === current; }
   function plural(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
+  function cityName(id) {
+    var b = jumpBtns.filter(function (b) { return b.dataset.jump === id; })[0];
+    return b ? b.dataset.label : '';
+  }
 
   function updateCount() {
-    var list = places.filter(visible);
-    var t = list.length;
-    if (t === 0) { countEl.textContent = 'No places match these filters'; return; }
-    if (view === 'list') {
-      var n = list.filter(inCity).length;
-      countEl.textContent = n === t ? 'Showing all ' + plural(t, 'place') : 'Showing ' + n + ' of ' + plural(t, 'place');
-      return;
-    }
-    var b = map.getBounds();
-    var inView = list.filter(function (p) { return b.contains([p.lat, p.lng]); }).length;
-    countEl.textContent = inView === t ? (t === 1 ? '1 place, in view' : 'All ' + t + ' places in view')
-      : inView === 0 ? (t === 1 ? 'The 1 match isn’t in view. Try All India' : 'None of the ' + t + ' places are in view. Try All India')
-      : inView + ' of ' + plural(t, 'place') + ' in view';
+    var n = places.filter(visible).length;
+    var where = current === 'all' ? 'across India' : 'in ' + cityName(current);
+    countEl.textContent = n ? plural(n, 'place') + ' ' + where : 'No places ' + where + ' match these filters';
   }
 
   function applyList() {
     var n = 0;
     cards.forEach(function (c) {
-      var p = byId[c.dataset.id];
-      var ok = visible(p) && inCity(p);
+      var ok = visible(byId[c.dataset.id]);
       c.hidden = !ok;
       if (ok) n++;
     });
@@ -335,34 +329,22 @@ h1 em { font-style: normal; color: var(--leaf); }
     updateCount();
   }
 
-  // City buttons: on the map they fit the view to that city's pins, and stay pressed until the map leaves the
-  // city; in the list they show only that city.
-  var current = null, currentBounds = null, currentZoom = 0, mapCity = null;
-  function setPressed(id) {
+  // City buttons: show only that city's places, on the map and in the list.
+  var current = START, mapCity = null;
+  function setCity(id) {
     current = id;
     jumpBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.jump === id)); });
+    document.title = id === 'all' ? 'The Satvik Map' : 'Satvik food in ' + cityName(id) + ' — The Satvik Map';
+    apply();
   }
-  function jump(id, animate) {
-    var inArea = places.filter(function (p) { return id === 'all' || p.in === id; });
-    var pts = inArea.filter(visible);
-    if (!pts.length) pts = inArea;
-    var bounds = L.latLngBounds(pts.map(function (p) { return [p.lat, p.lng]; }));
-    var pad = L.point(36, 36);
+  // Fit the map to the pins showing (or to the whole city if the food filter leaves none).
+  function fit(animate) {
+    var pts = places.filter(visible);
+    if (!pts.length) pts = places.filter(inCity);
     closeCard(false);
-    setPressed(id);
-    mapCity = id;
-    currentBounds = bounds;
-    currentZoom = Math.min(map.getBoundsZoom(bounds, false, pad.multiplyBy(2)), 15);
-    map.fitBounds(bounds, { padding: pad, maxZoom: 15, animate: animate });
+    mapCity = current;
+    map.fitBounds(L.latLngBounds(pts.map(function (p) { return [p.lat, p.lng]; })), { padding: [36, 36], maxZoom: 15, animate: animate });
   }
-  map.on('moveend', function () {
-    if (view !== 'map') return;
-    updateCount();
-    if (!current) return;
-    var z = map.getZoom();
-    var left = current === 'all' ? z > currentZoom + 1 : (!currentBounds.pad(0.25).contains(map.getCenter()) || z < currentZoom - 1);
-    if (left) { setPressed(null); mapCity = null; }
-  });
 
   function setView(v) {
     view = v;
@@ -371,19 +353,16 @@ h1 em { font-style: normal; color: var(--leaf); }
     mapEl.inert = v === 'list';
     closeCard(false);
     if (v === 'list') {
-      if (!current) setPressed('all');
-      applyList();
       listEl.scrollTop = 0;
     } else {
       map.invalidateSize();
-      if (current && current !== mapCity) jump(current, false);
+      if (current !== mapCity) fit(false);
     }
-    updateCount();
   }
 
   function setHash() {
-    var h = view === 'list' ? 'list' + (current && current !== 'all' ? '-' + current : '') : (current || '');
-    try { history.replaceState(null, '', h ? '#' + h : location.pathname + location.search); } catch (e) {}
+    var h = view === 'list' ? (current === 'all' ? 'list' : 'list-' + current) : current;
+    try { history.replaceState(null, '', '#' + h); } catch (e) {}
   }
 
   function highlight(m, on) {
@@ -441,14 +420,9 @@ h1 em { font-style: normal; color: var(--leaf); }
   });
   jumpBtns.forEach(function (b) {
     b.addEventListener('click', function () {
-      if (view === 'map') {
-        jump(b.dataset.jump, true);
-      } else {
-        setPressed(b.dataset.jump);
-        applyList();
-        listEl.scrollTop = 0;
-        updateCount();
-      }
+      setCity(b.dataset.jump);
+      if (view === 'map') fit(true);
+      else listEl.scrollTop = 0;
       setHash();
     });
   });
@@ -496,9 +470,9 @@ h1 em { font-style: normal; color: var(--leaf); }
   var startView = hash.indexOf('list') === 0 ? 'list' : 'map';
   var hashCity = startView === 'list' ? hash.slice(5) : hash;
   var known = jumpBtns.some(function (b) { return b.dataset.jump === hashCity; });
-  jump(known ? hashCity : startView === 'list' ? 'all' : START, false);
+  setCity(known ? hashCity : startView === 'list' ? 'all' : START);
+  fit(false);
   map.addLayer(cluster);
-  apply();
   setView(startView);
 })();
 </script>

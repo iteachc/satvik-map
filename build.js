@@ -129,8 +129,8 @@ const pinSvg = (type) => `<svg class="pin pin-${type}" viewBox="0 0 28 36" aria-
 
 const chip = (attrs, label, n, on, icon = '') =>
   `<button type="button" class="chip" ${attrs} aria-pressed="${on}">${icon}${esc(label)}${n != null ? `<span class="n">${n}</span>` : ''}</button>`;
-const jumpChips = chip('data-jump="all"', 'All India', shown.length, false)
-  + cities.map((c) => chip(`data-jump="${c.id}"`, c.label, c.places.length, c.id === START)).join('');
+const jumpChips = chip('data-jump="all" data-label="India"', 'All India', shown.length, false)
+  + cities.map((c) => chip(`data-jump="${c.id}" data-label="${esc(c.label)}"`, c.label, c.places.length, c.id === START)).join('');
 const typeChips = chip('data-type="all"', 'All', null, true)
   + Object.entries(TYPES).filter(([k]) => shown.some((p) => p.type === k))
     .map(([k, label]) => chip(`data-type="${k}"`, label, shown.filter((p) => p.type === k).length, false, pinSvg(k))).join('');
