@@ -1,9 +1,21 @@
-<title>The Satvik List</title>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Satvik Map</title>
+<meta name="description" content="A map of {{TOTAL}} places in {{CITY_NAMES}} where you can eat food without onion and garlic (satvik food).">
+<meta name="theme-color" content="#f3f6ee" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1511" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 36'%3E%3Cpath d='M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z' fill='%232d6a38'/%3E%3Ccircle cx='14' cy='13.5' r='4.6' fill='%23f0c14b'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&family=Young+Serif&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css" integrity="sha512-ENrTWqddXrLJsQS2A86QmvA17PkJ0GVm1bqj5aTgpeMAfDKN2+SIOLpKG8R/6KkimnhTb+VW5qqUHB/r1zaRgg==" crossorigin="anonymous" referrerpolicy="no-referrer">
 <style>
-/* Layout: a statement up top, three plain answers, a filter strip, then one section per city with a grid of place cards. */
+/* Layout: phones get a compact header (title, one line on satvik food, jump and food filters) over a full-height map;
+   from 900px the header becomes a sidebar. Tapping a pin opens a card over the bottom of the map. */
 :root {
   --bg: #f3f6ee;
   --card: #ffffff;
@@ -14,6 +26,13 @@
   --leaf-soft: #e2eedd;
   --turmeric: #a86f00;
   --turmeric-soft: #faefd0;
+  /* Pin colours by food type, checked for colour-blind separation; each pin also has its own shape. */
+  --meal: #2d6a38;
+  --pizza: #e8682f;
+  --quick: #2a78d6;
+  --sweet: #a8459e;
+  --tiles: none;
+  --shadow: 0 10px 30px rgba(23, 34, 26, .18);
   --display: "Young Serif", Georgia, serif;
   --body: "Figtree", "Segoe UI", system-ui, sans-serif;
 }
@@ -21,131 +40,369 @@
   :root:not([data-theme="light"]) {
     --bg: #0f1511; --card: #17201a; --ink: #edf2ea; --muted: #a3b1a6; --line: #29362d;
     --leaf: #8ccf98; --leaf-soft: #1b2d20; --turmeric: #f0c14b; --turmeric-soft: #322810;
+    --meal: #2b7643; --pizza: #e06d2c; --quick: #3f86e3; --sweet: #bb5bb0;
+    --tiles: invert(1) hue-rotate(180deg) brightness(.92) contrast(.88) saturate(.45);
+    --shadow: 0 10px 30px rgba(0, 0, 0, .5);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0f1511; --card: #17201a; --ink: #edf2ea; --muted: #a3b1a6; --line: #29362d;
   --leaf: #8ccf98; --leaf-soft: #1b2d20; --turmeric: #f0c14b; --turmeric-soft: #322810;
+  --meal: #2b7643; --pizza: #e06d2c; --quick: #3f86e3; --sweet: #bb5bb0;
+  --tiles: invert(1) hue-rotate(180deg) brightness(.92) contrast(.88) saturate(.45);
+  --shadow: 0 10px 30px rgba(0, 0, 0, .5);
   color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.55; padding-inline: 16px; padding-block: 32px 56px; }
-.wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 40px; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; overflow: hidden; }
+[hidden] { display: none !important; }
+a { color: var(--leaf); }
+:focus-visible { outline: 3px solid var(--turmeric); outline-offset: 2px; }
 
-.hero { display: grid; gap: 14px; max-width: 760px; }
-.eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--leaf); }
-.hero h1 { font-family: var(--display); font-weight: 400; font-size: clamp(36px, 7vw, 64px); line-height: 1.04; margin: 0; text-wrap: balance; }
-.hero h1 em { font-style: normal; color: var(--leaf); }
-.hero p { margin: 0; font-size: 19px; color: var(--muted); max-width: 60ch; }
-.hero p strong { color: var(--ink); font-weight: 700; }
+.app { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
+.panel { flex: none; position: relative; z-index: 2; min-width: 0; max-height: 72%; overflow-y: auto; display: grid; gap: 8px; align-content: start;
+  padding: max(12px, env(safe-area-inset-top)) 16px 10px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.mapwrap { flex: 1 1 auto; position: relative; min-height: 0; }
+#map { position: absolute; inset: 0; }
 
-.answers { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px 28px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-block: 22px; }
-.answers h2 { font-family: var(--display); font-weight: 400; font-size: 21px; margin: 0 0 4px; }
-.answers p { margin: 0; color: var(--muted); font-size: 16px; }
+.top { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 12px; flex-wrap: wrap; }
+.eyebrow { display: none; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--leaf); }
+h1 { font-family: var(--display); font-weight: 400; font-size: 26px; line-height: 1.1; margin: 0; }
+h1 em { font-style: normal; color: var(--leaf); }
+.listlink { font-size: 14px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.listlink:hover { text-decoration: underline; text-underline-offset: 3px; }
+.lede { margin: 0; font-size: 14.5px; line-height: 1.45; color: var(--muted); }
+.lede strong { color: var(--ink); }
 
-.filters { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: var(--bg); padding-block: 12px; display: grid; gap: 10px; border-bottom: 1px solid var(--line); }
-.chiprow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.chiprow .label { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); min-width: 44px; }
-.chip { font: inherit; font-size: 15px; font-weight: 500; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 6px 14px; cursor: pointer; min-height: 38px; }
-.chip .n { color: var(--muted); font-variant-numeric: tabular-nums; margin-left: 4px; }
+.filters { display: grid; gap: 8px; min-width: 0; }
+.chiprow { display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
+.chiprow::-webkit-scrollbar { display: none; }
+.chiprow .label { flex: none; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); min-width: 44px; }
+.chip { flex: none; display: inline-flex; align-items: center; font: inherit; font-size: 14.5px; font-weight: 500; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 5px 12px; cursor: pointer; min-height: 36px; white-space: nowrap; }
+.chip .n { color: var(--muted); font-variant-numeric: tabular-nums; margin-left: 5px; }
 .chip[aria-pressed="true"] { background: var(--leaf); border-color: var(--leaf); color: var(--card); }
 .chip[aria-pressed="true"] .n { color: var(--card); opacity: .8; }
-.chip:focus-visible { outline: 3px solid var(--turmeric); outline-offset: 2px; }
-.count { font-size: 15px; color: var(--muted); margin: 0; }
+.chip .pin { width: 13px; height: 17px; margin-right: 6px; filter: none; }
+.chip .pin .body { stroke-width: 0; }
+.chip[aria-pressed="true"] .pin .body { stroke: var(--card); stroke-width: 2.5; }
 
-.city { display: grid; gap: 16px; scroll-margin-top: 140px; }
-.city > h2 { font-family: var(--display); font-weight: 400; font-size: 32px; margin: 0; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.city > h2 small { font-family: var(--body); font-size: 15px; color: var(--muted); }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 14px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 6px 12px; flex-wrap: wrap; }
+.switch { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 14.5px; font-weight: 500; color: var(--ink); background: none; border: 0; padding: 4px 0; min-height: 36px; cursor: pointer; }
+.switch .track { width: 36px; height: 22px; border-radius: 999px; background: var(--line); position: relative; transition: background .15s; flex: none; }
+.switch .track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: transform .15s; }
+.switch[aria-checked="true"] .track { background: var(--leaf); }
+.switch[aria-checked="true"] .track::after { transform: translateX(14px); }
+.switch .n { color: var(--muted); font-variant-numeric: tabular-nums; }
+.count { margin: 0; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
 
-.place { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
-.found { justify-self: start; font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--turmeric); border: 1px solid var(--turmeric); border-radius: 999px; padding: 0 9px; }
-.kind { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.place h3 { font-family: var(--display); font-weight: 400; font-size: 23px; line-height: 1.15; margin: 0; overflow-wrap: anywhere; }
+.about { font-size: 14.5px; color: var(--muted); }
+.about summary { cursor: pointer; font-weight: 700; color: var(--leaf); width: max-content; padding-block: 2px; }
+.about p { margin: 8px 0 0; }
+.about b { color: var(--ink); }
+
+/* Card */
+.card { position: absolute; z-index: 1001; left: 10px; right: 10px; bottom: 26px; max-height: calc(100% - 44px); overflow-y: auto;
+  background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+  padding: 14px 16px 10px; display: grid; gap: 6px; align-content: start; }
+.card:focus { outline: none; }
+.card .close { position: absolute; top: 4px; right: 4px; width: 40px; height: 40px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: 400 26px/1 var(--body); cursor: pointer; }
+.card .close:hover { color: var(--ink); background: var(--bg); }
+.found { justify-self: start; font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--turmeric); border: 1px solid var(--turmeric); border-radius: 999px; padding: 0 9px; white-space: nowrap; }
+.kind { font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-right: 36px; }
+.card h2 { font-family: var(--display); font-weight: 400; font-size: 23px; line-height: 1.15; margin: 0; padding-right: 30px; overflow-wrap: anywhere; }
 .where { margin: 0; color: var(--muted); font-size: 15px; }
-.stats { margin: 0; font-size: 15px; font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; gap: 2px 10px; }
+.stats { margin: 0; font-size: 15px; font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; gap: 2px 12px; }
 .stats .star { color: var(--turmeric); font-weight: 700; }
 .badge { justify-self: start; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 2px 9px; }
 .badge.all { background: var(--leaf); color: var(--card); }
-.badge.sauce { background: var(--leaf-soft); color: var(--leaf); }
-.badge.ask { background: transparent; color: var(--muted); padding-inline: 0; font-weight: 500; }
+.badge.ask { color: var(--muted); padding-inline: 0; font-weight: 500; }
 .tip { margin: 0; background: var(--turmeric-soft); border-radius: 8px; padding: 8px 12px; font-size: 15px; }
-.tip b { color: var(--turmeric); font-weight: 700; }
-.maps { font-weight: 700; color: var(--leaf); text-decoration: none; font-size: 15px; justify-self: start; padding-block: 4px; }
+.tip b { color: var(--turmeric); }
+.maps { font-weight: 700; text-decoration: none; font-size: 15px; justify-self: start; padding-block: 6px; }
 .maps:hover { text-decoration: underline; text-underline-offset: 3px; }
-.maps:focus-visible { outline: 3px solid var(--turmeric); outline-offset: 2px; border-radius: 4px; }
 
-@media (max-width: 640px) {
-  .filters { gap: 6px; padding-block: 8px; }
-  .chiprow { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
-  .chiprow::-webkit-scrollbar { display: none; }
-  .chip { flex: 0 0 auto; min-height: 36px; padding: 5px 12px; }
-  .count { font-size: 14px; }
+/* Pins and clusters */
+.pinwrap { background: none; border: 0; }
+.pinwrap:focus-visible { outline: none; }
+.pin { display: block; width: 28px; height: 36px; overflow: visible; transform-origin: 50% 96%; transition: transform .15s ease; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .4)); }
+.pin .body { fill: var(--c); stroke: #fff; stroke-width: 1.6; }
+.pin .glyph { fill: #fff; }
+.pin-meal { --c: var(--meal); }
+.pin-pizza { --c: var(--pizza); }
+.pin-quick { --c: var(--quick); }
+.pin-sweet { --c: var(--sweet); }
+.pinwrap:hover .pin { transform: scale(1.12); }
+.pinwrap.is-on .pin, .pinwrap:focus-visible .pin { transform: scale(1.35); }
+.pinwrap:focus-visible .pin .body { stroke: var(--turmeric); stroke-width: 2.5; }
+.cluster { background: none; }
+.cluster span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: var(--leaf); color: var(--card);
+  font: 700 14px/1 var(--body); border: 2px solid var(--card); box-shadow: 0 0 0 4px rgba(45, 106, 56, .25), 0 1px 4px rgba(0, 0, 0, .3); }
+.cluster:focus-visible { outline: none; }
+.cluster:focus-visible span { box-shadow: 0 0 0 4px var(--turmeric); }
+
+.leaflet-container { font-family: var(--body); background: var(--bg); }
+.leaflet-tile-pane { filter: var(--tiles); }
+.leaflet-bar a, .leaflet-bar a:hover { background: var(--card); color: var(--ink); border-color: var(--line); }
+.leaflet-touch .leaflet-bar { border-color: var(--line); }
+.leaflet-container .leaflet-control-attribution { background: var(--card); opacity: .9; color: var(--muted); font-size: 11px; }
+.leaflet-container .leaflet-control-attribution a { color: var(--leaf); }
+
+@media (min-width: 640px) {
+  .card { left: 16px; right: auto; width: 360px; bottom: 30px; }
 }
-
-.empty { color: var(--muted); }
-footer { border-top: 1px solid var(--line); padding-top: 18px; color: var(--muted); font-size: 15px; display: grid; gap: 6px; max-width: 70ch; }
+@media (min-width: 900px) {
+  .app { display: grid; grid-template-columns: 380px 1fr; }
+  .panel { max-height: none; height: 100%; padding: 28px 24px; gap: 16px; border-bottom: 0; border-right: 1px solid var(--line); }
+  .eyebrow { display: block; }
+  .top { display: grid; gap: 6px; }
+  h1 { font-size: 40px; }
+  .lede { font-size: 16.5px; }
+  .chiprow { flex-wrap: wrap; overflow: visible; margin-inline: 0; padding-inline: 0; }
+  .chiprow .label { flex-basis: 100%; }
+  .card { width: 380px; }
+}
 </style>
-
-<div class="wrap">
-  <header class="hero">
+</head>
+<body>
+<div class="app">
+  <header class="panel">
     <span class="eyebrow">No onion · No garlic · No compromise</span>
-    <h1>Good food doesn't need <em>onion and garlic.</em></h1>
-    <p><strong>The Satvik List</strong> is {{TOTAL}} places in {{CITY_NAMES}} where you can eat satvik and still eat really well: kulchas, dosas, thalis, wood-fired pizza, kulfi.</p>
+    <div class="top">
+      <h1>The Satvik <em>Map</em></h1>
+      <a class="listlink" href="{{LIST_URL}}">See The Satvik List →</a>
+    </div>
+    <p class="lede"><strong>Satvik food</strong> is cooked without onion and garlic. Here are {{TOTAL}} places to eat it in {{CITY_NAMES}}. Tap a pin to see one.</p>
+
+    <nav class="filters" aria-label="Map controls">
+      <div class="chiprow" role="group" aria-label="Go to"><span class="label">Go to</span>{{JUMP_CHIPS}}</div>
+      <div class="chiprow" role="group" aria-label="Type of food"><span class="label">Food</span>{{TYPE_CHIPS}}</div>
+      <div class="row">
+        <button type="button" class="switch" id="finds" role="switch" aria-checked="true"><span class="track" aria-hidden="true"></span>New finds <span class="n">{{FOUND_COUNT}}</span></button>
+        <p class="count" id="count" aria-live="polite">{{TOTAL}} places on the map</p>
+      </div>
+    </nav>
+
+    <details class="about" id="about">
+      <summary>About this map</summary>
+      <p>Places marked <b>Fully satvik</b> don't use onion or garlic at all. Everywhere else, ask for no onion, no garlic when you order.</p>
+      <p>Eating Jain? Jain food also leaves out root vegetables like potato, carrot and ginger. Say "Jain" when you order, and double-check.</p>
+      <p>Started from a personal list of favourite satvik spots. Places tagged <b>New find</b> were found through other guides and checked on Google Maps, but haven't been tried yet.</p>
+      <p>Ratings and review counts are from Google Maps, {{UPDATED}}. Kitchens and recipes change, so always ask before you order.</p>
+    </details>
   </header>
 
-  <div class="answers">
-    <div><h2>What's satvik food?</h2><p>Food cooked without onion and garlic. Plenty of families eat this way every day, or on fasts and festival days.</p></div>
-    <div><h2>How do I order?</h2><p>Most places here will make dishes without onion and garlic if you ask. Places marked <b>Fully satvik</b> don't use them at all.</p></div>
-    <div><h2>Eating Jain?</h2><p>Jain food also leaves out root vegetables like potato, carrot and ginger. Say "Jain" when you order, and double-check.</p></div>
-  </div>
-
-  <nav class="filters" aria-label="Filter places">
-    <div class="chiprow" role="group" aria-label="City"><span class="label">City</span>{{CITY_CHIPS}}</div>
-    <div class="chiprow" role="group" aria-label="Type of food"><span class="label">Food</span>{{TYPE_CHIPS}}</div>
-    <p class="count" id="count" aria-live="polite">Showing all {{TOTAL}} places</p>
-  </nav>
-
-  <main class="wrap" style="gap:44px">
-    {{SECTIONS}}
-    <p class="empty" id="empty" hidden>Nothing matches those filters yet. Try another city or type of food.</p>
+  <main class="mapwrap">
+    <div id="map" role="region" aria-label="Map of satvik places"></div>
+    <noscript><p style="padding:16px">The map needs JavaScript. <a href="{{LIST_URL}}">See The Satvik List</a> instead.</p></noscript>
+    <article class="card" id="card" tabindex="-1" aria-labelledby="card-name" hidden>
+      <button type="button" class="close" id="card-close" aria-label="Close">×</button>
+      <div id="card-body" style="display:contents"></div>
+    </article>
   </main>
-
-  <footer>
-    <span>Ratings and review counts are from Google Maps, {{UPDATED}}. Kitchens and recipes change, so always ask before you order.</span>
-    <span>Started from a personal list of favourite satvik spots. Places tagged "New find" were found through other guides and checked on Google Maps, but haven't been tried yet. Closed places have been taken off.</span>
-  </footer>
 </div>
 
+<script type="application/json" id="places">{{DATA}}</script>
+<script type="application/json" id="pins">{{PINS}}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js" integrity="sha512-TiMWaqipFi2Vqt4ugRzsF8oRoGFlFFuqIi30FFxEPNw58Ov9mOy6LgC05ysfkxwLE0xVeZtmr92wVg9siAFRWA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 (function () {
-  var state = { city: 'all', type: 'all' };
-  var cards = Array.prototype.slice.call(document.querySelectorAll('.place'));
-  var sections = Array.prototype.slice.call(document.querySelectorAll('.city'));
-  var count = document.getElementById('count');
-  var empty = document.getElementById('empty');
+  var places = JSON.parse(document.getElementById('places').textContent);
+  var PINS = JSON.parse(document.getElementById('pins').textContent);
+  var START = '{{START}}';
+  var state = { type: 'all', finds: true };
+  var jumpBtns = [].slice.call(document.querySelectorAll('[data-jump]'));
+  var typeBtns = [].slice.call(document.querySelectorAll('[data-type]'));
+  var findsBtn = document.getElementById('finds');
+  var countEl = document.getElementById('count');
+  var card = document.getElementById('card');
+  var cardBody = document.getElementById('card-body');
+  var about = document.getElementById('about');
+  var mapEl = document.getElementById('map');
 
-  function apply() {
-    var shown = 0;
-    cards.forEach(function (c) {
-      var ok = (state.city === 'all' || c.dataset.city === state.city) && (state.type === 'all' || c.dataset.type === state.type);
-      c.hidden = !ok;
-      if (ok) shown++;
+  if (window.matchMedia('(min-width: 900px)').matches) about.open = true;
+
+  var map = L.map(mapEl, { zoomControl: false, minZoom: 4, maxZoom: 19 });
+  L.control.zoom({ position: 'topright' }).addTo(map);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(map);
+
+  var cluster = L.markerClusterGroup({
+    showCoverageOnHover: false,
+    maxClusterRadius: 44,
+    spiderfyOnMaxZoom: true,
+    iconCreateFunction: function (c) {
+      var n = c.getChildCount();
+      var s = n < 10 ? 34 : n < 25 ? 40 : 48;
+      return L.divIcon({ html: '<span>' + n + '</span>', className: 'cluster', iconSize: [s, s] });
+    },
+  });
+
+  var selected = null;
+  places.forEach(function (p) {
+    var m = L.marker([p.lat, p.lng], {
+      icon: L.divIcon({ html: PINS[p.type], className: 'pinwrap', iconSize: [28, 36], iconAnchor: [14, 34] }),
+      title: p.name + ', ' + p.where,
+      riseOnHover: true,
+      zIndexOffset: p.full ? 500 : 0,
     });
-    sections.forEach(function (s) { s.hidden = !s.querySelector('.place:not([hidden])'); });
-    count.textContent = shown === cards.length ? 'Showing all ' + shown + ' places' : 'Showing ' + shown + ' of ' + cards.length + ' places';
-    empty.hidden = shown !== 0;
+    m.place = p;
+    m.on('click', function () { open(m); });
+    m.on('add', function () { if (m === selected) highlight(m, true); });
+    p.marker = m;
+  });
+
+  function visible(p) {
+    return (state.type === 'all' || p.type === state.type) && (state.finds || !p.found);
+  }
+  function plural(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
+
+  function updateCount() {
+    var list = places.filter(visible);
+    var b = map.getBounds();
+    var inView = list.filter(function (p) { return b.contains([p.lat, p.lng]); }).length;
+    var t = list.length;
+    countEl.textContent = t === 0 ? 'No places match these filters'
+      : inView === t ? (t === 1 ? '1 place, in view' : 'All ' + t + ' places in view')
+      : inView === 0 ? (t === 1 ? 'The 1 match isn’t in view. Try All India' : 'None of the ' + t + ' places are in view. Try All India')
+      : inView + ' of ' + plural(t, 'place') + ' in view';
   }
 
-  document.querySelectorAll('.chip').forEach(function (b) {
+  function apply() {
+    cluster.clearLayers();
+    cluster.addLayers(places.filter(visible).map(function (p) { return p.marker; }));
+    if (selected && !visible(selected.place)) closeCard(false);
+    updateCount();
+  }
+
+  // Jump buttons fit the map to an area's pins. The button stays pressed until the map leaves that area.
+  var current = null, currentBounds = null, currentZoom = 0;
+  function setPressed(id) {
+    current = id;
+    jumpBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.jump === id)); });
+  }
+  function jump(id, animate) {
+    var inArea = places.filter(function (p) { return id === 'all' || p.in.indexOf(id) >= 0; });
+    var pts = inArea.filter(visible);
+    if (!pts.length) pts = inArea;
+    var bounds = L.latLngBounds(pts.map(function (p) { return [p.lat, p.lng]; }));
+    var pad = L.point(36, 36);
+    closeCard(false);
+    setPressed(id);
+    currentBounds = bounds;
+    currentZoom = Math.min(map.getBoundsZoom(bounds, false, pad.multiplyBy(2)), 15);
+    map.fitBounds(bounds, { padding: pad, maxZoom: 15, animate: animate });
+  }
+  map.on('moveend', function () {
+    updateCount();
+    if (!current) return;
+    var z = map.getZoom();
+    var left = current === 'all' ? z > currentZoom + 1 : (!currentBounds.pad(0.25).contains(map.getCenter()) || z < currentZoom - 1);
+    if (left) setPressed(null);
+  });
+
+  function highlight(m, on) {
+    var el = m.getElement();
+    if (el) el.classList.toggle('is-on', on);
+    m.setZIndexOffset(on ? 1000 : (m.place.full ? 500 : 0));
+  }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function open(m) {
+    var p = m.place;
+    if (selected) highlight(selected, false);
+    selected = m;
+    highlight(m, true);
+
+    cardBody.textContent = '';
+    if (p.found) cardBody.append(el('span', 'found', 'New find · not tried yet'));
+    cardBody.append(el('span', 'kind', p.kind));
+    var h = el('h2', null, p.name);
+    h.id = 'card-name';
+    cardBody.append(h, el('p', 'where', p.where));
+    var stats = el('p', 'stats');
+    var rating = el('span');
+    rating.append(el('span', 'star', '★ ' + p.rating.toFixed(1)), ' · ' + p.reviews.toLocaleString('en-IN') + ' Google review' + (p.reviews === 1 ? '' : 's'));
+    stats.append(rating);
+    if (p.price) stats.append(el('span', null, p.price + ' per person'));
+    cardBody.append(stats);
+    cardBody.append(el('span', 'badge ' + (p.full ? 'all' : 'ask'), p.full ? 'Fully satvik' : 'Ask for no onion, no garlic'));
+    if (p.note) {
+      var tip = el('p', 'tip');
+      tip.append(el('b', null, 'Note:'), ' ' + p.note);
+      cardBody.append(tip);
+    }
+    var a = el('a', 'maps', 'Open in Google Maps →');
+    a.href = p.url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    cardBody.append(a);
+    card.hidden = false;
+    card.focus({ preventScroll: true });
+
+    // Keep the pin visible above the card.
+    var pt = map.latLngToContainerPoint(m.getLatLng());
+    var mapBox = mapEl.getBoundingClientRect(), cardBox = card.getBoundingClientRect();
+    var cardTop = cardBox.top - mapBox.top, cardRight = cardBox.right - mapBox.left;
+    if (pt.y > cardTop - 12 && pt.x < cardRight + 20) {
+      map.panBy([0, pt.y - Math.max(cardTop - 24, 60)]);
+    }
+  }
+
+  function closeCard(refocus) {
+    if (card.hidden) return;
+    card.hidden = true;
+    var m = selected;
+    selected = null;
+    if (!m) return;
+    highlight(m, false);
+    var pinEl = m.getElement();
+    if (refocus && pinEl) pinEl.focus({ preventScroll: true });
+  }
+
+  document.getElementById('card-close').addEventListener('click', function () { closeCard(true); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeCard(true); });
+  map.on('click', function () { closeCard(false); });
+
+  jumpBtns.forEach(function (b) {
     b.addEventListener('click', function () {
-      var key = b.dataset.key;
-      state[key] = b.dataset.value;
-      document.querySelectorAll('.chip[data-key="' + key + '"]').forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+      jump(b.dataset.jump, true);
+      try { history.replaceState(null, '', '#' + b.dataset.jump); } catch (e) {}
+    });
+  });
+  typeBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      state.type = b.dataset.type;
+      typeBtns.forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
       apply();
     });
   });
+  findsBtn.addEventListener('click', function () {
+    state.finds = !state.finds;
+    findsBtn.setAttribute('aria-checked', String(state.finds));
+    apply();
+  });
+
+  // The panel can change height (About opened, phone rotated), so keep Leaflet's idea of the map size current.
+  if (window.ResizeObserver) new ResizeObserver(function () { map.invalidateSize(); }).observe(mapEl);
+
+  var fromHash = location.hash.slice(1);
+  var startId = jumpBtns.some(function (b) { return b.dataset.jump === fromHash; }) ? fromHash : START;
+  jump(startId, false);
+  map.addLayer(cluster);
+  apply();
 })();
 </script>
+</body>
+</html>

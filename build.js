@@ -1,6 +1,8 @@
-// Builds dist/satvik-list.html from template.html + data/places.json.
+// Builds docs/index.html (The Satvik Map) from template.html + data/places.json.
 // Usage: node build.js   (Node 18+, no dependencies)
-// Places with a "hide" reason (closed, gone, low rating) stay in the data but are left off the page.
+// Same rules as The Satvik List: places with a "hide" reason (closed, gone, low rating), no rating, or a
+// rating below 3.6 stay in the data but are left off the map. A "keep" reason overrides the rating rule
+// for a place asked for by name. Every place shown needs lat/lng for its pin.
 
 const fs = require('fs');
 const path = require('path');
@@ -11,13 +13,13 @@ const template = fs.readFileSync(path.join(root, 'template.html'), 'utf8');
 
 const UPDATED = 'October 2026';
 const MIN_RATING = 3.6;
+const LIST_URL = 'https://iteachc.github.io/satvik-list/';
 const CITY_ORDER = ['Delhi NCR', 'Bengaluru', 'Mumbai', 'Vadodara'];
 const TYPES = { meal: 'Meals', pizza: 'Pizza & Italian', quick: 'Quick bites', sweet: 'Sweets & desserts' };
-const SATVIK = {
-  all: 'Fully satvik: no onion or garlic in anything',
-  sauce: 'Pizza sauce has no onion or garlic',
-  ask: 'Ask for no onion, no garlic',
-};
+const SATVIK = ['all', 'sauce', 'ask'];
+// Parts of a city that get their own jump button. The map opens on START.
+const AREAS = [{ id: 'gurugram', label: 'Gurugram', city: 'Delhi NCR', match: (p) => /Gurugram/.test(p.area) }];
+const START = 'gurugram';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -30,85 +32,95 @@ for (const p of places) {
   if (ids.has(p.id)) throw new Error(`Duplicate id ${p.id}`);
   ids.add(p.id);
   if (!TYPES[p.type]) throw new Error(`${p.id}: unknown type "${p.type}"`);
-  if (!SATVIK[p.satvik]) throw new Error(`${p.id}: unknown satvik value "${p.satvik}"`);
+  if (!SATVIK.includes(p.satvik)) throw new Error(`${p.id}: unknown satvik value "${p.satvik}"`);
 }
 
-const shown = places.filter((p) => !p.hide && p.rating != null && p.rating >= MIN_RATING);
-const byCity = new Map();
-for (const p of shown) {
-  if (!byCity.has(p.city)) byCity.set(p.city, []);
-  byCity.get(p.city).push(p);
-}
-const cities = [...byCity.keys()].sort((a, b) => {
+const listed = places.filter((p) => !p.hide && p.rating != null && (p.rating >= MIN_RATING || p.keep));
+const noPin = listed.filter((p) => p.lat == null || p.lng == null);
+const shown = listed.filter((p) => !noPin.includes(p));
+
+const cities = [...new Set(shown.map((p) => p.city))].sort((a, b) => {
   const ia = CITY_ORDER.indexOf(a), ib = CITY_ORDER.indexOf(b);
   return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
 });
-// Best first: fully satvik, then rating, then number of reviews.
-const rank = (p) => (p.satvik === 'all' ? 2 : p.satvik === 'sauce' ? 1 : 0);
-for (const list of byCity.values()) list.sort((a, b) => rank(b) - rank(a) || b.rating - a.rating || b.reviews - a.reviews);
 
-function card(p) {
-  const stats = [
-    `<span><span class="star">★ ${p.rating.toFixed(1)}</span> · ${p.reviews.toLocaleString('en-IN')} Google reviews</span>`,
-    p.price ? `<span>${esc(p.price)} per person</span>` : '',
-  ].join('');
-  return `
-      <article class="place" data-city="${slug(p.city)}" data-type="${p.type}">
-        ${p.found ? '<span class="found">New find · not tried yet</span>' : ''}
-        <span class="kind">${esc(TYPES[p.type])} · ${esc(p.cuisine)}</span>
-        <h3>${esc(p.name)}</h3>
-        <p class="where">${esc(p.area ? `${p.area}, ${p.city}` : p.city)}</p>
-        <p class="stats">${stats}</p>
-        <span class="badge ${p.satvik}">${esc(SATVIK[p.satvik])}</span>
-        ${p.tip ? `<p class="tip"><b>Note:</b> ${esc(p.tip)}</p>` : ''}
-        <a class="maps" href="${esc(mapsUrl(p))}" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>`;
+// A pin far from the rest of its city is almost always a copy-paste slip in the coordinates.
+const median = (xs) => xs.slice().sort((a, b) => a - b)[Math.floor(xs.length / 2)];
+for (const c of cities) {
+  const inCity = shown.filter((p) => p.city === c);
+  const lat = median(inCity.map((p) => p.lat)), lng = median(inCity.map((p) => p.lng));
+  for (const p of inCity) {
+    const km = Math.hypot((p.lat - lat) * 111, (p.lng - lng) * 111 * Math.cos(lat * Math.PI / 180));
+    if (km > 60) throw new Error(`${p.id}: pin is ${Math.round(km)} km from the rest of ${c}; check lat/lng`);
+  }
 }
 
-const sections = cities.map((c) => {
-  const list = byCity.get(c);
-  return `
-    <section class="city" id="${slug(c)}" aria-labelledby="h-${slug(c)}">
-      <h2 id="h-${slug(c)}">${esc(c)} <small>${list.length} place${list.length === 1 ? '' : 's'}</small></h2>
-      <div class="grid">${list.map(card).join('')}
-      </div>
-    </section>`;
-}).join('');
+const jumps = [
+  { id: 'all', label: 'All India', places: shown },
+  ...AREAS.map((a) => ({ id: a.id, label: a.label, places: shown.filter(a.match) })),
+  ...cities.map((c) => ({ id: slug(c), label: c, places: shown.filter((p) => p.city === c) })),
+].filter((j) => j.places.length);
+if (!jumps.some((j) => j.id === START)) throw new Error(`START "${START}" has no places`);
 
-const chip = (key, value, label, n, on) =>
-  `<button type="button" class="chip" data-key="${key}" data-value="${value}" aria-pressed="${on}">${esc(label)}${n != null ? `<span class="n">${n}</span>` : ''}</button>`;
+// Only what the page needs. Honesty rules: "Fully satvik" comes only from your own notes (satvik "all"),
+// and new finds carry no note and no satvik claim.
+const data = shown.map((p) => ({
+  id: p.id,
+  name: p.name,
+  where: p.area ? `${p.area}, ${p.city}` : p.city,
+  in: jumps.filter((j) => j.id !== 'all' && j.places.includes(p)).map((j) => j.id),
+  lat: p.lat,
+  lng: p.lng,
+  rating: p.rating,
+  reviews: p.reviews,
+  price: p.price || '',
+  type: p.type,
+  kind: `${TYPES[p.type]} · ${p.cuisine}`,
+  full: p.satvik === 'all' && !p.found,
+  note: p.found ? '' : (p.tip || ''),
+  found: !!p.found,
+  url: mapsUrl(p),
+}));
 
-const cityChips = chip('city', 'all', 'All', shown.length, true)
-  + cities.map((c) => chip('city', slug(c), c, byCity.get(c).length, false)).join('');
-const typeChips = chip('type', 'all', 'All', null, true)
+const PIN_GLYPHS = {
+  meal: '<circle cx="14" cy="13.5" r="4.6"/>',
+  pizza: '<path d="M8.4 9h11.2L14 19.6z"/>',
+  quick: '<path d="M14 7.8l5.7 5.7-5.7 5.7-5.7-5.7z"/>',
+  sweet: '<path d="M14 19.4s-5.8-3.5-5.8-7.4c0-1.8 1.3-3.1 3-3.1 1.2 0 2.2.6 2.8 1.6.6-1 1.6-1.6 2.8-1.6 1.7 0 3 1.3 3 3.1 0 3.9-5.8 7.4-5.8 7.4z"/>',
+};
+const pinSvg = (type) => `<svg class="pin pin-${type}" viewBox="0 0 28 36" aria-hidden="true"><path class="body" d="M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z"/><g class="glyph">${PIN_GLYPHS[type]}</g></svg>`;
+
+const chip = (attrs, label, n, on, icon = '') =>
+  `<button type="button" class="chip" ${attrs} aria-pressed="${on}">${icon}${esc(label)}${n != null ? `<span class="n">${n}</span>` : ''}</button>`;
+const jumpChips = jumps.map((j) => chip(`data-jump="${j.id}"`, j.label, j.places.length, j.id === START)).join('');
+const typeChips = chip('data-type="all"', 'All', null, true)
   + Object.entries(TYPES).filter(([k]) => shown.some((p) => p.type === k))
-    .map(([k, label]) => chip('type', k, label, shown.filter((p) => p.type === k).length, false)).join('');
+    .map(([k, label]) => chip(`data-type="${k}"`, label, shown.filter((p) => p.type === k).length, false, pinSvg(k))).join('');
 
 const cityNames = cities.length > 1 ? `${cities.slice(0, -1).join(', ')} and ${cities[cities.length - 1]}` : cities[0];
+const foundCount = shown.filter((p) => p.found).length;
 
 const html = template
   .replaceAll('{{TOTAL}}', String(shown.length))
-  .replace('{{CITY_NAMES}}', esc(cityNames))
-  .replace('{{CITY_CHIPS}}', cityChips)
+  .replaceAll('{{CITY_NAMES}}', esc(cityNames))
+  .replace('{{JUMP_CHIPS}}', jumpChips)
   .replace('{{TYPE_CHIPS}}', typeChips)
-  .replace('{{SECTIONS}}', sections)
-  .replace('{{UPDATED}}', UPDATED);
+  .replace('{{FOUND_COUNT}}', String(foundCount))
+  .replaceAll('{{LIST_URL}}', LIST_URL)
+  .replace('{{UPDATED}}', UPDATED)
+  .replace('{{START}}', START)
+  .replace('{{PINS}}', JSON.stringify(Object.fromEntries(Object.keys(TYPES).map((k) => [k, pinSvg(k)]))).replace(/</g, '\\u003c'))
+  .replace('{{DATA}}', JSON.stringify(data).replace(/</g, '\\u003c'));
 
-fs.mkdirSync(path.join(root, 'dist'), { recursive: true });
-const out = path.join(root, 'dist', 'satvik-list.html');
+const leftover = html.match(/\{\{[A-Z_]+\}\}/);
+if (leftover) throw new Error(`template placeholder ${leftover[0]} was not filled`);
+
+fs.mkdirSync(path.join(root, 'docs'), { recursive: true });
+const out = path.join(root, 'docs', 'index.html');
 fs.writeFileSync(out, html);
 
-// Standalone copy for GitHub Pages (docs/index.html). The artifact host wraps the page in a
-// document skeleton; here we add our own, moving the <title>/fonts/<style> into <head>.
-const split = html.indexOf('<div class="wrap">');
-const standalone = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
-  + '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
-  + '<meta name="description" content="Places in Delhi NCR, Bengaluru, Mumbai and Vadodara where you can eat well without onion and garlic.">\n'
-  + '<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>\n'
-  + html.slice(0, split) + '\n</head>\n<body>\n' + html.slice(split) + '\n</body>\n</html>\n';
-fs.mkdirSync(path.join(root, 'docs'), { recursive: true });
-fs.writeFileSync(path.join(root, 'docs', 'index.html'), standalone);
-
-const hidden = places.filter((p) => !shown.includes(p));
-console.log(`Built ${path.relative(root, out)}: ${shown.length} places shown (${cities.map((c) => `${c} ${byCity.get(c).length}`).join(', ')}), ${hidden.length} left off.`);
-for (const p of hidden) console.log(`  - ${p.name} (${p.city}): ${p.hide || 'rating below ' + MIN_RATING}`);
+const hidden = places.filter((p) => !listed.includes(p));
+console.log(`Built ${path.relative(root, out)}: ${shown.length} pins (${jumps.filter((j) => j.id !== 'all').map((j) => `${j.label} ${j.places.length}`).join(', ')}), ${foundCount} of them new finds. ${hidden.length} left off.`);
+for (const p of listed.filter((p) => p.keep)) console.log(`  + ${p.name} (${p.city}): kept, ${p.keep}`);
+for (const p of hidden) console.log(`  - ${p.name} (${p.city}): ${p.hide || (p.rating == null ? 'no rating' : 'rating below ' + MIN_RATING)}`);
+for (const p of noPin) console.log(`  ! ${p.name} (${p.city}): no lat/lng, so no pin`);

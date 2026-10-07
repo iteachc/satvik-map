@@ -3,14 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Places in Delhi NCR, Bengaluru, Mumbai and Vadodara where you can eat well without onion and garlic.">
-<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
-<title>The Satvik List</title>
+<title>The Satvik Map</title>
+<meta name="description" content="A map of 72 places in Delhi NCR, Bengaluru, Mumbai and Vadodara where you can eat food without onion and garlic (satvik food).">
+<meta name="theme-color" content="#f3f6ee" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1511" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 36'%3E%3Cpath d='M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z' fill='%232d6a38'/%3E%3Ccircle cx='14' cy='13.5' r='4.6' fill='%23f0c14b'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&family=Young+Serif&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css" integrity="sha512-ENrTWqddXrLJsQS2A86QmvA17PkJ0GVm1bqj5aTgpeMAfDKN2+SIOLpKG8R/6KkimnhTb+VW5qqUHB/r1zaRgg==" crossorigin="anonymous" referrerpolicy="no-referrer">
 <style>
-/* Layout: a statement up top, three plain answers, a filter strip, then one section per city with a grid of place cards. */
+/* Layout: phones get a compact header (title, one line on satvik food, jump and food filters) over a full-height map;
+   from 900px the header becomes a sidebar. Tapping a pin opens a card over the bottom of the map. */
 :root {
   --bg: #f3f6ee;
   --card: #ffffff;
@@ -21,6 +26,13 @@
   --leaf-soft: #e2eedd;
   --turmeric: #a86f00;
   --turmeric-soft: #faefd0;
+  /* Pin colours by food type, checked for colour-blind separation; each pin also has its own shape. */
+  --meal: #2d6a38;
+  --pizza: #e8682f;
+  --quick: #2a78d6;
+  --sweet: #a8459e;
+  --tiles: none;
+  --shadow: 0 10px 30px rgba(23, 34, 26, .18);
   --display: "Young Serif", Georgia, serif;
   --body: "Figtree", "Segoe UI", system-ui, sans-serif;
 }
@@ -28,837 +40,369 @@
   :root:not([data-theme="light"]) {
     --bg: #0f1511; --card: #17201a; --ink: #edf2ea; --muted: #a3b1a6; --line: #29362d;
     --leaf: #8ccf98; --leaf-soft: #1b2d20; --turmeric: #f0c14b; --turmeric-soft: #322810;
+    --meal: #2b7643; --pizza: #e06d2c; --quick: #3f86e3; --sweet: #bb5bb0;
+    --tiles: invert(1) hue-rotate(180deg) brightness(.92) contrast(.88) saturate(.45);
+    --shadow: 0 10px 30px rgba(0, 0, 0, .5);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0f1511; --card: #17201a; --ink: #edf2ea; --muted: #a3b1a6; --line: #29362d;
   --leaf: #8ccf98; --leaf-soft: #1b2d20; --turmeric: #f0c14b; --turmeric-soft: #322810;
+  --meal: #2b7643; --pizza: #e06d2c; --quick: #3f86e3; --sweet: #bb5bb0;
+  --tiles: invert(1) hue-rotate(180deg) brightness(.92) contrast(.88) saturate(.45);
+  --shadow: 0 10px 30px rgba(0, 0, 0, .5);
   color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.55; padding-inline: 16px; padding-block: 32px 56px; }
-.wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 40px; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; overflow: hidden; }
+[hidden] { display: none !important; }
+a { color: var(--leaf); }
+:focus-visible { outline: 3px solid var(--turmeric); outline-offset: 2px; }
 
-.hero { display: grid; gap: 14px; max-width: 760px; }
-.eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--leaf); }
-.hero h1 { font-family: var(--display); font-weight: 400; font-size: clamp(36px, 7vw, 64px); line-height: 1.04; margin: 0; text-wrap: balance; }
-.hero h1 em { font-style: normal; color: var(--leaf); }
-.hero p { margin: 0; font-size: 19px; color: var(--muted); max-width: 60ch; }
-.hero p strong { color: var(--ink); font-weight: 700; }
+.app { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
+.panel { flex: none; position: relative; z-index: 2; min-width: 0; max-height: 72%; overflow-y: auto; display: grid; gap: 8px; align-content: start;
+  padding: max(12px, env(safe-area-inset-top)) 16px 10px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.mapwrap { flex: 1 1 auto; position: relative; min-height: 0; }
+#map { position: absolute; inset: 0; }
 
-.answers { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px 28px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-block: 22px; }
-.answers h2 { font-family: var(--display); font-weight: 400; font-size: 21px; margin: 0 0 4px; }
-.answers p { margin: 0; color: var(--muted); font-size: 16px; }
+.top { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 12px; flex-wrap: wrap; }
+.eyebrow { display: none; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--leaf); }
+h1 { font-family: var(--display); font-weight: 400; font-size: 26px; line-height: 1.1; margin: 0; }
+h1 em { font-style: normal; color: var(--leaf); }
+.listlink { font-size: 14px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.listlink:hover { text-decoration: underline; text-underline-offset: 3px; }
+.lede { margin: 0; font-size: 14.5px; line-height: 1.45; color: var(--muted); }
+.lede strong { color: var(--ink); }
 
-.filters { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: var(--bg); padding-block: 12px; display: grid; gap: 10px; border-bottom: 1px solid var(--line); }
-.chiprow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.chiprow .label { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); min-width: 44px; }
-.chip { font: inherit; font-size: 15px; font-weight: 500; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 6px 14px; cursor: pointer; min-height: 38px; }
-.chip .n { color: var(--muted); font-variant-numeric: tabular-nums; margin-left: 4px; }
+.filters { display: grid; gap: 8px; min-width: 0; }
+.chiprow { display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
+.chiprow::-webkit-scrollbar { display: none; }
+.chiprow .label { flex: none; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); min-width: 44px; }
+.chip { flex: none; display: inline-flex; align-items: center; font: inherit; font-size: 14.5px; font-weight: 500; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 5px 12px; cursor: pointer; min-height: 36px; white-space: nowrap; }
+.chip .n { color: var(--muted); font-variant-numeric: tabular-nums; margin-left: 5px; }
 .chip[aria-pressed="true"] { background: var(--leaf); border-color: var(--leaf); color: var(--card); }
 .chip[aria-pressed="true"] .n { color: var(--card); opacity: .8; }
-.chip:focus-visible { outline: 3px solid var(--turmeric); outline-offset: 2px; }
-.count { font-size: 15px; color: var(--muted); margin: 0; }
+.chip .pin { width: 13px; height: 17px; margin-right: 6px; filter: none; }
+.chip .pin .body { stroke-width: 0; }
+.chip[aria-pressed="true"] .pin .body { stroke: var(--card); stroke-width: 2.5; }
 
-.city { display: grid; gap: 16px; scroll-margin-top: 140px; }
-.city > h2 { font-family: var(--display); font-weight: 400; font-size: 32px; margin: 0; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.city > h2 small { font-family: var(--body); font-size: 15px; color: var(--muted); }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 14px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 6px 12px; flex-wrap: wrap; }
+.switch { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 14.5px; font-weight: 500; color: var(--ink); background: none; border: 0; padding: 4px 0; min-height: 36px; cursor: pointer; }
+.switch .track { width: 36px; height: 22px; border-radius: 999px; background: var(--line); position: relative; transition: background .15s; flex: none; }
+.switch .track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: transform .15s; }
+.switch[aria-checked="true"] .track { background: var(--leaf); }
+.switch[aria-checked="true"] .track::after { transform: translateX(14px); }
+.switch .n { color: var(--muted); font-variant-numeric: tabular-nums; }
+.count { margin: 0; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
 
-.place { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
-.found { justify-self: start; font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--turmeric); border: 1px solid var(--turmeric); border-radius: 999px; padding: 0 9px; }
-.kind { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.place h3 { font-family: var(--display); font-weight: 400; font-size: 23px; line-height: 1.15; margin: 0; overflow-wrap: anywhere; }
+.about { font-size: 14.5px; color: var(--muted); }
+.about summary { cursor: pointer; font-weight: 700; color: var(--leaf); width: max-content; padding-block: 2px; }
+.about p { margin: 8px 0 0; }
+.about b { color: var(--ink); }
+
+/* Card */
+.card { position: absolute; z-index: 1001; left: 10px; right: 10px; bottom: 26px; max-height: calc(100% - 44px); overflow-y: auto;
+  background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+  padding: 14px 16px 10px; display: grid; gap: 6px; align-content: start; }
+.card:focus { outline: none; }
+.card .close { position: absolute; top: 4px; right: 4px; width: 40px; height: 40px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: 400 26px/1 var(--body); cursor: pointer; }
+.card .close:hover { color: var(--ink); background: var(--bg); }
+.found { justify-self: start; font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--turmeric); border: 1px solid var(--turmeric); border-radius: 999px; padding: 0 9px; white-space: nowrap; }
+.kind { font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-right: 36px; }
+.card h2 { font-family: var(--display); font-weight: 400; font-size: 23px; line-height: 1.15; margin: 0; padding-right: 30px; overflow-wrap: anywhere; }
 .where { margin: 0; color: var(--muted); font-size: 15px; }
-.stats { margin: 0; font-size: 15px; font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; gap: 2px 10px; }
+.stats { margin: 0; font-size: 15px; font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; gap: 2px 12px; }
 .stats .star { color: var(--turmeric); font-weight: 700; }
 .badge { justify-self: start; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 2px 9px; }
 .badge.all { background: var(--leaf); color: var(--card); }
-.badge.sauce { background: var(--leaf-soft); color: var(--leaf); }
-.badge.ask { background: transparent; color: var(--muted); padding-inline: 0; font-weight: 500; }
+.badge.ask { color: var(--muted); padding-inline: 0; font-weight: 500; }
 .tip { margin: 0; background: var(--turmeric-soft); border-radius: 8px; padding: 8px 12px; font-size: 15px; }
-.tip b { color: var(--turmeric); font-weight: 700; }
-.maps { font-weight: 700; color: var(--leaf); text-decoration: none; font-size: 15px; justify-self: start; padding-block: 4px; }
+.tip b { color: var(--turmeric); }
+.maps { font-weight: 700; text-decoration: none; font-size: 15px; justify-self: start; padding-block: 6px; }
 .maps:hover { text-decoration: underline; text-underline-offset: 3px; }
-.maps:focus-visible { outline: 3px solid var(--turmeric); outline-offset: 2px; border-radius: 4px; }
 
-@media (max-width: 640px) {
-  .filters { gap: 6px; padding-block: 8px; }
-  .chiprow { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
-  .chiprow::-webkit-scrollbar { display: none; }
-  .chip { flex: 0 0 auto; min-height: 36px; padding: 5px 12px; }
-  .count { font-size: 14px; }
+/* Pins and clusters */
+.pinwrap { background: none; border: 0; }
+.pinwrap:focus-visible { outline: none; }
+.pin { display: block; width: 28px; height: 36px; overflow: visible; transform-origin: 50% 96%; transition: transform .15s ease; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .4)); }
+.pin .body { fill: var(--c); stroke: #fff; stroke-width: 1.6; }
+.pin .glyph { fill: #fff; }
+.pin-meal { --c: var(--meal); }
+.pin-pizza { --c: var(--pizza); }
+.pin-quick { --c: var(--quick); }
+.pin-sweet { --c: var(--sweet); }
+.pinwrap:hover .pin { transform: scale(1.12); }
+.pinwrap.is-on .pin, .pinwrap:focus-visible .pin { transform: scale(1.35); }
+.pinwrap:focus-visible .pin .body { stroke: var(--turmeric); stroke-width: 2.5; }
+.cluster { background: none; }
+.cluster span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: var(--leaf); color: var(--card);
+  font: 700 14px/1 var(--body); border: 2px solid var(--card); box-shadow: 0 0 0 4px rgba(45, 106, 56, .25), 0 1px 4px rgba(0, 0, 0, .3); }
+.cluster:focus-visible { outline: none; }
+.cluster:focus-visible span { box-shadow: 0 0 0 4px var(--turmeric); }
+
+.leaflet-container { font-family: var(--body); background: var(--bg); }
+.leaflet-tile-pane { filter: var(--tiles); }
+.leaflet-bar a, .leaflet-bar a:hover { background: var(--card); color: var(--ink); border-color: var(--line); }
+.leaflet-touch .leaflet-bar { border-color: var(--line); }
+.leaflet-container .leaflet-control-attribution { background: var(--card); opacity: .9; color: var(--muted); font-size: 11px; }
+.leaflet-container .leaflet-control-attribution a { color: var(--leaf); }
+
+@media (min-width: 640px) {
+  .card { left: 16px; right: auto; width: 360px; bottom: 30px; }
 }
-
-.empty { color: var(--muted); }
-footer { border-top: 1px solid var(--line); padding-top: 18px; color: var(--muted); font-size: 15px; display: grid; gap: 6px; max-width: 70ch; }
+@media (min-width: 900px) {
+  .app { display: grid; grid-template-columns: 380px 1fr; }
+  .panel { max-height: none; height: 100%; padding: 28px 24px; gap: 16px; border-bottom: 0; border-right: 1px solid var(--line); }
+  .eyebrow { display: block; }
+  .top { display: grid; gap: 6px; }
+  h1 { font-size: 40px; }
+  .lede { font-size: 16.5px; }
+  .chiprow { flex-wrap: wrap; overflow: visible; margin-inline: 0; padding-inline: 0; }
+  .chiprow .label { flex-basis: 100%; }
+  .card { width: 380px; }
+}
 </style>
-
-
 </head>
 <body>
-<div class="wrap">
-  <header class="hero">
+<div class="app">
+  <header class="panel">
     <span class="eyebrow">No onion · No garlic · No compromise</span>
-    <h1>Good food doesn't need <em>onion and garlic.</em></h1>
-    <p><strong>The Satvik List</strong> is 68 places in Delhi NCR, Bengaluru, Mumbai and Vadodara where you can eat satvik and still eat really well: kulchas, dosas, thalis, wood-fired pizza, kulfi.</p>
+    <div class="top">
+      <h1>The Satvik <em>Map</em></h1>
+      <a class="listlink" href="https://iteachc.github.io/satvik-list/">See The Satvik List →</a>
+    </div>
+    <p class="lede"><strong>Satvik food</strong> is cooked without onion and garlic. Here are 72 places to eat it in Delhi NCR, Bengaluru, Mumbai and Vadodara. Tap a pin to see one.</p>
+
+    <nav class="filters" aria-label="Map controls">
+      <div class="chiprow" role="group" aria-label="Go to"><span class="label">Go to</span><button type="button" class="chip" data-jump="all" aria-pressed="false">All India<span class="n">72</span></button><button type="button" class="chip" data-jump="gurugram" aria-pressed="true">Gurugram<span class="n">21</span></button><button type="button" class="chip" data-jump="delhi-ncr" aria-pressed="false">Delhi NCR<span class="n">42</span></button><button type="button" class="chip" data-jump="bengaluru" aria-pressed="false">Bengaluru<span class="n">22</span></button><button type="button" class="chip" data-jump="mumbai" aria-pressed="false">Mumbai<span class="n">6</span></button><button type="button" class="chip" data-jump="vadodara" aria-pressed="false">Vadodara<span class="n">2</span></button></div>
+      <div class="chiprow" role="group" aria-label="Type of food"><span class="label">Food</span><button type="button" class="chip" data-type="all" aria-pressed="true">All</button><button type="button" class="chip" data-type="meal" aria-pressed="false"><svg class="pin pin-meal" viewBox="0 0 28 36" aria-hidden="true"><path class="body" d="M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z"/><g class="glyph"><circle cx="14" cy="13.5" r="4.6"/></g></svg>Meals<span class="n">46</span></button><button type="button" class="chip" data-type="pizza" aria-pressed="false"><svg class="pin pin-pizza" viewBox="0 0 28 36" aria-hidden="true"><path class="body" d="M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z"/><g class="glyph"><path d="M8.4 9h11.2L14 19.6z"/></g></svg>Pizza &amp; Italian<span class="n">7</span></button><button type="button" class="chip" data-type="quick" aria-pressed="false"><svg class="pin pin-quick" viewBox="0 0 28 36" aria-hidden="true"><path class="body" d="M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z"/><g class="glyph"><path d="M14 7.8l5.7 5.7-5.7 5.7-5.7-5.7z"/></g></svg>Quick bites<span class="n">13</span></button><button type="button" class="chip" data-type="sweet" aria-pressed="false"><svg class="pin pin-sweet" viewBox="0 0 28 36" aria-hidden="true"><path class="body" d="M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z"/><g class="glyph"><path d="M14 19.4s-5.8-3.5-5.8-7.4c0-1.8 1.3-3.1 3-3.1 1.2 0 2.2.6 2.8 1.6.6-1 1.6-1.6 2.8-1.6 1.7 0 3 1.3 3 3.1 0 3.9-5.8 7.4-5.8 7.4z"/></g></svg>Sweets &amp; desserts<span class="n">6</span></button></div>
+      <div class="row">
+        <button type="button" class="switch" id="finds" role="switch" aria-checked="true"><span class="track" aria-hidden="true"></span>New finds <span class="n">15</span></button>
+        <p class="count" id="count" aria-live="polite">72 places on the map</p>
+      </div>
+    </nav>
+
+    <details class="about" id="about">
+      <summary>About this map</summary>
+      <p>Places marked <b>Fully satvik</b> don't use onion or garlic at all. Everywhere else, ask for no onion, no garlic when you order.</p>
+      <p>Eating Jain? Jain food also leaves out root vegetables like potato, carrot and ginger. Say "Jain" when you order, and double-check.</p>
+      <p>Started from a personal list of favourite satvik spots. Places tagged <b>New find</b> were found through other guides and checked on Google Maps, but haven't been tried yet.</p>
+      <p>Ratings and review counts are from Google Maps, October 2026. Kitchens and recipes change, so always ask before you order.</p>
+    </details>
   </header>
 
-  <div class="answers">
-    <div><h2>What's satvik food?</h2><p>Food cooked without onion and garlic. Plenty of families eat this way every day, or on fasts and festival days.</p></div>
-    <div><h2>How do I order?</h2><p>Most places here will make dishes without onion and garlic if you ask. Places marked <b>Fully satvik</b> don't use them at all.</p></div>
-    <div><h2>Eating Jain?</h2><p>Jain food also leaves out root vegetables like potato, carrot and ginger. Say "Jain" when you order, and double-check.</p></div>
-  </div>
-
-  <nav class="filters" aria-label="Filter places">
-    <div class="chiprow" role="group" aria-label="City"><span class="label">City</span><button type="button" class="chip" data-key="city" data-value="all" aria-pressed="true">All<span class="n">68</span></button><button type="button" class="chip" data-key="city" data-value="delhi-ncr" aria-pressed="false">Delhi NCR<span class="n">38</span></button><button type="button" class="chip" data-key="city" data-value="bengaluru" aria-pressed="false">Bengaluru<span class="n">22</span></button><button type="button" class="chip" data-key="city" data-value="mumbai" aria-pressed="false">Mumbai<span class="n">6</span></button><button type="button" class="chip" data-key="city" data-value="vadodara" aria-pressed="false">Vadodara<span class="n">2</span></button></div>
-    <div class="chiprow" role="group" aria-label="Type of food"><span class="label">Food</span><button type="button" class="chip" data-key="type" data-value="all" aria-pressed="true">All</button><button type="button" class="chip" data-key="type" data-value="meal" aria-pressed="false">Meals<span class="n">44</span></button><button type="button" class="chip" data-key="type" data-value="pizza" aria-pressed="false">Pizza &amp; Italian<span class="n">7</span></button><button type="button" class="chip" data-key="type" data-value="quick" aria-pressed="false">Quick bites<span class="n">11</span></button><button type="button" class="chip" data-key="type" data-value="sweet" aria-pressed="false">Sweets &amp; desserts<span class="n">6</span></button></div>
-    <p class="count" id="count" aria-live="polite">Showing all 68 places</p>
-  </nav>
-
-  <main class="wrap" style="gap:44px">
-    
-    <section class="city" id="delhi-ncr" aria-labelledby="h-delhi-ncr">
-      <h2 id="h-delhi-ncr">Delhi NCR <small>38 places</small></h2>
-      <div class="grid">
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        
-        <span class="kind">Meals · Amritsari kulcha</span>
-        <h3>Kulcha Kulture</h3>
-        <p class="where">Lajpat Nagar II, New Delhi, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.8</span> · 8,135 Google reviews</span><span>₹200–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Kulcha%20Kulture/@28.5702,77.23747,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        
-        <span class="kind">Meals · Amritsari kulcha</span>
-        <h3>Kulcha Kulture</h3>
-        <p class="where">AIPL Joy Street, Sector 66, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.8</span> · 186 Google reviews</span><span>₹200–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Kulcha%20Kulture/@28.39176,77.05857,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        <span class="found">New find · not tried yet</span>
-        <span class="kind">Meals · Thalis, dal baati, parathas</span>
-        <h3>Annjal</h3>
-        <p class="where">Uppal Southend, Sector 49, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.8</span> · 166 Google reviews</span><span>₹200–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Annjal%20Restaurant%20Uppal%20Southend%20Sector%2049%20Gurugram" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        
-        <span class="kind">Meals · North Indian</span>
-        <h3>Copper Chimney</h3>
-        <p class="where">Cyber Hub, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.7</span> · 2,133 Google reviews</span><span>₹2,000+ per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Copper%20Chimney/@28.49583,77.08888,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        <span class="found">New find · not tried yet</span>
-        <span class="kind">Meals · Burmese, all vegetarian</span>
-        <h3>Burma Burma</h3>
-        <p class="where">Cyber Hub, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.6</span> · 3,772 Google reviews</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Burma%20Burma%20Restaurant%20Tea%20Room%20Cyber%20Hub%20Gurugram" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="quick">
-        <span class="found">New find · not tried yet</span>
-        <span class="kind">Quick bites · Temple snacks &amp; meals</span>
-        <h3>Prasadam Food and Snacks</h3>
-        <p class="where">Birla Mandir, Mandir Marg, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.6</span> · 337 Google reviews</span><span>₹1–200 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Prasadam%20Food%20and%20Snacks%20Birla%20Mandir%20Mandir%20Marg%20New%20Delhi" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        
-        <span class="kind">Meals · North Indian</span>
-        <h3>Sattvik</h3>
-        <p class="where">Select Citywalk, Saket, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.5</span> · 2,101 Google reviews</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Sattvik/@28.52946,77.21956,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        <span class="found">New find · not tried yet</span>
-        <span class="kind">Meals · Rajasthani thali</span>
-        <h3>Ranisa N Rajasa</h3>
-        <p class="where">Good Earth City Center, Sector 50, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.5</span> · 894 Google reviews</span><span>₹600–800 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Ranisa%20N%20Rajasa%20Good%20Earth%20City%20Center%20Gurugram" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="pizza">
-        
-        <span class="kind">Pizza &amp; Italian · Italian</span>
-        <h3>Toscano</h3>
-        <p class="where">Select Citywalk, Saket, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.5</span> · 236 Google reviews</span><span>₹800–1,800 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Toscano/@28.52835,77.21895,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        <span class="found">New find · not tried yet</span>
-        <span class="kind">Meals · South Indian</span>
-        <h3>Saravana Bhavan</h3>
-        <p class="where">Janpath, Connaught Place, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.4</span> · 28,865 Google reviews</span><span>₹200–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Saravana%20Bhavan%2050%20Janpath%20Connaught%20Place" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        
-        <span class="kind">Meals · South Indian</span>
-        <h3>Karnataka Food Centre</h3>
-        <p class="where">Sector 12, RK Puram, New Delhi, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.4</span> · 11,813 Google reviews</span><span>₹200–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Karnataka%20Food%20Centre/@28.57792,77.17535,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        <span class="found">New find · not tried yet</span>
-        <span class="kind">Meals · Rajasthani thali</span>
-        <h3>Rajasthali</h3>
-        <p class="where">Middle Circle, Connaught Place, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.4</span> · 3,950 Google reviews</span><span>₹400–600 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Rajasthali%20C-26%20Middle%20Circle%20Connaught%20Place" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="pizza">
-        
-        <span class="kind">Pizza &amp; Italian · Italian</span>
-        <h3>Pizzeria da Susy</h3>
-        <p class="where">Crosspoint Mall, DLF City IV, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.4</span> · 2,356 Google reviews</span><span>₹800–1,800 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Pizzeria%20da%20Susy/@28.46832,77.08294,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="pizza">
-        
-        <span class="kind">Pizza &amp; Italian · Pizza</span>
-        <h3>PizzaExpress</h3>
-        <p class="where">Ambience Mall, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.4</span> · 2,169 Google reviews</span><span>₹600–1,800 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/PizzaExpress/@28.50547,77.09599,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        
-        <span class="kind">Meals · North Indian</span>
-        <h3>Veg Gulati</h3>
-        <p class="where">Pandara Road, New Delhi, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.3</span> · 9,533 Google reviews</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Veg%20Gulati/@28.6078,77.22996,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        
-        <span class="kind">Meals · South Indian</span>
-        <h3>Naivedyam</h3>
-        <p class="where">Vipul Square, Sushant Lok, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.3</span> · 8,910 Google reviews</span><span>₹200–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Naivedyam/@28.46495,77.0788,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        
-        <span class="kind">Meals · South Indian</span>
-        <h3>Naivedyam</h3>
-        <p class="where">Suncity, Sector 54, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.3</span> · 4,022 Google reviews</span><span>₹200–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Naivedyam/@28.43474,77.10665,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        <span class="found">New find · not tried yet</span>
-        <span class="kind">Meals · North Indian</span>
-        <h3>Ranisa by Jain Chawal Wale</h3>
-        <p class="where">Connaught Circus, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.3</span> · 1,950 Google reviews</span><span>₹400–600 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Ranisa%20by%20Jain%20Chawal%20Wale%20Connaught%20Place" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        <span class="found">New find · not tried yet</span>
-        <span class="kind">Meals · Rajasthani thali</span>
-        <h3>Rajasthali</h3>
-        <p class="where">MGF Metropolitan Mall, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.3</span> · 1,712 Google reviews</span><span>₹400–600 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Rajasthali%20MGF%20Metropolitan%20Mall%20Gurugram" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        <span class="found">New find · not tried yet</span>
-        <span class="kind">Meals · Gujarati–Marwari thali</span>
-        <h3>Manbhavan Premium Thali</h3>
-        <p class="where">Ambience Island, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.3</span> · 681 Google reviews</span><span>₹400–600 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Manbhavan%20Premium%20Thali%20Ambience%20Island%20Gurugram" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        <span class="found">New find · not tried yet</span>
-        <span class="kind">Meals · Indian &amp; Chinese</span>
-        <h3>Govinda&#39;s (ISKCON temple)</h3>
-        <p class="where">East of Kailash, New Delhi, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.2</span> · 3,200 Google reviews</span><span>₹200–800 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Govinda&#39;s%20Restaurant%20ISKCON%20Temple%20East%20of%20Kailash" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        <span class="found">New find · not tried yet</span>
-        <span class="kind">Meals · Gujarati &amp; Rajasthani thali</span>
-        <h3>Suruchi</h3>
-        <p class="where">Karol Bagh, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.2</span> · 2,864 Google reviews</span><span>₹600–800 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Suruchi%20Restaurant%20Karol%20Bagh" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="quick">
-        
-        <span class="kind">Quick bites · Kulcha &amp; paranthas</span>
-        <h3>Kulcha Lal Parantha Das</h3>
-        <p class="where">Huda Market, Sector 46, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.2</span> · 1,091 Google reviews</span><span>₹1–200 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Kulcha%20Lal%20Parantha%20Das/@28.4355,77.05909,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        <span class="found">New find · not tried yet</span>
-        <span class="kind">Meals · Modern Indian, vegetarian</span>
-        <h3>Arth – Food For Your Soul</h3>
-        <p class="where">Baani Address One, Sector 56, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.2</span> · 424 Google reviews</span><span>₹600–1,400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Arth%20Food%20For%20Your%20Soul%20Sector%2056%20Gurugram" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="quick">
-        
-        <span class="kind">Quick bites · Paranthas</span>
-        <h3>Moolchand Parantha</h3>
-        <p class="where">Moolchand, Lajpat Nagar, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.1</span> · 14,253 Google reviews</span><span>₹1–200 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Moolchand%20Parantha/@28.56408,77.23424,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        <span class="found">New find · not tried yet</span>
-        <span class="kind">Meals · Indian</span>
-        <h3>Govinda&#39;s (ISKCON Dwarka)</h3>
-        <p class="where">Sector 13, Dwarka, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.1</span> · 993 Google reviews</span><span>₹200–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Govinda&#39;s%20Restaurant%20ISKCON%20Dwarka%20Sector%2013" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        
-        <span class="kind">Meals · North Indian (takeaway)</span>
-        <h3>Punjabi Angithi</h3>
-        <p class="where">DLF Phase 3, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.1</span> · 378 Google reviews</span><span>₹200–1,000 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Punjabi%20Angithi/@28.48778,77.10374,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        
-        <span class="kind">Meals · Stuffed naan</span>
-        <h3>Kake Di Hatti</h3>
-        <p class="where">Chandni Chowk, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.0</span> · 11,612 Google reviews</span><span>₹200–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Kake%20Di%20Hatti/@28.65813,77.22321,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        
-        <span class="kind">Meals · North Indian &amp; sweets</span>
-        <h3>Bengali Sweet Centre</h3>
-        <p class="where">South Extension I, New Delhi, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.0</span> · 9,621 Google reviews</span><span>₹200–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Bengali%20Sweet%20Centre/@28.5696,77.22092,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="sweet">
-        
-        <span class="kind">Sweets &amp; desserts · Jalebi</span>
-        <h3>Old Famous Jalebi Wala</h3>
-        <p class="where">Dariba Kalan, Chandni Chowk, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.0</span> · 8,962 Google reviews</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Old%20Famous%20Jalebi%20Wala/@28.65606,77.2335,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        <span class="found">New find · not tried yet</span>
-        <span class="kind">Meals · Jain thali</span>
-        <h3>Shudh Annapurna</h3>
-        <p class="where">Elahi Baksh Road, Karol Bagh, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.0</span> · 364 Google reviews</span><span>₹1–200 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Shudh%20Annapurna%20Karol%20Bagh" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="sweet">
-        
-        <span class="kind">Sweets &amp; desserts · Kulfi</span>
-        <h3>Krishna Di Kulfi</h3>
-        <p class="where">Pandara Market, New Delhi, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 4.0</span> · 239 Google reviews</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Krishna%20Di%20Kulfi/@28.60784,77.23006,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="meal">
-        <span class="found">New find · not tried yet</span>
-        <span class="kind">Meals · North Indian thalis</span>
-        <h3>Vega (Hotel Alka Classic)</h3>
-        <p class="where">P-Block, Connaught Place, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 3.9</span> · 1,051 Google reviews</span><span>₹400–1,000 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Vega%20restaurant%20Hotel%20Alka%20Classic%20Connaught%20Place" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="quick">
-        
-        <span class="kind">Quick bites · Vada pav</span>
-        <h3>Jay Bhavani Vadapav</h3>
-        <p class="where">DLF Phase IV, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 3.9</span> · 281 Google reviews</span><span>₹1–600 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Jay%20Bhavani%20Vadapav/@28.4622,77.08744,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="quick">
-        
-        <span class="kind">Quick bites · Chhole bhature</span>
-        <h3>Prem Bhature Wala</h3>
-        <p class="where">Sushant Lok, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 3.9</span> · 69 Google reviews</span><span>₹1–200 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Prem%20Bhature%20Wala/@28.4604,77.0838,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="quick">
-        
-        <span class="kind">Quick bites · Chaat</span>
-        <h3>Chaat Ka Chaska</h3>
-        <p class="where">MGF Metropolitan Mall, Gurugram, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 3.8</span> · 25 Google reviews</span><span>₹1–200 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Chaat%20Ka%20Chaska/@28.47857,77.08208,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="quick">
-        
-        <span class="kind">Quick bites · Kachori</span>
-        <h3>Shri Hanuman Kachori</h3>
-        <p class="where">Hanuman Mandir, Connaught Place, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 3.7</span> · 431 Google reviews</span><span>₹1–200 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Shri%20Hanuman%20Kachori/@28.63004,77.21448,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="delhi-ncr" data-type="sweet">
-        
-        <span class="kind">Sweets &amp; desserts · Ice cream</span>
-        <h3>Softyboy Ice Cream</h3>
-        <p class="where">Central Market, Lajpat Nagar II, Delhi NCR</p>
-        <p class="stats"><span><span class="star">★ 3.7</span> · 50 Google reviews</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Softyboy%20Ice%20Cream/@28.56918,77.24074,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      </div>
-    </section>
-    <section class="city" id="bengaluru" aria-labelledby="h-bengaluru">
-      <h2 id="h-bengaluru">Bengaluru <small>22 places</small></h2>
-      <div class="grid">
-      <article class="place" data-city="bengaluru" data-type="meal">
-        
-        <span class="kind">Meals · Vegetarian</span>
-        <h3>Satvik Kitchen</h3>
-        <p class="where">Padmanabhanagar, Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.3</span> · 2,949 Google reviews</span><span>₹1–200 per person</span></p>
-        <span class="badge all">Fully satvik: no onion or garlic in anything</span>
-        <p class="tip"><b>Note:</b> Everything here is without onion and garlic.</p>
-        <a class="maps" href="https://www.google.com/maps/search/Satvik%20Kitchen/@12.91806,77.55718,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="pizza">
-        
-        <span class="kind">Pizza &amp; Italian · Wood-fired pizza</span>
-        <h3>Brik Oven</h3>
-        <p class="where">Koramangala, Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.6</span> · 1,583 Google reviews</span><span>₹400–1,200 per person</span></p>
-        <span class="badge sauce">Pizza sauce has no onion or garlic</span>
-        <p class="tip"><b>Note:</b> Sauce does not have onion or garlic.</p>
-        <a class="maps" href="https://www.google.com/maps/search/Brik%20Oven/@12.9341,77.63028,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="quick">
-        
-        <span class="kind">Quick bites · South Indian breakfast</span>
-        <h3>Taaza Thindi</h3>
-        <p class="where">Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.6</span> · 37,651 Google reviews</span><span>₹1–200 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Taaza%20Thindi/@12.92284,77.59328,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="pizza">
-        
-        <span class="kind">Pizza &amp; Italian · Wood-fired pizza</span>
-        <h3>Brik Oven</h3>
-        <p class="where">Forum Falcon City, Kanakapura Road, Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.6</span> · 3,129 Google reviews</span><span>₹400–1,200 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Brik%20Oven/@12.88736,77.56251,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="sweet">
-        
-        <span class="kind">Sweets &amp; desserts · Sweets &amp; savouries</span>
-        <h3>Anand Sweets &amp; Savouries</h3>
-        <p class="where">Jayanagar, Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.4</span> · 4,009 Google reviews</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Anand%20Sweets%20%26%20Savouries/@12.93071,77.58104,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="sweet">
-        
-        <span class="kind">Sweets &amp; desserts · Ice cream &amp; desserts</span>
-        <h3>Corner House</h3>
-        <p class="where">Bannerghatta Road, Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.4</span> · 1,741 Google reviews</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        <p class="tip"><b>Note:</b> Apple crumble, butterscotch. Litchi or mangoes with cream.</p>
-        <a class="maps" href="https://www.google.com/maps/search/Corner%20House/@12.89237,77.59711,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="meal">
-        
-        <span class="kind">Meals · North Indian</span>
-        <h3>Gramin</h3>
-        <p class="where">Koramangala, Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.3</span> · 11,824 Google reviews</span><span>₹400–600 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Gramin/@12.93446,77.61343,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="sweet">
-        
-        <span class="kind">Sweets &amp; desserts · Sweets &amp; savouries</span>
-        <h3>Anand Sweets &amp; Savouries</h3>
-        <p class="where">Koramangala, Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.3</span> · 8,224 Google reviews</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Anand%20Sweets%20%26%20Savouries/@12.93718,77.61943,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="meal">
-        
-        <span class="kind">Meals · North Indian</span>
-        <h3>Kailash Parbat</h3>
-        <p class="where">Indiranagar, Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.3</span> · 4,978 Google reviews</span><span>₹400–1,400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Kailash%20Parbat/@12.97176,77.64734,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="meal">
-        
-        <span class="kind">Meals · Soya chaap</span>
-        <h3>The Soya Chaap Co.</h3>
-        <p class="where">Arakere, Bannerghatta Road, Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.3</span> · 539 Google reviews</span><span>₹200–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/The%20Soya%20Chaap%20Co./@12.88461,77.59124,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="quick">
-        
-        <span class="kind">Quick bites · Rajasthani snacks</span>
-        <h3>Kota Kachori</h3>
-        <p class="where">Koramangala, Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.2</span> · 17,738 Google reviews</span><span>₹1–200 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Kota%20Kachori/@12.93464,77.61246,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="meal">
-        
-        <span class="kind">Meals · Punjabi</span>
-        <h3>Kapoor&#39;s Cafe</h3>
-        <p class="where">Jayanagar, Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.2</span> · 10,810 Google reviews</span><span>₹200–1,000 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Kapoor&#39;s%20Cafe/@12.93274,77.58507,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="meal">
-        
-        <span class="kind">Meals · Hotel restaurants</span>
-        <h3>Sterlings Mac Hotel</h3>
-        <p class="where">Old Airport Road, Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.2</span> · 8,545 Google reviews</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Sterlings%20Mac%20Hotel/@12.95956,77.64882,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="meal">
-        
-        <span class="kind">Meals · South Indian</span>
-        <h3>MTR</h3>
-        <p class="where">Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.1</span> · 14,343 Google reviews</span><span>₹200–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/MTR/@12.91166,77.59901,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="meal">
-        
-        <span class="kind">Meals · North Indian</span>
-        <h3>Kailash Parbat</h3>
-        <p class="where">Jayanagar, Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.1</span> · 4,348 Google reviews</span><span>₹200–1,200 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Kailash%20Parbat/@12.93395,77.58261,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="meal">
-        
-        <span class="kind">Meals · Rajasthani thali</span>
-        <h3>Kesariya</h3>
-        <p class="where">Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.1</span> · 1,654 Google reviews</span><span>₹600–800 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Kesariya/@13.0051,77.58387,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="meal">
-        
-        <span class="kind">Meals · North Indian</span>
-        <h3>Bhartiya Jalpan</h3>
-        <p class="where">Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.0</span> · 6,118 Google reviews</span><span>₹200–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Bhartiya%20Jalpan/@12.91557,77.65161,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="meal">
-        
-        <span class="kind">Meals · Rajasthani thali</span>
-        <h3>Kesariya</h3>
-        <p class="where">Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.0</span> · 4,457 Google reviews</span><span>₹600–800 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Kesariya/@12.90658,77.58962,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="meal">
-        
-        <span class="kind">Meals · North Indian</span>
-        <h3>Kailash Parbat</h3>
-        <p class="where">Vega City Mall, BTM Layout, Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 4.0</span> · 363 Google reviews</span><span>₹400–600 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Kailash%20Parbat/@12.90779,77.60122,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="quick">
-        
-        <span class="kind">Quick bites · Vegetarian fast food</span>
-        <h3>ParkView Vegetarian</h3>
-        <p class="where">Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 3.9</span> · 4,988 Google reviews</span><span>₹1–200 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/ParkView%20Vegetarian/@12.88701,77.61036,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="quick">
-        
-        <span class="kind">Quick bites · South Indian breakfast</span>
-        <h3>IDC Kitchen</h3>
-        <p class="where">Forum Mall Road, Konanakunte, Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 3.7</span> · 217 Google reviews</span><span>₹1–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        <p class="tip"><b>Note:</b> Cheese dosa, chutney.</p>
-        <a class="maps" href="https://www.google.com/maps/search/IDC%20Kitchen/@12.88725,77.56226,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="bengaluru" data-type="meal">
-        
-        <span class="kind">Meals · North Indian</span>
-        <h3>Kailash Parbat</h3>
-        <p class="where">Forum Falcon City Mall, Bengaluru</p>
-        <p class="stats"><span><span class="star">★ 3.6</span> · 340 Google reviews</span><span>₹1–800 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        <p class="tip"><b>Note:</b> Paneer makhani, butter naan.</p>
-        <a class="maps" href="https://www.google.com/maps/search/Kailash%20Parbat/@12.88787,77.5629,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      </div>
-    </section>
-    <section class="city" id="mumbai" aria-labelledby="h-mumbai">
-      <h2 id="h-mumbai">Mumbai <small>6 places</small></h2>
-      <div class="grid">
-      <article class="place" data-city="mumbai" data-type="meal">
-        
-        <span class="kind">Meals · South Indian</span>
-        <h3>Ram Ashraya</h3>
-        <p class="where">Matunga East, Mumbai</p>
-        <p class="stats"><span><span class="star">★ 4.4</span> · 34,441 Google reviews</span><span>₹200–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Ram%20Ashraya/@19.02793,72.85179,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="mumbai" data-type="pizza">
-        
-        <span class="kind">Pizza &amp; Italian · Pizza</span>
-        <h3>Joey&#39;s Pizza</h3>
-        <p class="where">D.N. Nagar, Andheri West, Mumbai</p>
-        <p class="stats"><span><span class="star">★ 4.3</span> · 24,592 Google reviews</span><span>₹200–600 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Joey&#39;s%20Pizza/@19.12663,72.83011,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="mumbai" data-type="meal">
-        
-        <span class="kind">Meals · Gujarati</span>
-        <h3>Soam</h3>
-        <p class="where">Babulnath, Chowpatty, Mumbai</p>
-        <p class="stats"><span><span class="star">★ 4.3</span> · 6,136 Google reviews</span><span>₹400–1,200 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Soam/@18.95737,72.80894,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="mumbai" data-type="meal">
-        
-        <span class="kind">Meals · South Indian</span>
-        <h3>Udupi Shree Krishna</h3>
-        <p class="where">JP Road, Andheri West, Mumbai</p>
-        <p class="stats"><span><span class="star">★ 4.1</span> · 3,214 Google reviews</span><span>₹200–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Udupi%20Shree%20Krishna/@19.12768,72.8339,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="mumbai" data-type="meal">
-        
-        <span class="kind">Meals · Indian</span>
-        <h3>Vithal&#39;s Family Restaurant</h3>
-        <p class="where">Fort, near CST, Mumbai</p>
-        <p class="stats"><span><span class="star">★ 3.9</span> · 629 Google reviews</span><span>₹200–1,000 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Vithal&#39;s%20Family%20Restaurant/@18.9381,72.83376,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="mumbai" data-type="meal">
-        
-        <span class="kind">Meals · North Indian</span>
-        <h3>Guru Da Dhaba</h3>
-        <p class="where">Lokhandwala, Andheri West, Mumbai</p>
-        <p class="stats"><span><span class="star">★ 3.7</span> · 348 Google reviews</span><span>₹200–400 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Guru%20Da%20Dhaba/@19.14163,72.82518,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      </div>
-    </section>
-    <section class="city" id="vadodara" aria-labelledby="h-vadodara">
-      <h2 id="h-vadodara">Vadodara <small>2 places</small></h2>
-      <div class="grid">
-      <article class="place" data-city="vadodara" data-type="pizza">
-        
-        <span class="kind">Pizza &amp; Italian · Pizza</span>
-        <h3>Pizza On The Rock</h3>
-        <p class="where">Old Padra Road, Vadodara</p>
-        <p class="stats"><span><span class="star">★ 4.2</span> · 1,368 Google reviews</span><span>₹200–1,000 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Pizza%20On%20The%20Rock/@22.29841,73.1646,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      <article class="place" data-city="vadodara" data-type="meal">
-        
-        <span class="kind">Meals · Indian</span>
-        <h3>Sawan&#39;s Gravies</h3>
-        <p class="where">Race Course Road, Vadodara</p>
-        <p class="stats"><span><span class="star">★ 4.2</span> · 559 Google reviews</span><span>₹200–800 per person</span></p>
-        <span class="badge ask">Ask for no onion, no garlic</span>
-        
-        <a class="maps" href="https://www.google.com/maps/search/Sawan&#39;s%20Gravies/@22.3154,73.16358,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
-      </article>
-      </div>
-    </section>
-    <p class="empty" id="empty" hidden>Nothing matches those filters yet. Try another city or type of food.</p>
+  <main class="mapwrap">
+    <div id="map" role="region" aria-label="Map of satvik places"></div>
+    <noscript><p style="padding:16px">The map needs JavaScript. <a href="https://iteachc.github.io/satvik-list/">See The Satvik List</a> instead.</p></noscript>
+    <article class="card" id="card" tabindex="-1" aria-labelledby="card-name" hidden>
+      <button type="button" class="close" id="card-close" aria-label="Close">×</button>
+      <div id="card-body" style="display:contents"></div>
+    </article>
   </main>
-
-  <footer>
-    <span>Ratings and review counts are from Google Maps, October 2026. Kitchens and recipes change, so always ask before you order.</span>
-    <span>Started from a personal list of favourite satvik spots. Places tagged "New find" were found through other guides and checked on Google Maps, but haven't been tried yet. Closed places have been taken off.</span>
-  </footer>
 </div>
 
+<script type="application/json" id="places">[{"id":"kulcha-kulture-ln","name":"Kulcha Kulture","where":"Lajpat Nagar II, New Delhi, Delhi NCR","in":["delhi-ncr"],"lat":28.5702,"lng":77.23747,"rating":4.8,"reviews":8135,"price":"₹200–400","type":"meal","kind":"Meals · Amritsari kulcha","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Kulcha%20Kulture/@28.5702,77.23747,17z"},{"id":"pizza-on-the-rock","name":"Pizza On The Rock","where":"Old Padra Road, Vadodara","in":["vadodara"],"lat":22.29841,"lng":73.1646,"rating":4.2,"reviews":1368,"price":"₹200–1,000","type":"pizza","kind":"Pizza & Italian · Pizza","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Pizza%20On%20The%20Rock/@22.29841,73.1646,17z"},{"id":"sawans-gravies","name":"Sawan's Gravies","where":"Race Course Road, Vadodara","in":["vadodara"],"lat":22.3154,"lng":73.16358,"rating":4.2,"reviews":559,"price":"₹200–800","type":"meal","kind":"Meals · Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Sawan's%20Gravies/@22.3154,73.16358,17z"},{"id":"copper-chimney-cyberhub","name":"Copper Chimney","where":"Cyber Hub, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.49583,"lng":77.08888,"rating":4.7,"reviews":2133,"price":"₹2,000+","type":"meal","kind":"Meals · North Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Copper%20Chimney/@28.49583,77.08888,17z"},{"id":"naivedyam-sushant-lok","name":"Naivedyam","where":"Vipul Square, Sushant Lok, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.46495,"lng":77.0788,"rating":4.3,"reviews":8910,"price":"₹200–400","type":"meal","kind":"Meals · South Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Naivedyam/@28.46495,77.0788,17z"},{"id":"chaat-ka-chaska-mgf","name":"Chaat Ka Chaska","where":"MGF Metropolitan Mall, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.47857,"lng":77.08208,"rating":3.8,"reviews":25,"price":"₹1–200","type":"quick","kind":"Quick bites · Chaat","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Chaat%20Ka%20Chaska/@28.47857,77.08208,17z"},{"id":"jay-bhavani-vadapav","name":"Jay Bhavani Vadapav","where":"DLF Phase IV, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.4622,"lng":77.08744,"rating":3.9,"reviews":281,"price":"₹1–600","type":"quick","kind":"Quick bites · Vada pav","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Jay%20Bhavani%20Vadapav/@28.4622,77.08744,17z"},{"id":"prem-bhature-wala","name":"Prem Bhature Wala","where":"Sushant Lok, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.4604,"lng":77.0838,"rating":3.9,"reviews":69,"price":"₹1–200","type":"quick","kind":"Quick bites · Chhole bhature","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Prem%20Bhature%20Wala/@28.4604,77.0838,17z"},{"id":"kulcha-kulture-ggn","name":"Kulcha Kulture","where":"AIPL Joy Street, Sector 66, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.39176,"lng":77.05857,"rating":4.8,"reviews":186,"price":"₹200–400","type":"meal","kind":"Meals · Amritsari kulcha","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Kulcha%20Kulture/@28.39176,77.05857,17z"},{"id":"shri-hanuman-kachori","name":"Shri Hanuman Kachori","where":"Hanuman Mandir, Connaught Place, Delhi NCR","in":["delhi-ncr"],"lat":28.63004,"lng":77.21448,"rating":3.7,"reviews":431,"price":"₹1–200","type":"quick","kind":"Quick bites · Kachori","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Shri%20Hanuman%20Kachori/@28.63004,77.21448,17z"},{"id":"bengali-sweet-centre","name":"Bengali Sweet Centre","where":"South Extension I, New Delhi, Delhi NCR","in":["delhi-ncr"],"lat":28.5696,"lng":77.22092,"rating":4,"reviews":9621,"price":"₹200–400","type":"meal","kind":"Meals · North Indian & sweets","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Bengali%20Sweet%20Centre/@28.5696,77.22092,17z"},{"id":"kulcha-lal-parantha-das","name":"Kulcha Lal Parantha Das","where":"Huda Market, Sector 46, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.4355,"lng":77.05909,"rating":4.2,"reviews":1091,"price":"₹1–200","type":"quick","kind":"Quick bites · Kulcha & paranthas","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Kulcha%20Lal%20Parantha%20Das/@28.4355,77.05909,17z"},{"id":"karnataka-food-centre","name":"Karnataka Food Centre","where":"Sector 12, RK Puram, New Delhi, Delhi NCR","in":["delhi-ncr"],"lat":28.57792,"lng":77.17535,"rating":4.4,"reviews":11813,"price":"₹200–400","type":"meal","kind":"Meals · South Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Karnataka%20Food%20Centre/@28.57792,77.17535,17z"},{"id":"naivedyam-suncity","name":"Naivedyam","where":"Suncity, Sector 54, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.43474,"lng":77.10665,"rating":4.3,"reviews":4022,"price":"₹200–400","type":"meal","kind":"Meals · South Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Naivedyam/@28.43474,77.10665,17z"},{"id":"toscano-saket","name":"Toscano","where":"Select Citywalk, Saket, Delhi NCR","in":["delhi-ncr"],"lat":28.52835,"lng":77.21895,"rating":4.5,"reviews":236,"price":"₹800–1,800","type":"pizza","kind":"Pizza & Italian · Italian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Toscano/@28.52835,77.21895,17z"},{"id":"pizzaexpress-ambience","name":"PizzaExpress","where":"Ambience Mall, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.50547,"lng":77.09599,"rating":4.4,"reviews":2169,"price":"₹600–1,800","type":"pizza","kind":"Pizza & Italian · Pizza","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/PizzaExpress/@28.50547,77.09599,17z"},{"id":"punjabi-angithi","name":"Punjabi Angithi","where":"DLF Phase 3, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.48778,"lng":77.10374,"rating":4.1,"reviews":378,"price":"₹200–1,000","type":"meal","kind":"Meals · North Indian (takeaway)","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Punjabi%20Angithi/@28.48778,77.10374,17z"},{"id":"sattvik-saket","name":"Sattvik","where":"Select Citywalk, Saket, Delhi NCR","in":["delhi-ncr"],"lat":28.52946,"lng":77.21956,"rating":4.5,"reviews":2101,"price":"","type":"meal","kind":"Meals · North Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Sattvik/@28.52946,77.21956,17z"},{"id":"pizzeria-da-susy","name":"Pizzeria da Susy","where":"Crosspoint Mall, DLF City IV, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.46832,"lng":77.08294,"rating":4.4,"reviews":2356,"price":"₹800–1,800","type":"pizza","kind":"Pizza & Italian · Italian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Pizzeria%20da%20Susy/@28.46832,77.08294,17z"},{"id":"moolchand-parantha","name":"Moolchand Parantha","where":"Moolchand, Lajpat Nagar, Delhi NCR","in":["delhi-ncr"],"lat":28.56408,"lng":77.23424,"rating":4.1,"reviews":14253,"price":"₹1–200","type":"quick","kind":"Quick bites · Paranthas","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Moolchand%20Parantha/@28.56408,77.23424,17z"},{"id":"softyboy","name":"Softyboy Ice Cream","where":"Central Market, Lajpat Nagar II, Delhi NCR","in":["delhi-ncr"],"lat":28.56918,"lng":77.24074,"rating":3.7,"reviews":50,"price":"","type":"sweet","kind":"Sweets & desserts · Ice cream","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Softyboy%20Ice%20Cream/@28.56918,77.24074,17z"},{"id":"krishna-di-kulfi","name":"Krishna Di Kulfi","where":"Pandara Market, New Delhi, Delhi NCR","in":["delhi-ncr"],"lat":28.60784,"lng":77.23006,"rating":4,"reviews":239,"price":"","type":"sweet","kind":"Sweets & desserts · Kulfi","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Krishna%20Di%20Kulfi/@28.60784,77.23006,17z"},{"id":"veg-gulati","name":"Veg Gulati","where":"Pandara Road, New Delhi, Delhi NCR","in":["delhi-ncr"],"lat":28.6078,"lng":77.22996,"rating":4.3,"reviews":9533,"price":"","type":"meal","kind":"Meals · North Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Veg%20Gulati/@28.6078,77.22996,17z"},{"id":"kake-di-hatti","name":"Kake Di Hatti","where":"Chandni Chowk, Delhi NCR","in":["delhi-ncr"],"lat":28.65813,"lng":77.22321,"rating":4,"reviews":11612,"price":"₹200–400","type":"meal","kind":"Meals · Stuffed naan","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Kake%20Di%20Hatti/@28.65813,77.22321,17z"},{"id":"old-famous-jalebi-wala","name":"Old Famous Jalebi Wala","where":"Dariba Kalan, Chandni Chowk, Delhi NCR","in":["delhi-ncr"],"lat":28.65606,"lng":77.2335,"rating":4,"reviews":8962,"price":"","type":"sweet","kind":"Sweets & desserts · Jalebi","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Old%20Famous%20Jalebi%20Wala/@28.65606,77.2335,17z"},{"id":"ram-ashraya","name":"Ram Ashraya","where":"Matunga East, Mumbai","in":["mumbai"],"lat":19.02793,"lng":72.85179,"rating":4.4,"reviews":34441,"price":"₹200–400","type":"meal","kind":"Meals · South Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Ram%20Ashraya/@19.02793,72.85179,17z"},{"id":"vithals","name":"Vithal's Family Restaurant","where":"Fort, near CST, Mumbai","in":["mumbai"],"lat":18.9381,"lng":72.83376,"rating":3.9,"reviews":629,"price":"₹200–1,000","type":"meal","kind":"Meals · Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Vithal's%20Family%20Restaurant/@18.9381,72.83376,17z"},{"id":"soam","name":"Soam","where":"Babulnath, Chowpatty, Mumbai","in":["mumbai"],"lat":18.95737,"lng":72.80894,"rating":4.3,"reviews":6136,"price":"₹400–1,200","type":"meal","kind":"Meals · Gujarati","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Soam/@18.95737,72.80894,17z"},{"id":"joeys-pizza","name":"Joey's Pizza","where":"D.N. Nagar, Andheri West, Mumbai","in":["mumbai"],"lat":19.12663,"lng":72.83011,"rating":4.3,"reviews":24592,"price":"₹200–600","type":"pizza","kind":"Pizza & Italian · Pizza","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Joey's%20Pizza/@19.12663,72.83011,17z"},{"id":"guru-da-dhaba","name":"Guru Da Dhaba","where":"Lokhandwala, Andheri West, Mumbai","in":["mumbai"],"lat":19.14163,"lng":72.82518,"rating":3.7,"reviews":348,"price":"₹200–400","type":"meal","kind":"Meals · North Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Guru%20Da%20Dhaba/@19.14163,72.82518,17z"},{"id":"usk","name":"Udupi Shree Krishna","where":"JP Road, Andheri West, Mumbai","in":["mumbai"],"lat":19.12768,"lng":72.8339,"rating":4.1,"reviews":3214,"price":"₹200–400","type":"meal","kind":"Meals · South Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Udupi%20Shree%20Krishna/@19.12768,72.8339,17z"},{"id":"brik-oven-kanakapura","name":"Brik Oven","where":"Forum Falcon City, Kanakapura Road, Bengaluru","in":["bengaluru"],"lat":12.88736,"lng":77.56251,"rating":4.6,"reviews":3129,"price":"₹400–1,200","type":"pizza","kind":"Pizza & Italian · Wood-fired pizza","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Brik%20Oven/@12.88736,77.56251,17z"},{"id":"satvik-kitchen","name":"Satvik Kitchen","where":"Padmanabhanagar, Bengaluru","in":["bengaluru"],"lat":12.91806,"lng":77.55718,"rating":4.3,"reviews":2949,"price":"₹1–200","type":"meal","kind":"Meals · Vegetarian","full":true,"note":"Everything here is without onion and garlic.","found":false,"url":"https://www.google.com/maps/search/Satvik%20Kitchen/@12.91806,77.55718,17z"},{"id":"brik-oven-koramangala","name":"Brik Oven","where":"Koramangala, Bengaluru","in":["bengaluru"],"lat":12.9341,"lng":77.63028,"rating":4.6,"reviews":1583,"price":"₹400–1,200","type":"pizza","kind":"Pizza & Italian · Wood-fired pizza","full":false,"note":"Sauce does not have onion or garlic.","found":false,"url":"https://www.google.com/maps/search/Brik%20Oven/@12.9341,77.63028,17z"},{"id":"corner-house-bannerghatta","name":"Corner House","where":"Bannerghatta Road, Bengaluru","in":["bengaluru"],"lat":12.89237,"lng":77.59711,"rating":4.4,"reviews":1741,"price":"","type":"sweet","kind":"Sweets & desserts · Ice cream & desserts","full":false,"note":"Apple crumble, butterscotch. Litchi or mangoes with cream.","found":false,"url":"https://www.google.com/maps/search/Corner%20House/@12.89237,77.59711,17z"},{"id":"kailash-parbat-forum","name":"Kailash Parbat","where":"Forum Falcon City Mall, Bengaluru","in":["bengaluru"],"lat":12.88787,"lng":77.5629,"rating":3.6,"reviews":340,"price":"₹1–800","type":"meal","kind":"Meals · North Indian","full":false,"note":"Paneer makhani, butter naan.","found":false,"url":"https://www.google.com/maps/search/Kailash%20Parbat/@12.88787,77.5629,17z"},{"id":"idc-kitchen","name":"IDC Kitchen","where":"Forum Mall Road, Konanakunte, Bengaluru","in":["bengaluru"],"lat":12.88725,"lng":77.56226,"rating":3.7,"reviews":217,"price":"₹1–400","type":"quick","kind":"Quick bites · South Indian breakfast","full":false,"note":"Cheese dosa, chutney.","found":false,"url":"https://www.google.com/maps/search/IDC%20Kitchen/@12.88725,77.56226,17z"},{"id":"soya-chaap-co","name":"The Soya Chaap Co.","where":"Arakere, Bannerghatta Road, Bengaluru","in":["bengaluru"],"lat":12.88461,"lng":77.59124,"rating":4.3,"reviews":539,"price":"₹200–400","type":"meal","kind":"Meals · Soya chaap","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/The%20Soya%20Chaap%20Co./@12.88461,77.59124,17z"},{"id":"kailash-parbat-vega","name":"Kailash Parbat","where":"Vega City Mall, BTM Layout, Bengaluru","in":["bengaluru"],"lat":12.90779,"lng":77.60122,"rating":4,"reviews":363,"price":"₹400–600","type":"meal","kind":"Meals · North Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Kailash%20Parbat/@12.90779,77.60122,17z"},{"id":"kota-kachori","name":"Kota Kachori","where":"Koramangala, Bengaluru","in":["bengaluru"],"lat":12.93464,"lng":77.61246,"rating":4.2,"reviews":17738,"price":"₹1–200","type":"quick","kind":"Quick bites · Rajasthani snacks","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Kota%20Kachori/@12.93464,77.61246,17z"},{"id":"anand-sweets-koramangala","name":"Anand Sweets & Savouries","where":"Koramangala, Bengaluru","in":["bengaluru"],"lat":12.93718,"lng":77.61943,"rating":4.3,"reviews":8224,"price":"","type":"sweet","kind":"Sweets & desserts · Sweets & savouries","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Anand%20Sweets%20%26%20Savouries/@12.93718,77.61943,17z"},{"id":"anand-sweets-jayanagar","name":"Anand Sweets & Savouries","where":"Jayanagar, Bengaluru","in":["bengaluru"],"lat":12.93071,"lng":77.58104,"rating":4.4,"reviews":4009,"price":"","type":"sweet","kind":"Sweets & desserts · Sweets & savouries","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Anand%20Sweets%20%26%20Savouries/@12.93071,77.58104,17z"},{"id":"sterlings-mac","name":"Sterlings Mac Hotel","where":"Old Airport Road, Bengaluru","in":["bengaluru"],"lat":12.95956,"lng":77.64882,"rating":4.2,"reviews":8545,"price":"","type":"meal","kind":"Meals · Hotel restaurants","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Sterlings%20Mac%20Hotel/@12.95956,77.64882,17z"},{"id":"taaza-thindi","name":"Taaza Thindi","where":"Bengaluru","in":["bengaluru"],"lat":12.92284,"lng":77.59328,"rating":4.6,"reviews":37651,"price":"₹1–200","type":"quick","kind":"Quick bites · South Indian breakfast","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Taaza%20Thindi/@12.92284,77.59328,17z"},{"id":"bhartiya-jalpan","name":"Bhartiya Jalpan","where":"Bengaluru","in":["bengaluru"],"lat":12.91557,"lng":77.65161,"rating":4,"reviews":6118,"price":"₹200–400","type":"meal","kind":"Meals · North Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Bhartiya%20Jalpan/@12.91557,77.65161,17z"},{"id":"parkview","name":"ParkView Vegetarian","where":"Bengaluru","in":["bengaluru"],"lat":12.88701,"lng":77.61036,"rating":3.9,"reviews":4988,"price":"₹1–200","type":"quick","kind":"Quick bites · Vegetarian fast food","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/ParkView%20Vegetarian/@12.88701,77.61036,17z"},{"id":"kailash-parbat-indiranagar","name":"Kailash Parbat","where":"Indiranagar, Bengaluru","in":["bengaluru"],"lat":12.97176,"lng":77.64734,"rating":4.3,"reviews":4978,"price":"₹400–1,400","type":"meal","kind":"Meals · North Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Kailash%20Parbat/@12.97176,77.64734,17z"},{"id":"gramin","name":"Gramin","where":"Koramangala, Bengaluru","in":["bengaluru"],"lat":12.93446,"lng":77.61343,"rating":4.3,"reviews":11824,"price":"₹400–600","type":"meal","kind":"Meals · North Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Gramin/@12.93446,77.61343,17z"},{"id":"kesariya-north","name":"Kesariya","where":"Bengaluru","in":["bengaluru"],"lat":13.0051,"lng":77.58387,"rating":4.1,"reviews":1654,"price":"₹600–800","type":"meal","kind":"Meals · Rajasthani thali","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Kesariya/@13.0051,77.58387,17z"},{"id":"kesariya-south","name":"Kesariya","where":"Bengaluru","in":["bengaluru"],"lat":12.90658,"lng":77.58962,"rating":4,"reviews":4457,"price":"₹600–800","type":"meal","kind":"Meals · Rajasthani thali","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Kesariya/@12.90658,77.58962,17z"},{"id":"kapoors-cafe","name":"Kapoor's Cafe","where":"Jayanagar, Bengaluru","in":["bengaluru"],"lat":12.93274,"lng":77.58507,"rating":4.2,"reviews":10810,"price":"₹200–1,000","type":"meal","kind":"Meals · Punjabi","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Kapoor's%20Cafe/@12.93274,77.58507,17z"},{"id":"kailash-parbat-jayanagar","name":"Kailash Parbat","where":"Jayanagar, Bengaluru","in":["bengaluru"],"lat":12.93395,"lng":77.58261,"rating":4.1,"reviews":4348,"price":"₹200–1,200","type":"meal","kind":"Meals · North Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Kailash%20Parbat/@12.93395,77.58261,17z"},{"id":"mtr","name":"MTR","where":"Bengaluru","in":["bengaluru"],"lat":12.91166,"lng":77.59901,"rating":4.1,"reviews":14343,"price":"₹200–400","type":"meal","kind":"Meals · South Indian","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/MTR/@12.91166,77.59901,17z"},{"id":"om-chole-bhature","name":"Om Chole Bhature Delhi Wale","where":"Vyapar Kendra, Sushant Lok Phase I, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.46055,"lng":77.08384,"rating":3.9,"reviews":85,"price":"₹1–200","type":"quick","kind":"Quick bites · Chhole bhature","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Om%20Chole%20Bhature%20Delhi%20Wale/@28.46055,77.08384,17z"},{"id":"jumbo-king-huda","name":"Jumbo King Burgers","where":"HUDA City Centre metro, Sector 29, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.45902,"lng":77.07277,"rating":3.4,"reviews":5,"price":"₹1–200","type":"quick","kind":"Quick bites · Burgers","full":false,"note":"Great paneer burger.","found":false,"url":"https://www.google.com/maps/search/Jumbo%20King%20Burgers/@28.45902,77.07277,17z"},{"id":"haldirams-mgf","name":"Haldiram's","where":"MGF Metropolitan Mall, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.48097,"lng":77.08038,"rating":4.8,"reviews":1561,"price":"₹200–400","type":"meal","kind":"Meals · North Indian, chaat & sweets","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Haldiram's/@28.48097,77.08038,17z"},{"id":"haldirams-ambience","name":"Haldiram's","where":"Ambience Mall, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.503,"lng":77.09696,"rating":4.2,"reviews":4166,"price":"","type":"meal","kind":"Meals · North Indian, chaat & sweets","full":false,"note":"","found":false,"url":"https://www.google.com/maps/search/Haldiram's/@28.503,77.09696,17z"},{"id":"govindas-eok","name":"Govinda's (ISKCON temple)","where":"East of Kailash, New Delhi, Delhi NCR","in":["delhi-ncr"],"lat":28.55641,"lng":77.25369,"rating":4.2,"reviews":3200,"price":"₹200–800","type":"meal","kind":"Meals · Indian & Chinese","full":false,"note":"","found":true,"url":"https://www.google.com/maps/search/Govinda's%20(ISKCON%20temple)/@28.55641,77.25369,17z"},{"id":"govindas-dwarka","name":"Govinda's (ISKCON Dwarka)","where":"Sector 13, Dwarka, Delhi NCR","in":["delhi-ncr"],"lat":28.60072,"lng":77.03691,"rating":4.1,"reviews":993,"price":"₹200–400","type":"meal","kind":"Meals · Indian","full":false,"note":"","found":true,"url":"https://www.google.com/maps/search/Govinda's%20(ISKCON%20Dwarka)/@28.60072,77.03691,17z"},{"id":"prasadam-birla-mandir","name":"Prasadam Food and Snacks","where":"Birla Mandir, Mandir Marg, Delhi NCR","in":["delhi-ncr"],"lat":28.63256,"lng":77.19802,"rating":4.6,"reviews":337,"price":"₹1–200","type":"quick","kind":"Quick bites · Temple snacks & meals","full":false,"note":"","found":true,"url":"https://www.google.com/maps/search/Prasadam%20Food%20and%20Snacks/@28.63256,77.19802,17z"},{"id":"annjal","name":"Annjal","where":"Uppal Southend, Sector 49, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.41193,"lng":77.04383,"rating":4.8,"reviews":135,"price":"₹200–400","type":"meal","kind":"Meals · Thalis, dal baati, parathas","full":false,"note":"","found":true,"url":"https://www.google.com/maps/search/Annjal/@28.41193,77.04383,17z"},{"id":"vega-cp","name":"Vega (Hotel Alka Classic)","where":"P-Block, Connaught Place, Delhi NCR","in":["delhi-ncr"],"lat":28.63247,"lng":77.21612,"rating":3.9,"reviews":1051,"price":"₹400–1,000","type":"meal","kind":"Meals · North Indian thalis","full":false,"note":"","found":true,"url":"https://www.google.com/maps/search/Vega%20(Hotel%20Alka%20Classic)/@28.63247,77.21612,17z"},{"id":"saravana-bhavan-janpath","name":"Saravana Bhavan","where":"Janpath, Connaught Place, Delhi NCR","in":["delhi-ncr"],"lat":28.627,"lng":77.21977,"rating":4.4,"reviews":28865,"price":"₹200–400","type":"meal","kind":"Meals · South Indian","full":false,"note":"","found":true,"url":"https://www.google.com/maps/search/Saravana%20Bhavan/@28.627,77.21977,17z"},{"id":"rajasthali-cp","name":"Rajasthali","where":"Middle Circle, Connaught Place, Delhi NCR","in":["delhi-ncr"],"lat":28.63466,"lng":77.22032,"rating":4.4,"reviews":3950,"price":"₹400–600","type":"meal","kind":"Meals · Rajasthani thali","full":false,"note":"","found":true,"url":"https://www.google.com/maps/search/Rajasthali/@28.63466,77.22032,17z"},{"id":"ranisa-jcw-cp","name":"Ranisa by Jain Chawal Wale","where":"Connaught Circus, Delhi NCR","in":["delhi-ncr"],"lat":28.63239,"lng":77.21626,"rating":4.3,"reviews":1950,"price":"₹400–600","type":"meal","kind":"Meals · North Indian","full":false,"note":"","found":true,"url":"https://www.google.com/maps/search/Ranisa%20by%20Jain%20Chawal%20Wale/@28.63239,77.21626,17z"},{"id":"suruchi-karol-bagh","name":"Suruchi","where":"Karol Bagh, Delhi NCR","in":["delhi-ncr"],"lat":28.64714,"lng":77.18852,"rating":4.2,"reviews":2864,"price":"₹600–800","type":"meal","kind":"Meals · Gujarati & Rajasthani thali","full":false,"note":"","found":true,"url":"https://www.google.com/maps/search/Suruchi/@28.64714,77.18852,17z"},{"id":"shudh-annapurna","name":"Shudh Annapurna","where":"Elahi Baksh Road, Karol Bagh, Delhi NCR","in":["delhi-ncr"],"lat":28.64803,"lng":77.19777,"rating":4,"reviews":364,"price":"₹1–200","type":"meal","kind":"Meals · Jain thali","full":false,"note":"","found":true,"url":"https://www.google.com/maps/search/Shudh%20Annapurna/@28.64803,77.19777,17z"},{"id":"rajasthali-mgf","name":"Rajasthali","where":"MGF Metropolitan Mall, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.4808,"lng":77.08041,"rating":4.3,"reviews":1712,"price":"₹400–600","type":"meal","kind":"Meals · Rajasthani thali","full":false,"note":"","found":true,"url":"https://www.google.com/maps/search/Rajasthali/@28.4808,77.08041,17z"},{"id":"burma-burma-cyberhub","name":"Burma Burma","where":"Cyber Hub, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.49462,"lng":77.08855,"rating":4.6,"reviews":3772,"price":"","type":"meal","kind":"Meals · Burmese, all vegetarian","full":false,"note":"","found":true,"url":"https://www.google.com/maps/search/Burma%20Burma/@28.49462,77.08855,17z"},{"id":"ranisa-rajasa-ggn","name":"Ranisa N Rajasa","where":"Good Earth City Center, Sector 50, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.42161,"lng":77.05359,"rating":4.5,"reviews":894,"price":"₹600–800","type":"meal","kind":"Meals · Rajasthani thali","full":false,"note":"","found":true,"url":"https://www.google.com/maps/search/Ranisa%20N%20Rajasa/@28.42161,77.05359,17z"},{"id":"arth-sector-56","name":"Arth – Food For Your Soul","where":"Baani Address One, Sector 56, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.42157,"lng":77.10436,"rating":4.2,"reviews":424,"price":"₹600–1,400","type":"meal","kind":"Meals · Modern Indian, vegetarian","full":false,"note":"","found":true,"url":"https://www.google.com/maps/search/Arth%20%E2%80%93%20Food%20For%20Your%20Soul/@28.42157,77.10436,17z"},{"id":"manbhavan-thali","name":"Manbhavan Premium Thali","where":"Ambience Island, Gurugram, Delhi NCR","in":["gurugram","delhi-ncr"],"lat":28.50294,"lng":77.09731,"rating":4.3,"reviews":681,"price":"₹400–600","type":"meal","kind":"Meals · Gujarati–Marwari thali","full":false,"note":"","found":true,"url":"https://www.google.com/maps/search/Manbhavan%20Premium%20Thali/@28.50294,77.09731,17z"}]</script>
+<script type="application/json" id="pins">{"meal":"\u003csvg class=\"pin pin-meal\" viewBox=\"0 0 28 36\" aria-hidden=\"true\">\u003cpath class=\"body\" d=\"M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z\"/>\u003cg class=\"glyph\">\u003ccircle cx=\"14\" cy=\"13.5\" r=\"4.6\"/>\u003c/g>\u003c/svg>","pizza":"\u003csvg class=\"pin pin-pizza\" viewBox=\"0 0 28 36\" aria-hidden=\"true\">\u003cpath class=\"body\" d=\"M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z\"/>\u003cg class=\"glyph\">\u003cpath d=\"M8.4 9h11.2L14 19.6z\"/>\u003c/g>\u003c/svg>","quick":"\u003csvg class=\"pin pin-quick\" viewBox=\"0 0 28 36\" aria-hidden=\"true\">\u003cpath class=\"body\" d=\"M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z\"/>\u003cg class=\"glyph\">\u003cpath d=\"M14 7.8l5.7 5.7-5.7 5.7-5.7-5.7z\"/>\u003c/g>\u003c/svg>","sweet":"\u003csvg class=\"pin pin-sweet\" viewBox=\"0 0 28 36\" aria-hidden=\"true\">\u003cpath class=\"body\" d=\"M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z\"/>\u003cg class=\"glyph\">\u003cpath d=\"M14 19.4s-5.8-3.5-5.8-7.4c0-1.8 1.3-3.1 3-3.1 1.2 0 2.2.6 2.8 1.6.6-1 1.6-1.6 2.8-1.6 1.7 0 3 1.3 3 3.1 0 3.9-5.8 7.4-5.8 7.4z\"/>\u003c/g>\u003c/svg>"}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js" integrity="sha512-TiMWaqipFi2Vqt4ugRzsF8oRoGFlFFuqIi30FFxEPNw58Ov9mOy6LgC05ysfkxwLE0xVeZtmr92wVg9siAFRWA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 (function () {
-  var state = { city: 'all', type: 'all' };
-  var cards = Array.prototype.slice.call(document.querySelectorAll('.place'));
-  var sections = Array.prototype.slice.call(document.querySelectorAll('.city'));
-  var count = document.getElementById('count');
-  var empty = document.getElementById('empty');
+  var places = JSON.parse(document.getElementById('places').textContent);
+  var PINS = JSON.parse(document.getElementById('pins').textContent);
+  var START = 'gurugram';
+  var state = { type: 'all', finds: true };
+  var jumpBtns = [].slice.call(document.querySelectorAll('[data-jump]'));
+  var typeBtns = [].slice.call(document.querySelectorAll('[data-type]'));
+  var findsBtn = document.getElementById('finds');
+  var countEl = document.getElementById('count');
+  var card = document.getElementById('card');
+  var cardBody = document.getElementById('card-body');
+  var about = document.getElementById('about');
+  var mapEl = document.getElementById('map');
 
-  function apply() {
-    var shown = 0;
-    cards.forEach(function (c) {
-      var ok = (state.city === 'all' || c.dataset.city === state.city) && (state.type === 'all' || c.dataset.type === state.type);
-      c.hidden = !ok;
-      if (ok) shown++;
+  if (window.matchMedia('(min-width: 900px)').matches) about.open = true;
+
+  var map = L.map(mapEl, { zoomControl: false, minZoom: 4, maxZoom: 19 });
+  L.control.zoom({ position: 'topright' }).addTo(map);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(map);
+
+  var cluster = L.markerClusterGroup({
+    showCoverageOnHover: false,
+    maxClusterRadius: 44,
+    spiderfyOnMaxZoom: true,
+    iconCreateFunction: function (c) {
+      var n = c.getChildCount();
+      var s = n < 10 ? 34 : n < 25 ? 40 : 48;
+      return L.divIcon({ html: '<span>' + n + '</span>', className: 'cluster', iconSize: [s, s] });
+    },
+  });
+
+  var selected = null;
+  places.forEach(function (p) {
+    var m = L.marker([p.lat, p.lng], {
+      icon: L.divIcon({ html: PINS[p.type], className: 'pinwrap', iconSize: [28, 36], iconAnchor: [14, 34] }),
+      title: p.name + ', ' + p.where,
+      riseOnHover: true,
+      zIndexOffset: p.full ? 500 : 0,
     });
-    sections.forEach(function (s) { s.hidden = !s.querySelector('.place:not([hidden])'); });
-    count.textContent = shown === cards.length ? 'Showing all ' + shown + ' places' : 'Showing ' + shown + ' of ' + cards.length + ' places';
-    empty.hidden = shown !== 0;
+    m.place = p;
+    m.on('click', function () { open(m); });
+    m.on('add', function () { if (m === selected) highlight(m, true); });
+    p.marker = m;
+  });
+
+  function visible(p) {
+    return (state.type === 'all' || p.type === state.type) && (state.finds || !p.found);
+  }
+  function plural(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
+
+  function updateCount() {
+    var list = places.filter(visible);
+    var b = map.getBounds();
+    var inView = list.filter(function (p) { return b.contains([p.lat, p.lng]); }).length;
+    var t = list.length;
+    countEl.textContent = t === 0 ? 'No places match these filters'
+      : inView === t ? (t === 1 ? '1 place, in view' : 'All ' + t + ' places in view')
+      : inView === 0 ? (t === 1 ? 'The 1 match isn’t in view. Try All India' : 'None of the ' + t + ' places are in view. Try All India')
+      : inView + ' of ' + plural(t, 'place') + ' in view';
   }
 
-  document.querySelectorAll('.chip').forEach(function (b) {
+  function apply() {
+    cluster.clearLayers();
+    cluster.addLayers(places.filter(visible).map(function (p) { return p.marker; }));
+    if (selected && !visible(selected.place)) closeCard(false);
+    updateCount();
+  }
+
+  // Jump buttons fit the map to an area's pins. The button stays pressed until the map leaves that area.
+  var current = null, currentBounds = null, currentZoom = 0;
+  function setPressed(id) {
+    current = id;
+    jumpBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.jump === id)); });
+  }
+  function jump(id, animate) {
+    var inArea = places.filter(function (p) { return id === 'all' || p.in.indexOf(id) >= 0; });
+    var pts = inArea.filter(visible);
+    if (!pts.length) pts = inArea;
+    var bounds = L.latLngBounds(pts.map(function (p) { return [p.lat, p.lng]; }));
+    var pad = L.point(36, 36);
+    closeCard(false);
+    setPressed(id);
+    currentBounds = bounds;
+    currentZoom = Math.min(map.getBoundsZoom(bounds, false, pad.multiplyBy(2)), 15);
+    map.fitBounds(bounds, { padding: pad, maxZoom: 15, animate: animate });
+  }
+  map.on('moveend', function () {
+    updateCount();
+    if (!current) return;
+    var z = map.getZoom();
+    var left = current === 'all' ? z > currentZoom + 1 : (!currentBounds.pad(0.25).contains(map.getCenter()) || z < currentZoom - 1);
+    if (left) setPressed(null);
+  });
+
+  function highlight(m, on) {
+    var el = m.getElement();
+    if (el) el.classList.toggle('is-on', on);
+    m.setZIndexOffset(on ? 1000 : (m.place.full ? 500 : 0));
+  }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function open(m) {
+    var p = m.place;
+    if (selected) highlight(selected, false);
+    selected = m;
+    highlight(m, true);
+
+    cardBody.textContent = '';
+    if (p.found) cardBody.append(el('span', 'found', 'New find · not tried yet'));
+    cardBody.append(el('span', 'kind', p.kind));
+    var h = el('h2', null, p.name);
+    h.id = 'card-name';
+    cardBody.append(h, el('p', 'where', p.where));
+    var stats = el('p', 'stats');
+    var rating = el('span');
+    rating.append(el('span', 'star', '★ ' + p.rating.toFixed(1)), ' · ' + p.reviews.toLocaleString('en-IN') + ' Google review' + (p.reviews === 1 ? '' : 's'));
+    stats.append(rating);
+    if (p.price) stats.append(el('span', null, p.price + ' per person'));
+    cardBody.append(stats);
+    cardBody.append(el('span', 'badge ' + (p.full ? 'all' : 'ask'), p.full ? 'Fully satvik' : 'Ask for no onion, no garlic'));
+    if (p.note) {
+      var tip = el('p', 'tip');
+      tip.append(el('b', null, 'Note:'), ' ' + p.note);
+      cardBody.append(tip);
+    }
+    var a = el('a', 'maps', 'Open in Google Maps →');
+    a.href = p.url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    cardBody.append(a);
+    card.hidden = false;
+    card.focus({ preventScroll: true });
+
+    // Keep the pin visible above the card.
+    var pt = map.latLngToContainerPoint(m.getLatLng());
+    var mapBox = mapEl.getBoundingClientRect(), cardBox = card.getBoundingClientRect();
+    var cardTop = cardBox.top - mapBox.top, cardRight = cardBox.right - mapBox.left;
+    if (pt.y > cardTop - 12 && pt.x < cardRight + 20) {
+      map.panBy([0, pt.y - Math.max(cardTop - 24, 60)]);
+    }
+  }
+
+  function closeCard(refocus) {
+    if (card.hidden) return;
+    card.hidden = true;
+    var m = selected;
+    selected = null;
+    if (!m) return;
+    highlight(m, false);
+    var pinEl = m.getElement();
+    if (refocus && pinEl) pinEl.focus({ preventScroll: true });
+  }
+
+  document.getElementById('card-close').addEventListener('click', function () { closeCard(true); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeCard(true); });
+  map.on('click', function () { closeCard(false); });
+
+  jumpBtns.forEach(function (b) {
     b.addEventListener('click', function () {
-      var key = b.dataset.key;
-      state[key] = b.dataset.value;
-      document.querySelectorAll('.chip[data-key="' + key + '"]').forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+      jump(b.dataset.jump, true);
+      try { history.replaceState(null, '', '#' + b.dataset.jump); } catch (e) {}
+    });
+  });
+  typeBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      state.type = b.dataset.type;
+      typeBtns.forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
       apply();
     });
   });
+  findsBtn.addEventListener('click', function () {
+    state.finds = !state.finds;
+    findsBtn.setAttribute('aria-checked', String(state.finds));
+    apply();
+  });
+
+  // The panel can change height (About opened, phone rotated), so keep Leaflet's idea of the map size current.
+  if (window.ResizeObserver) new ResizeObserver(function () { map.invalidateSize(); }).observe(mapEl);
+
+  var fromHash = location.hash.slice(1);
+  var startId = jumpBtns.some(function (b) { return b.dataset.jump === fromHash; }) ? fromHash : START;
+  jump(startId, false);
+  map.addLayer(cluster);
+  apply();
 })();
 </script>
-
 </body>
 </html>
