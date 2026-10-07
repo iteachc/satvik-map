@@ -253,7 +253,6 @@ h1 em { font-style: normal; color: var(--leaf); }
   var countEl = document.getElementById('count');
   var card = document.getElementById('card');
   var cardBody = document.getElementById('card-body');
-  var about = document.getElementById('about');
   var mapEl = document.getElementById('map');
   var listEl = document.getElementById('list');
   var emptyEl = document.getElementById('empty');
@@ -261,8 +260,6 @@ h1 em { font-style: normal; color: var(--leaf); }
   var sections = [].slice.call(listEl.querySelectorAll('.city'));
   var byId = {};
   places.forEach(function (p) { byId[p.id] = p; });
-
-  if (window.matchMedia('(min-width: 900px)').matches) about.open = true;
 
   var map = L.map(mapEl, { zoomControl: false, minZoom: 4, maxZoom: 19 });
   L.control.zoom({ position: 'topright' }).addTo(map);
