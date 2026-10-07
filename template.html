@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Satvik Map</title>
-<meta name="description" content="A map of {{TOTAL}} places in {{CITY_NAMES}} where you can eat food without onion and garlic (satvik food).">
+<script>document.documentElement.dataset.view = location.hash.slice(1).indexOf('list') === 0 ? 'list' : 'map';</script>
+<meta name="description" content="A map and list of {{TOTAL}} places in {{CITY_NAMES}} where you can eat food without onion and garlic (satvik food).">
 <meta name="theme-color" content="#f3f6ee" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f1511" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 36'%3E%3Cpath d='M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z' fill='%232d6a38'/%3E%3Ccircle cx='14' cy='13.5' r='4.6' fill='%23f0c14b'/%3E%3C/svg%3E">
@@ -14,8 +15,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css" integrity="sha512-ENrTWqddXrLJsQS2A86QmvA17PkJ0GVm1bqj5aTgpeMAfDKN2+SIOLpKG8R/6KkimnhTb+VW5qqUHB/r1zaRgg==" crossorigin="anonymous" referrerpolicy="no-referrer">
 <style>
-/* Layout: phones get a compact header (title, one line on satvik food, jump and food filters) over a full-height map;
-   from 900px the header becomes a sidebar. Tapping a pin opens a card over the bottom of the map. */
+/* Layout: phones get a compact header (title, Map/List switch, one line on satvik food, city and food filters) over a
+   full-height map; from 900px the header becomes a sidebar. Tapping a pin opens a card over the bottom of the map.
+   The List view covers the map with every place's card, one section per city. Without JavaScript the list shows. */
 :root {
   --bg: #f3f6ee;
   --card: #ffffff;
@@ -68,12 +70,13 @@ a { color: var(--leaf); }
 .mapwrap { flex: 1 1 auto; position: relative; min-height: 0; }
 #map { position: absolute; inset: 0; }
 
-.top { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 12px; flex-wrap: wrap; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 4px 12px; flex-wrap: wrap; }
 .eyebrow { display: none; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--leaf); }
 h1 { font-family: var(--display); font-weight: 400; font-size: 26px; line-height: 1.1; margin: 0; }
 h1 em { font-style: normal; color: var(--leaf); }
-.listlink { font-size: 14px; font-weight: 700; text-decoration: none; white-space: nowrap; }
-.listlink:hover { text-decoration: underline; text-underline-offset: 3px; }
+.views { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--card); }
+.views button { font: inherit; font-size: 14.5px; font-weight: 700; border: 0; background: none; color: var(--muted); border-radius: 999px; padding: 5px 16px; min-height: 34px; cursor: pointer; }
+.views button[aria-pressed="true"] { background: var(--leaf); color: var(--card); }
 .lede { margin: 0; font-size: 14.5px; line-height: 1.45; color: var(--muted); }
 .lede strong { color: var(--ink); }
 
@@ -103,6 +106,16 @@ h1 em { font-style: normal; color: var(--leaf); }
 .about p { margin: 8px 0 0; }
 .about b { color: var(--ink); }
 
+/* List view */
+.listwrap { position: absolute; inset: 0; z-index: 1100; overflow-y: auto; background: var(--bg); padding: 16px 16px 48px; display: grid; gap: 28px; align-content: start; }
+[data-view="map"] .listwrap { display: none; }
+.city { display: grid; gap: 12px; min-width: 0; }
+.city > h2 { font-family: var(--display); font-weight: 400; font-size: 28px; line-height: 1.1; margin: 0; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.city > h2 small { font-family: var(--body); font-size: 15px; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 12px; }
+.place { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 8px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.empty { margin: 0; color: var(--muted); }
+
 /* Card */
 .card { position: absolute; z-index: 1001; left: 10px; right: 10px; bottom: 26px; max-height: calc(100% - 44px); overflow-y: auto;
   background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
@@ -111,8 +124,10 @@ h1 em { font-style: normal; color: var(--leaf); }
 .card .close { position: absolute; top: 4px; right: 4px; width: 40px; height: 40px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: 400 26px/1 var(--body); cursor: pointer; }
 .card .close:hover { color: var(--ink); background: var(--bg); }
 .found { justify-self: start; font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--turmeric); border: 1px solid var(--turmeric); border-radius: 999px; padding: 0 9px; white-space: nowrap; }
-.kind { font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-right: 36px; }
-.card h2 { font-family: var(--display); font-weight: 400; font-size: 23px; line-height: 1.15; margin: 0; padding-right: 30px; overflow-wrap: anywhere; }
+.kind { font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.card .kind { padding-right: 36px; }
+.place h3, .card h3 { font-family: var(--display); font-weight: 400; font-size: 23px; line-height: 1.15; margin: 0; overflow-wrap: anywhere; }
+.card h3 { padding-right: 30px; }
 .where { margin: 0; color: var(--muted); font-size: 15px; }
 .stats { margin: 0; font-size: 15px; font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; gap: 2px 12px; }
 .stats .star { color: var(--turmeric); font-weight: 700; }
@@ -121,8 +136,11 @@ h1 em { font-style: normal; color: var(--leaf); }
 .badge.ask { color: var(--muted); padding-inline: 0; font-weight: 500; }
 .tip { margin: 0; background: var(--turmeric-soft); border-radius: 8px; padding: 8px 12px; font-size: 15px; }
 .tip b { color: var(--turmeric); }
-.maps { font-weight: 700; text-decoration: none; font-size: 15px; justify-self: start; padding-block: 6px; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0 18px; }
+.maps { font-weight: 700; text-decoration: none; font-size: 15px; padding-block: 6px; }
 .maps:hover { text-decoration: underline; text-underline-offset: 3px; }
+.onmap { font: inherit; font-size: 15px; font-weight: 700; color: var(--muted); background: none; border: 0; padding: 6px 0; cursor: pointer; }
+.onmap:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 
 /* Pins and clusters */
 .pinwrap { background: none; border: 0; }
@@ -158,11 +176,13 @@ h1 em { font-style: normal; color: var(--leaf); }
   .panel { max-height: none; height: 100%; padding: 28px 24px; gap: 16px; border-bottom: 0; border-right: 1px solid var(--line); }
   .eyebrow { display: block; }
   .top { display: grid; gap: 6px; }
-  h1 { font-size: 40px; }
+  h1 { font-size: 36px; }
   .lede { font-size: 16.5px; }
   .chiprow { flex-wrap: wrap; overflow: visible; margin-inline: 0; padding-inline: 0; }
   .chiprow .label { flex-basis: 100%; }
   .card { width: 380px; }
+  .listwrap { padding: 28px 32px 56px; gap: 36px; }
+  .city > h2 { font-size: 32px; }
 }
 </style>
 </head>
@@ -172,21 +192,24 @@ h1 em { font-style: normal; color: var(--leaf); }
     <span class="eyebrow">No onion · No garlic · No compromise</span>
     <div class="top">
       <h1>The Satvik <em>Map</em></h1>
-      <a class="listlink" href="{{LIST_URL}}">See The Satvik List →</a>
+      <div class="views" role="group" aria-label="View">
+        <button type="button" data-view="map" aria-pressed="true">Map</button>
+        <button type="button" data-view="list" aria-pressed="false">List</button>
+      </div>
     </div>
-    <p class="lede"><strong>Satvik food</strong> is cooked without onion and garlic. Here are {{TOTAL}} places to eat it in {{CITY_NAMES}}. Tap a pin to see one.</p>
+    <p class="lede"><strong>Satvik food</strong> is cooked without onion and garlic. Here are {{TOTAL}} places to eat it in {{CITY_NAMES}}.</p>
 
-    <nav class="filters" aria-label="Map controls">
-      <div class="chiprow" role="group" aria-label="Go to"><span class="label">Go to</span>{{JUMP_CHIPS}}</div>
+    <nav class="filters" aria-label="Filters">
+      <div class="chiprow" role="group" aria-label="City"><span class="label">City</span>{{JUMP_CHIPS}}</div>
       <div class="chiprow" role="group" aria-label="Type of food"><span class="label">Food</span>{{TYPE_CHIPS}}</div>
       <div class="row">
         {{FINDS_SWITCH}}
-        <p class="count" id="count" aria-live="polite">{{TOTAL}} places on the map</p>
+        <p class="count" id="count" aria-live="polite">{{TOTAL}} places</p>
       </div>
     </nav>
 
     <details class="about" id="about">
-      <summary>About this map</summary>
+      <summary>About these places</summary>
       <p>Places marked <b>Fully satvik</b> don't use onion or garlic at all. Everywhere else, ask for no onion, no garlic when you order.</p>
       <p>Eating Jain? Jain food also leaves out root vegetables like potato, carrot and ginger. Say "Jain" when you order, and double-check.</p>
       <p>Started from a personal list of favourite satvik spots.{{FINDS_ABOUT}}</p>
@@ -196,7 +219,9 @@ h1 em { font-style: normal; color: var(--leaf); }
 
   <main class="mapwrap">
     <div id="map" role="region" aria-label="Map of satvik places"></div>
-    <noscript><p style="padding:16px">The map needs JavaScript. <a href="{{LIST_URL}}">See The Satvik List</a> instead.</p></noscript>
+    <div class="listwrap" id="list" aria-label="All places">{{SECTIONS}}
+      <p class="empty" id="empty" hidden>Nothing matches those filters. Try another city or type of food.</p>
+    </div>
     <article class="card" id="card" tabindex="-1" aria-labelledby="card-name" hidden>
       <button type="button" class="close" id="card-close" aria-label="Close">×</button>
       <div id="card-body" style="display:contents"></div>
@@ -214,14 +239,23 @@ h1 em { font-style: normal; color: var(--leaf); }
   var PINS = JSON.parse(document.getElementById('pins').textContent);
   var START = '{{START}}';
   var state = { type: 'all', finds: true };
+  var view = 'map';
+  var root = document.documentElement;
   var jumpBtns = [].slice.call(document.querySelectorAll('[data-jump]'));
   var typeBtns = [].slice.call(document.querySelectorAll('[data-type]'));
+  var viewBtns = [].slice.call(document.querySelectorAll('[data-view]'));
   var findsBtn = document.getElementById('finds');
   var countEl = document.getElementById('count');
   var card = document.getElementById('card');
   var cardBody = document.getElementById('card-body');
   var about = document.getElementById('about');
   var mapEl = document.getElementById('map');
+  var listEl = document.getElementById('list');
+  var emptyEl = document.getElementById('empty');
+  var cards = [].slice.call(listEl.querySelectorAll('.place'));
+  var sections = [].slice.call(listEl.querySelectorAll('.city'));
+  var byId = {};
+  places.forEach(function (p) { byId[p.id] = p; });
 
   if (window.matchMedia('(min-width: 900px)').matches) about.open = true;
 
@@ -247,7 +281,7 @@ h1 em { font-style: normal; color: var(--leaf); }
   places.forEach(function (p) {
     var m = L.marker([p.lat, p.lng], {
       icon: L.divIcon({ html: PINS[p.type], className: 'pinwrap', iconSize: [28, 36], iconAnchor: [14, 34] }),
-      title: p.name + ', ' + p.where,
+      title: p.title,
       riseOnHover: true,
       zIndexOffset: p.full ? 500 : 0,
     });
@@ -260,51 +294,95 @@ h1 em { font-style: normal; color: var(--leaf); }
   function visible(p) {
     return (state.type === 'all' || p.type === state.type) && (state.finds || !p.found);
   }
+  function inCity(p) { return !current || current === 'all' || p.in === current; }
   function plural(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
 
   function updateCount() {
     var list = places.filter(visible);
+    var t = list.length;
+    if (t === 0) { countEl.textContent = 'No places match these filters'; return; }
+    if (view === 'list') {
+      var n = list.filter(inCity).length;
+      countEl.textContent = n === t ? 'Showing all ' + plural(t, 'place') : 'Showing ' + n + ' of ' + plural(t, 'place');
+      return;
+    }
     var b = map.getBounds();
     var inView = list.filter(function (p) { return b.contains([p.lat, p.lng]); }).length;
-    var t = list.length;
-    countEl.textContent = t === 0 ? 'No places match these filters'
-      : inView === t ? (t === 1 ? '1 place, in view' : 'All ' + t + ' places in view')
+    countEl.textContent = inView === t ? (t === 1 ? '1 place, in view' : 'All ' + t + ' places in view')
       : inView === 0 ? (t === 1 ? 'The 1 match isn’t in view. Try All India' : 'None of the ' + t + ' places are in view. Try All India')
       : inView + ' of ' + plural(t, 'place') + ' in view';
+  }
+
+  function applyList() {
+    var n = 0;
+    cards.forEach(function (c) {
+      var p = byId[c.dataset.id];
+      var ok = visible(p) && inCity(p);
+      c.hidden = !ok;
+      if (ok) n++;
+    });
+    sections.forEach(function (s) { s.hidden = !s.querySelector('.place:not([hidden])'); });
+    emptyEl.hidden = n !== 0;
   }
 
   function apply() {
     cluster.clearLayers();
     cluster.addLayers(places.filter(visible).map(function (p) { return p.marker; }));
     if (selected && !visible(selected.place)) closeCard(false);
+    applyList();
     updateCount();
   }
 
-  // Jump buttons fit the map to an area's pins. The button stays pressed until the map leaves that area.
-  var current = null, currentBounds = null, currentZoom = 0;
+  // City buttons: on the map they fit the view to that city's pins, and stay pressed until the map leaves the
+  // city; in the list they show only that city.
+  var current = null, currentBounds = null, currentZoom = 0, mapCity = null;
   function setPressed(id) {
     current = id;
     jumpBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.jump === id)); });
   }
   function jump(id, animate) {
-    var inArea = places.filter(function (p) { return id === 'all' || p.in.indexOf(id) >= 0; });
+    var inArea = places.filter(function (p) { return id === 'all' || p.in === id; });
     var pts = inArea.filter(visible);
     if (!pts.length) pts = inArea;
     var bounds = L.latLngBounds(pts.map(function (p) { return [p.lat, p.lng]; }));
     var pad = L.point(36, 36);
     closeCard(false);
     setPressed(id);
+    mapCity = id;
     currentBounds = bounds;
     currentZoom = Math.min(map.getBoundsZoom(bounds, false, pad.multiplyBy(2)), 15);
     map.fitBounds(bounds, { padding: pad, maxZoom: 15, animate: animate });
   }
   map.on('moveend', function () {
+    if (view !== 'map') return;
     updateCount();
     if (!current) return;
     var z = map.getZoom();
     var left = current === 'all' ? z > currentZoom + 1 : (!currentBounds.pad(0.25).contains(map.getCenter()) || z < currentZoom - 1);
-    if (left) setPressed(null);
+    if (left) { setPressed(null); mapCity = null; }
   });
+
+  function setView(v) {
+    view = v;
+    root.dataset.view = v;
+    viewBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === v)); });
+    mapEl.inert = v === 'list';
+    closeCard(false);
+    if (v === 'list') {
+      if (!current) setPressed('all');
+      applyList();
+      listEl.scrollTop = 0;
+    } else {
+      map.invalidateSize();
+      if (current && current !== mapCity) jump(current, false);
+    }
+    updateCount();
+  }
+
+  function setHash() {
+    var h = view === 'list' ? 'list' + (current && current !== 'all' ? '-' + current : '') : (current || '');
+    try { history.replaceState(null, '', h ? '#' + h : location.pathname + location.search); } catch (e) {}
+  }
 
   function highlight(m, on) {
     var el = m.getElement();
@@ -312,42 +390,19 @@ h1 em { font-style: normal; color: var(--leaf); }
     m.setZIndexOffset(on ? 1000 : (m.place.full ? 500 : 0));
   }
 
-  function el(tag, cls, text) {
-    var e = document.createElement(tag);
-    if (cls) e.className = cls;
-    if (text != null) e.textContent = text;
-    return e;
-  }
-
+  // The map's card is a copy of the place's card from the list.
   function open(m) {
     var p = m.place;
     if (selected) highlight(selected, false);
     selected = m;
     highlight(m, true);
 
+    var copy = document.getElementById('p-' + p.id).cloneNode(true);
+    var onmap = copy.querySelector('.onmap');
+    if (onmap) onmap.remove();
+    copy.querySelector('h3').id = 'card-name';
     cardBody.textContent = '';
-    if (p.found) cardBody.append(el('span', 'found', 'New find · not tried yet'));
-    cardBody.append(el('span', 'kind', p.kind));
-    var h = el('h2', null, p.name);
-    h.id = 'card-name';
-    cardBody.append(h, el('p', 'where', p.where));
-    var stats = el('p', 'stats');
-    var rating = el('span');
-    rating.append(el('span', 'star', '★ ' + p.rating.toFixed(1)), ' · ' + p.reviews.toLocaleString('en-IN') + ' Google review' + (p.reviews === 1 ? '' : 's'));
-    stats.append(rating);
-    if (p.price) stats.append(el('span', null, p.price + ' per person'));
-    cardBody.append(stats);
-    cardBody.append(el('span', 'badge ' + (p.full ? 'all' : 'ask'), p.full ? 'Fully satvik' : 'Ask for no onion, no garlic'));
-    if (p.note) {
-      var tip = el('p', 'tip');
-      tip.append(el('b', null, 'Note:'), ' ' + p.note);
-      cardBody.append(tip);
-    }
-    var a = el('a', 'maps', 'Open in Google Maps →');
-    a.href = p.url;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    cardBody.append(a);
+    while (copy.firstChild) cardBody.appendChild(copy.firstChild);
     card.hidden = false;
     card.focus({ preventScroll: true });
 
@@ -375,10 +430,24 @@ h1 em { font-style: normal; color: var(--leaf); }
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeCard(true); });
   map.on('click', function () { closeCard(false); });
 
+  viewBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (b.dataset.view === view) return;
+      setView(b.dataset.view);
+      setHash();
+    });
+  });
   jumpBtns.forEach(function (b) {
     b.addEventListener('click', function () {
-      jump(b.dataset.jump, true);
-      try { history.replaceState(null, '', '#' + b.dataset.jump); } catch (e) {}
+      if (view === 'map') {
+        jump(b.dataset.jump, true);
+      } else {
+        setPressed(b.dataset.jump);
+        applyList();
+        listEl.scrollTop = 0;
+        updateCount();
+      }
+      setHash();
     });
   });
   typeBtns.forEach(function (b) {
@@ -394,14 +463,29 @@ h1 em { font-style: normal; color: var(--leaf); }
     apply();
   });
 
+  // "Show on map" on a list card: switch to the map, zoom to the pin (opening its cluster if needed) and open its card.
+  listEl.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-show]');
+    if (!btn) return;
+    var m = byId[btn.dataset.show].marker;
+    setView('map');
+    map.setView(m.getLatLng(), 17, { animate: false });
+    cluster.zoomToShowLayer(m, function () { open(m); });
+    setHash();
+  });
+
   // The panel can change height (About opened, phone rotated), so keep Leaflet's idea of the map size current.
   if (window.ResizeObserver) new ResizeObserver(function () { map.invalidateSize(); }).observe(mapEl);
 
-  var fromHash = location.hash.slice(1);
-  var startId = jumpBtns.some(function (b) { return b.dataset.jump === fromHash; }) ? fromHash : START;
-  jump(startId, false);
+  // #gurgaon opens the map on a city; #list or #list-gurgaon opens the list.
+  var hash = location.hash.slice(1);
+  var startView = hash.indexOf('list') === 0 ? 'list' : 'map';
+  var hashCity = startView === 'list' ? hash.slice(5) : hash;
+  var known = jumpBtns.some(function (b) { return b.dataset.jump === hashCity; });
+  jump(known ? hashCity : startView === 'list' ? 'all' : START, false);
   map.addLayer(cluster);
   apply();
+  setView(startView);
 })();
 </script>
 </body>
