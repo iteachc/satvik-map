@@ -4,8 +4,9 @@ An interactive map of places in India where you can eat food without onion and g
 A fork of [The Satvik List](https://github.com/iteachc/satvik-list), built from the same data.
 
 **Website (GitHub Pages):** https://iteachc.github.io/satvik-map/ (served from `docs/index.html` on `main`).
-It opens on Gurugram. A link like `…/satvik-map/#bengaluru` opens on another area
-(`all`, `gurugram`, `delhi-ncr`, `bengaluru`, `mumbai`, `vadodara`).
+It opens on Gurgaon. A link like `…/satvik-map/#bangalore` opens on another city
+(`all`, `bangalore`, `bombay`, `gurgaon`, `delhi`, `baroda`). The buttons use these everyday names; the data
+keeps the official ones (Bengaluru, Mumbai, Delhi NCR, Vadodara), and `CITIES` in `build.js` maps between them.
 
 `node build.js` writes `docs/index.html`. Commit and push `docs/` to update the website.
 
