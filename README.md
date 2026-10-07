@@ -31,7 +31,7 @@ of the map you can swap for any picture.
 - Only places from your Google Maps list "Satvik food (without onion and garlic)" plus the ones you've asked for by name.
 - Google ratings aren't shown on the site. They stay in the data for two jobs: places with no rating or a rating
   below 3.6 are left off, and within a city places are ordered best-rated first. Places with a `hide` reason are left off too.
-  `keep` (a reason) shows a place anyway: Jumbo King Burgers was asked for by name.
+  `keep` (a reason) shows a place anyway: Jumbo King Burgers and Koolchas were asked for by name.
 - Every place needs `lat`/`lng`. The build stops if a pin lands more than 60 km from the rest of its city.
 - Badges only mark exceptions: **Fully satvik** for `"fullySatvik": true` (from your own notes) and **Pure veg** for
   `"pureVeg": true`. The intro says once: unless marked Fully satvik, ask for no onion, no garlic when you order.
@@ -83,9 +83,9 @@ One place per line. An example entry:
 - [ ] Sterlings Mac Hotel — Old Airport Road (`sterlings-mac`)
 - [ ] MTR (`mtr`)
 - [ ] Kailash Parbat — Jayanagar (`kailash-parbat-jayanagar`)
-- [ ] Kesariya (`kesariya-north`)
+- [ ] Kesariya — Sadashivanagar (`kesariya-north`)
 - [ ] Bhartiya Jalpan (`bhartiya-jalpan`)
-- [ ] Kesariya (`kesariya-south`)
+- [ ] Kesariya — JP Nagar 2nd Phase (`kesariya-south`)
 - [ ] Kailash Parbat — Vega City Mall, BTM Layout (`kailash-parbat-vega`)
 - [ ] ParkView Vegetarian (`parkview`)
 
@@ -103,6 +103,8 @@ One place per line. An example entry:
 - [ ] Copper Chimney — Cyber Hub (`copper-chimney-cyberhub`)
 - [ ] Pizzeria da Susy — Crosspoint Mall, DLF City IV (`pizzeria-da-susy`)
 - [ ] PizzaExpress — Ambience Mall (`pizzaexpress-ambience`)
+- [ ] Gulati — DT Mega Mall, Golf Course Road (`gulati-gurgaon`)
+- [ ] Sagar Ratna — Ambience Island (`sagar-ratna-ambience`)
 - [ ] Naivedyam — Vipul Square, Sushant Lok (`naivedyam-sushant-lok`)
 - [ ] Naivedyam — Suncity, Sector 54 (`naivedyam-suncity`)
 - [ ] Haldiram's — Ambience Mall (`haldirams-ambience`)
@@ -120,6 +122,9 @@ One place per line. An example entry:
 - [ ] Toscano — Select Citywalk, Saket (`toscano-saket`)
 - [ ] Karnataka Food Centre — Sector 12, RK Puram (`karnataka-food-centre`)
 - [ ] Veg Gulati — Pandara Road (`veg-gulati`)
+- [ ] Gulati — Pandara Road (`gulati-pandara`)
+- [ ] Veg Gulati — Green Park Market (`veg-gulati-green-park`)
+- [ ] A2B – Adyar Ananda Bhavan — Green Park Market (`a2b-green-park`)
 - [ ] Moolchand Parantha — Moolchand, Lajpat Nagar (`moolchand-parantha`)
 - [ ] Kake Di Hatti — Chandni Chowk (`kake-di-hatti`)
 - [ ] Bengali Sweet Centre — South Extension I (`bengali-sweet-centre`)
@@ -135,4 +140,6 @@ One place per line. An example entry:
 ## Data notes
 - Added for this site and read from Google Maps on 7 Oct 2026: Om Chole Bhature Delhi Wale, Jumbo King Burgers,
   the Haldiram's at MGF Metropolitan and Ambience Mall, and Benne – Heritage Bangalore Dosa at Cyber Hub (all Gurgaon).
+- Added on 8 Oct 2026, read from Google Maps: Sagar Ratna (Ambience Island) and Gulati (DT Mega Mall) in Gurgaon; Gulati
+  (Pandara Road), Veg Gulati and A2B (both Green Park Market) in Delhi. Koolchas (Ambience Mall) is back on with your note.
   Coordinates for the new finds were read the same day, ready for when they go on.
