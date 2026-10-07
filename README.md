@@ -24,14 +24,15 @@ It started as [The Satvik List](https://github.com/iteachc/satvik-list); that si
 
 ## Rules
 - Only places from your Google Maps list "Satvik food (without onion and garlic)" plus the ones you've asked for by name.
-- Places with a `hide` reason, no rating, or a Google rating below 3.6 are left off.
+- Google ratings aren't shown on the site. They stay in the data for two jobs: places with no rating or a rating
+  below 3.6 are left off, and within a city places are ordered best-rated first. Places with a `hide` reason are left off too.
   `keep` (a reason) shows a place anyway: Jumbo King Burgers was asked for by name.
 - Every place needs `lat`/`lng`. The build stops if a pin lands more than 60 km from the rest of its city.
 - **Fully satvik** shows only for `satvik: "all"` (from your own notes). Everywhere else the card says
   "Ask for no onion, no garlic". A `tip` is your note and shows as "Note:".
 - The 15 "new finds" (`found: true`) came from other guides. They stay in the data but are left off until you've
   tried them. Set `SHOW_NEW_FINDS = true` in `build.js` to show them: they get a "New find · not tried yet" tag and
-  only facts (rating, reviews, area, price), with no note and no satvik claim.
+  only facts (area, price), with no note and no satvik claim.
 - City names: the data keeps the official ones (Bengaluru, Mumbai, Delhi NCR, Vadodara); `CITIES` in `build.js`
   turns them into Bangalore, Bombay, Gurgaon, Delhi and Baroda.
 - "Open in Google Maps" searches the place's name at its coordinates.
