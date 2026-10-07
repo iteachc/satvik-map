@@ -131,6 +131,10 @@ h1 em { font-style: normal; color: var(--leaf); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 12px; }
 .place { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 8px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .empty { margin: 0; color: var(--muted); }
+.branches { list-style: none; margin: 2px 0 0; padding: 0; display: grid; }
+.branches li { border-top: 1px solid var(--line); padding-top: 8px; display: grid; gap: 2px; }
+.branch { margin: 0; font-weight: 700; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.branches .actions { margin-top: 0; }
 
 /* Card */
 .card { position: absolute; z-index: 1001; left: 10px; right: 10px; bottom: 26px; max-height: calc(100% - 44px); overflow-y: auto;
@@ -246,6 +250,7 @@ h1 em { font-style: normal; color: var(--leaf); }
     <div class="listwrap" id="list" aria-label="All places">{{SECTIONS}}
       <p class="empty" id="empty" hidden>Nothing matches those filters. Try another city or type of food.</p>
     </div>
+    <template id="popups">{{POPUPS}}</template>
     <article class="card" id="card" tabindex="-1" aria-labelledby="card-name" hidden>
       <button type="button" class="close" id="card-close" aria-label="Close">×</button>
       <div id="card-body" style="display:contents"></div>
@@ -276,6 +281,7 @@ h1 em { font-style: normal; color: var(--leaf); }
   var listEl = document.getElementById('list');
   var emptyEl = document.getElementById('empty');
   var cards = [].slice.call(listEl.querySelectorAll('.place'));
+  var popups = document.getElementById('popups').content;
   var sections = [].slice.call(listEl.querySelectorAll('.city'));
   var byId = {};
   places.forEach(function (p) { byId[p.id] = p; });
@@ -331,10 +337,17 @@ h1 em { font-style: normal; color: var(--leaf); }
 
   function applyList() {
     var n = 0;
+    // A card shows if any of its places do; a chain's card also hides branches that don't match.
     cards.forEach(function (c) {
-      var ok = visible(byId[c.dataset.id]);
-      c.hidden = !ok;
-      if (ok) n++;
+      var shownHere = 0;
+      c.dataset.ids.split(' ').forEach(function (id) {
+        var ok = visible(byId[id]);
+        var row = c.querySelector('li[data-id="' + id + '"]');
+        if (row) row.hidden = !ok;
+        if (ok) shownHere++;
+      });
+      c.hidden = !shownHere;
+      n += shownHere;
     });
     sections.forEach(function (s) { s.hidden = !s.querySelector('.place:not([hidden])'); });
     emptyEl.hidden = n !== 0;
@@ -390,16 +403,14 @@ h1 em { font-style: normal; color: var(--leaf); }
     m.setZIndexOffset(on ? 1000 : (m.place.full ? 500 : 0));
   }
 
-  // The map's card is a copy of the place's card from the list.
+  // The map's card is a copy of the place's popup card (built with the list, kept in a <template>).
   function open(m) {
     var p = m.place;
     if (selected) highlight(selected, false);
     selected = m;
     highlight(m, true);
 
-    var copy = document.getElementById('p-' + p.id).cloneNode(true);
-    var onmap = copy.querySelector('.onmap');
-    if (onmap) onmap.remove();
+    var copy = popups.getElementById('p-' + p.id).cloneNode(true);
     copy.querySelector('h3').id = 'card-name';
     cardBody.textContent = '';
     while (copy.firstChild) cardBody.appendChild(copy.firstChild);
