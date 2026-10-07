@@ -78,7 +78,7 @@ h1 em { font-style: normal; color: var(--leaf); }
 .views button { font: inherit; font-size: 13.5px; font-weight: 700; line-height: 1; border: 0; background: none; color: var(--muted); border-radius: 999px; padding: 0 12px; min-height: 28px; cursor: pointer; }
 .views button[aria-pressed="true"] { background: var(--leaf); color: var(--card); }
 .lede { margin: 0; font-size: 14.5px; line-height: 1.45; color: var(--muted); }
-.lede strong { color: var(--ink); }
+.lede strong, .lede b { color: var(--ink); }
 
 .filters { display: grid; gap: 8px; min-width: 0; }
 .chiprow { display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
@@ -133,9 +133,10 @@ h1 em { font-style: normal; color: var(--leaf); }
 .card h3 { padding-right: 30px; }
 .where { margin: 0; color: var(--muted); font-size: 15px; }
 .stats { margin: 0; font-size: 15px; font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; gap: 2px 12px; }
-.badge { justify-self: start; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 2px 9px; }
+.badges { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.badge { font-size: 13px; font-weight: 700; border-radius: 6px; padding: 1px 8px; border: 1px solid transparent; }
 .badge.all { background: var(--leaf); color: var(--card); }
-.badge.ask { color: var(--muted); padding-inline: 0; font-weight: 500; }
+.badge.veg { border-color: var(--line); color: var(--ink); }
 .note { margin: 0; font-size: 16px; line-height: 1.45; color: var(--ink); }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0 18px; }
 .maps { font-weight: 700; text-decoration: none; font-size: 15px; padding-block: 6px; }
@@ -198,7 +199,7 @@ h1 em { font-style: normal; color: var(--leaf); }
         <button type="button" data-view="list" aria-pressed="false">List</button>
       </div>
     </div>
-    <p class="lede"><strong>Satvik food</strong> is cooked without onion and garlic. These are my picks: 58 places in Bangalore, Bombay, Gurgaon, Delhi and Baroda.</p>
+    <p class="lede"><strong>Satvik food</strong> is cooked without onion and garlic. These are my picks: 58 places in Bangalore, Bombay, Gurgaon, Delhi and Baroda. Unless marked <b>Fully satvik</b>, ask for no onion, no garlic when you order.</p>
 
     <nav class="filters" aria-label="Filters">
       <div class="chiprow" role="group" aria-label="City"><span class="label">City</span><button type="button" class="chip" data-jump="all" aria-pressed="false">All India<span class="n">58</span></button><button type="button" class="chip" data-jump="bangalore" aria-pressed="false">Bangalore<span class="n">22</span></button><button type="button" class="chip" data-jump="bombay" aria-pressed="false">Bombay<span class="n">6</span></button><button type="button" class="chip" data-jump="gurgaon" aria-pressed="true">Gurgaon<span class="n">16</span></button><button type="button" class="chip" data-jump="delhi" aria-pressed="false">Delhi<span class="n">12</span></button><button type="button" class="chip" data-jump="baroda" aria-pressed="false">Baroda<span class="n">2</span></button></div>
@@ -213,7 +214,6 @@ h1 em { font-style: normal; color: var(--leaf); }
 
     <details class="about" id="about">
       <summary>About these places</summary>
-      <p>Places marked <b>Fully satvik</b> don't use onion or garlic at all. Everywhere else, ask for no onion, no garlic when you order.</p>
       <p>Eating Jain? Jain food also leaves out root vegetables like potato, carrot and ginger. Say "Jain" when you order, and double-check.</p>
       
     </details>
@@ -232,7 +232,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Padmanabhanagar, Bangalore</p>
           <p class="note">Everything here is without onion and garlic.</p>
           <p class="stats">₹1–200 per person</p>
-          <span class="badge all">Fully satvik</span>
+          <p class="badges"><span class="badge all">Fully satvik</span></p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Satvik%20Kitchen/@12.91806,77.55718,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="satvik-kitchen">Show on map</button>
@@ -245,7 +245,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Bangalore</p>
           
           <p class="stats">₹1–200 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Taaza%20Thindi/@12.92284,77.59328,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="taaza-thindi">Show on map</button>
@@ -258,7 +258,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Forum Falcon City, Kanakapura Road, Bangalore</p>
           
           <p class="stats">₹400–1,200 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Brik%20Oven/@12.88736,77.56251,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="brik-oven-kanakapura">Show on map</button>
@@ -271,7 +271,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Koramangala, Bangalore</p>
           <p class="note">Sauce does not have onion or garlic.</p>
           <p class="stats">₹400–1,200 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Brik%20Oven/@12.9341,77.63028,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="brik-oven-koramangala">Show on map</button>
@@ -284,7 +284,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Jayanagar, Bangalore</p>
           
           
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Anand%20Sweets%20%26%20Savouries/@12.93071,77.58104,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="anand-sweets-jayanagar">Show on map</button>
@@ -297,7 +297,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Bannerghatta Road, Bangalore</p>
           <p class="note">Apple crumble, butterscotch. Litchi or mangoes with cream.</p>
           
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Corner%20House/@12.89237,77.59711,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="corner-house-bannerghatta">Show on map</button>
@@ -310,7 +310,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Koramangala, Bangalore</p>
           
           <p class="stats">₹400–600 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Gramin/@12.93446,77.61343,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="gramin">Show on map</button>
@@ -323,7 +323,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Koramangala, Bangalore</p>
           
           
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Anand%20Sweets%20%26%20Savouries/@12.93718,77.61943,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="anand-sweets-koramangala">Show on map</button>
@@ -336,7 +336,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Indiranagar, Bangalore</p>
           
           <p class="stats">₹400–1,400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kailash%20Parbat/@12.97176,77.64734,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kailash-parbat-indiranagar">Show on map</button>
@@ -349,7 +349,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Arakere, Bannerghatta Road, Bangalore</p>
           
           <p class="stats">₹200–400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/The%20Soya%20Chaap%20Co./@12.88461,77.59124,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="soya-chaap-co">Show on map</button>
@@ -362,7 +362,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Koramangala, Bangalore</p>
           
           <p class="stats">₹1–200 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kota%20Kachori/@12.93464,77.61246,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kota-kachori">Show on map</button>
@@ -375,7 +375,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Jayanagar, Bangalore</p>
           
           <p class="stats">₹200–1,000 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kapoor&#39;s%20Cafe/@12.93274,77.58507,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kapoors-cafe">Show on map</button>
@@ -388,7 +388,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Old Airport Road, Bangalore</p>
           
           
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Sterlings%20Mac%20Hotel/@12.95956,77.64882,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="sterlings-mac">Show on map</button>
@@ -401,7 +401,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Bangalore</p>
           
           <p class="stats">₹200–400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/MTR/@12.91166,77.59901,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="mtr">Show on map</button>
@@ -414,7 +414,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Jayanagar, Bangalore</p>
           
           <p class="stats">₹200–1,200 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kailash%20Parbat/@12.93395,77.58261,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kailash-parbat-jayanagar">Show on map</button>
@@ -427,7 +427,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Bangalore</p>
           
           <p class="stats">₹600–800 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kesariya/@13.0051,77.58387,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kesariya-north">Show on map</button>
@@ -440,7 +440,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Bangalore</p>
           
           <p class="stats">₹200–400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Bhartiya%20Jalpan/@12.91557,77.65161,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="bhartiya-jalpan">Show on map</button>
@@ -453,7 +453,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Bangalore</p>
           
           <p class="stats">₹600–800 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kesariya/@12.90658,77.58962,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kesariya-south">Show on map</button>
@@ -466,7 +466,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Vega City Mall, BTM Layout, Bangalore</p>
           
           <p class="stats">₹400–600 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kailash%20Parbat/@12.90779,77.60122,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kailash-parbat-vega">Show on map</button>
@@ -479,7 +479,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Bangalore</p>
           
           <p class="stats">₹1–200 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/ParkView%20Vegetarian/@12.88701,77.61036,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="parkview">Show on map</button>
@@ -492,7 +492,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Forum Mall Road, Konanakunte, Bangalore</p>
           <p class="note">Cheese dosa, chutney.</p>
           <p class="stats">₹1–400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/IDC%20Kitchen/@12.88725,77.56226,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="idc-kitchen">Show on map</button>
@@ -505,7 +505,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Forum Falcon City Mall, Bangalore</p>
           <p class="note">Paneer makhani, butter naan.</p>
           <p class="stats">₹1–800 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kailash%20Parbat/@12.88787,77.5629,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kailash-parbat-forum">Show on map</button>
@@ -523,7 +523,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Matunga East, Bombay</p>
           
           <p class="stats">₹200–400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Ram%20Ashraya/@19.02793,72.85179,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="ram-ashraya">Show on map</button>
@@ -536,7 +536,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">D.N. Nagar, Andheri West, Bombay</p>
           
           <p class="stats">₹200–600 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Joey&#39;s%20Pizza/@19.12663,72.83011,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="joeys-pizza">Show on map</button>
@@ -549,7 +549,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Babulnath, Chowpatty, Bombay</p>
           
           <p class="stats">₹400–1,200 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Soam/@18.95737,72.80894,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="soam">Show on map</button>
@@ -562,7 +562,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">JP Road, Andheri West, Bombay</p>
           
           <p class="stats">₹200–400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Udupi%20Shree%20Krishna/@19.12768,72.8339,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="usk">Show on map</button>
@@ -575,7 +575,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Fort, near CST, Bombay</p>
           
           <p class="stats">₹200–1,000 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Vithal&#39;s%20Family%20Restaurant/@18.9381,72.83376,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="vithals">Show on map</button>
@@ -588,7 +588,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Lokhandwala, Andheri West, Bombay</p>
           
           <p class="stats">₹200–400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Guru%20Da%20Dhaba/@19.14163,72.82518,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="guru-da-dhaba">Show on map</button>
@@ -606,7 +606,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">MGF Metropolitan Mall, Gurgaon</p>
           
           <p class="stats">₹200–400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Haldiram&#39;s/@28.48097,77.08038,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="haldirams-mgf">Show on map</button>
@@ -619,7 +619,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">AIPL Joy Street, Sector 66, Gurgaon</p>
           
           <p class="stats">₹200–400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kulcha%20Kulture/@28.39176,77.05857,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kulcha-kulture-ggn">Show on map</button>
@@ -632,7 +632,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Cyber Hub, Gurgaon</p>
           
           <p class="stats">₹2,000+ per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Copper%20Chimney/@28.49583,77.08888,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="copper-chimney-cyberhub">Show on map</button>
@@ -645,7 +645,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Crosspoint Mall, DLF City IV, Gurgaon</p>
           
           <p class="stats">₹800–1,800 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Pizzeria%20da%20Susy/@28.46832,77.08294,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="pizzeria-da-susy">Show on map</button>
@@ -658,7 +658,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Ambience Mall, Gurgaon</p>
           
           <p class="stats">₹600–1,800 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/PizzaExpress/@28.50547,77.09599,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="pizzaexpress-ambience">Show on map</button>
@@ -671,7 +671,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Vipul Square, Sushant Lok, Gurgaon</p>
           
           <p class="stats">₹200–400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Naivedyam/@28.46495,77.0788,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="naivedyam-sushant-lok">Show on map</button>
@@ -684,7 +684,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Suncity, Sector 54, Gurgaon</p>
           
           <p class="stats">₹200–400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Naivedyam/@28.43474,77.10665,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="naivedyam-suncity">Show on map</button>
@@ -697,7 +697,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Ambience Mall, Gurgaon</p>
           
           
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Haldiram&#39;s/@28.503,77.09696,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="haldirams-ambience">Show on map</button>
@@ -710,7 +710,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Huda Market, Sector 46, Gurgaon</p>
           
           <p class="stats">₹1–200 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kulcha%20Lal%20Parantha%20Das/@28.4355,77.05909,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kulcha-lal-parantha-das">Show on map</button>
@@ -723,7 +723,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">DLF Phase 3, Gurgaon</p>
           
           <p class="stats">₹200–1,000 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Punjabi%20Angithi/@28.48778,77.10374,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="punjabi-angithi">Show on map</button>
@@ -736,7 +736,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Cyber Hub, Gurgaon</p>
           
           <p class="stats">₹200–400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Benne%20%E2%80%93%20Heritage%20Bangalore%20Dosa/@28.49609,77.0889,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="benne-cyberhub">Show on map</button>
@@ -749,7 +749,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">DLF Phase IV, Gurgaon</p>
           
           <p class="stats">₹1–600 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Jay%20Bhavani%20Vadapav/@28.4622,77.08744,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="jay-bhavani-vadapav">Show on map</button>
@@ -762,7 +762,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Vyapar Kendra, Sushant Lok Phase I, Gurgaon</p>
           
           <p class="stats">₹1–200 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Om%20Chole%20Bhature%20Delhi%20Wale/@28.46055,77.08384,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="om-chole-bhature">Show on map</button>
@@ -775,7 +775,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Sushant Lok, Gurgaon</p>
           
           <p class="stats">₹1–200 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Prem%20Bhature%20Wala/@28.4604,77.0838,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="prem-bhature-wala">Show on map</button>
@@ -788,7 +788,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">MGF Metropolitan Mall, Gurgaon</p>
           
           <p class="stats">₹1–200 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Chaat%20Ka%20Chaska/@28.47857,77.08208,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="chaat-ka-chaska-mgf">Show on map</button>
@@ -801,7 +801,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">HUDA City Centre metro, Sector 29, Gurgaon</p>
           <p class="note">Great paneer burger.</p>
           <p class="stats">₹1–200 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Jumbo%20King%20Burgers/@28.45902,77.07277,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="jumbo-king-huda">Show on map</button>
@@ -819,7 +819,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Lajpat Nagar II, Delhi</p>
           
           <p class="stats">₹200–400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kulcha%20Kulture/@28.5702,77.23747,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kulcha-kulture-ln">Show on map</button>
@@ -832,7 +832,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Select Citywalk, Saket, Delhi</p>
           
           
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Sattvik/@28.52946,77.21956,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="sattvik-saket">Show on map</button>
@@ -845,7 +845,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Select Citywalk, Saket, Delhi</p>
           
           <p class="stats">₹800–1,800 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Toscano/@28.52835,77.21895,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="toscano-saket">Show on map</button>
@@ -858,7 +858,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Sector 12, RK Puram, Delhi</p>
           
           <p class="stats">₹200–400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Karnataka%20Food%20Centre/@28.57792,77.17535,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="karnataka-food-centre">Show on map</button>
@@ -871,7 +871,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Pandara Road, Delhi</p>
           
           
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Veg%20Gulati/@28.6078,77.22996,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="veg-gulati">Show on map</button>
@@ -884,7 +884,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Moolchand, Lajpat Nagar, Delhi</p>
           
           <p class="stats">₹1–200 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Moolchand%20Parantha/@28.56408,77.23424,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="moolchand-parantha">Show on map</button>
@@ -897,7 +897,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Chandni Chowk, Delhi</p>
           
           <p class="stats">₹200–400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kake%20Di%20Hatti/@28.65813,77.22321,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kake-di-hatti">Show on map</button>
@@ -910,7 +910,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">South Extension I, Delhi</p>
           
           <p class="stats">₹200–400 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Bengali%20Sweet%20Centre/@28.5696,77.22092,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="bengali-sweet-centre">Show on map</button>
@@ -923,7 +923,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Dariba Kalan, Chandni Chowk, Delhi</p>
           
           
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Old%20Famous%20Jalebi%20Wala/@28.65606,77.2335,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="old-famous-jalebi-wala">Show on map</button>
@@ -936,7 +936,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Pandara Market, Delhi</p>
           
           
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Krishna%20Di%20Kulfi/@28.60784,77.23006,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="krishna-di-kulfi">Show on map</button>
@@ -949,7 +949,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Hanuman Mandir, Connaught Place, Delhi</p>
           
           <p class="stats">₹1–200 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Shri%20Hanuman%20Kachori/@28.63004,77.21448,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="shri-hanuman-kachori">Show on map</button>
@@ -962,7 +962,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Central Market, Lajpat Nagar II, Delhi</p>
           
           
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Softyboy%20Ice%20Cream/@28.56918,77.24074,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="softyboy">Show on map</button>
@@ -980,7 +980,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Old Padra Road, Baroda</p>
           
           <p class="stats">₹200–1,000 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Pizza%20On%20The%20Rock/@22.29841,73.1646,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="pizza-on-the-rock">Show on map</button>
@@ -993,7 +993,7 @@ h1 em { font-style: normal; color: var(--leaf); }
           <p class="where">Race Course Road, Baroda</p>
           
           <p class="stats">₹200–800 per person</p>
-          <span class="badge ask">Ask for no onion, no garlic</span>
+          
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Sawan&#39;s%20Gravies/@22.3154,73.16358,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="sawans-gravies">Show on map</button>

@@ -17,7 +17,7 @@ It started as [The Satvik List](https://github.com/iteachc/satvik-list); that si
 ## Files
 | File | What it is |
 |---|---|
-| `data/places.json` | Every place: city, area, coordinates, Google rating and review count, price, cuisine, `type` (meal / pizza / quick / sweet), `satvik` level, your `note`, and `hide` with a reason for places left off. |
+| `data/places.json` | Every place: city, area, coordinates, Google rating and review count, price, cuisine, `type` (meal / pizza / quick / sweet), `fullySatvik`, `pureVeg`, your `note`, and `hide` with a reason for places left off. |
 | `template.html` | Page design, the map (Leaflet 1.9.4 + Leaflet.markercluster 1.5.3 from cdnjs, OpenStreetMap tiles), the list, and the filters. |
 | `build.js` | `node build.js` → `docs/index.html`. Prints which places were left off and why, and any place without coordinates. |
 | `docs/index.html` | The website (generated, don't edit by hand). |
@@ -28,8 +28,8 @@ It started as [The Satvik List](https://github.com/iteachc/satvik-list); that si
   below 3.6 are left off, and within a city places are ordered best-rated first. Places with a `hide` reason are left off too.
   `keep` (a reason) shows a place anyway: Jumbo King Burgers was asked for by name.
 - Every place needs `lat`/`lng`. The build stops if a pin lands more than 60 km from the rest of its city.
-- **Fully satvik** shows only for `satvik: "all"` (from your own notes). Everywhere else the card says
-  "Ask for no onion, no garlic".
+- Badges only mark exceptions: **Fully satvik** for `"fullySatvik": true` (from your own notes) and **Pure veg** for
+  `"pureVeg": true`. The intro says once: unless marked Fully satvik, ask for no onion, no garlic when you order.
 - The 15 "new finds" (`found: true`) came from other guides. They stay in the data but are left off until you've
   tried them. Set `SHOW_NEW_FINDS = true` in `build.js` to show them: they get a "New find · not tried yet" tag and
   only facts (area, price), with no note and no satvik claim.
@@ -45,7 +45,7 @@ then `node build.js` and push. Places without a note just don't show the line.
 One place per line. An example entry:
 
 ```json
-{"id":"kulcha-kulture-ln","name":"Kulcha Kulture","city":"Delhi NCR","area":"Lajpat Nagar II, New Delhi","lat":28.5702,"lng":77.23747,"rating":4.8,"reviews":8135,"price":"₹200–400","cuisine":"Amritsari kulcha","type":"meal","satvik":"ask","note":"What to order, or why it's here."}
+{"id":"kulcha-kulture-ln","name":"Kulcha Kulture","city":"Delhi NCR","area":"Lajpat Nagar II, New Delhi","lat":28.5702,"lng":77.23747,"rating":4.8,"reviews":8135,"price":"₹200–400","cuisine":"Amritsari kulcha","type":"meal","note":"What to order, or why it's here.","pureVeg":true}
 ```
 
 | Field | What it is |
@@ -56,7 +56,8 @@ One place per line. An example entry:
 | `rating`, `reviews` | From Google Maps. Not shown; used for the 3.6 cut-off and ordering. |
 | `price` | Price per person from Google Maps, e.g. `₹200–400`. Leave `""` if unknown. |
 | `cuisine`, `type` | The card's small heading. `type` is `meal`, `pizza`, `quick` or `sweet` and sets the pin. |
-| `satvik` | `"all"` shows the Fully satvik badge. |
+| `fullySatvik` | Optional. `true` shows the **Fully satvik** badge: nothing there has onion or garlic. |
+| `pureVeg` | Optional. `true` shows a **Pure veg** badge. Not set on any place yet. |
 | `note` | Your note. |
 | `hide` | Optional: a reason to leave the place off (closed, gone…). |
 | `keep` | Optional: a reason to show it even though it's rated below 3.6. |
