@@ -17,7 +17,7 @@ It started as [The Satvik List](https://github.com/iteachc/satvik-list); that si
 ## Files
 | File | What it is |
 |---|---|
-| `data/places.json` | Every place: city, area, coordinates, Google rating and review count, price, cuisine, `type` (meal / pizza / quick / sweet), `satvik` level, `tip`, and `hide` with a reason for places left off. |
+| `data/places.json` | Every place: city, area, coordinates, Google rating and review count, price, cuisine, `type` (meal / pizza / quick / sweet), `satvik` level, your `note`, and `hide` with a reason for places left off. |
 | `template.html` | Page design, the map (Leaflet 1.9.4 + Leaflet.markercluster 1.5.3 from cdnjs, OpenStreetMap tiles), the list, and the filters. |
 | `build.js` | `node build.js` → `docs/index.html`. Prints which places were left off and why, and any place without coordinates. |
 | `docs/index.html` | The website (generated, don't edit by hand). |
@@ -29,13 +29,100 @@ It started as [The Satvik List](https://github.com/iteachc/satvik-list); that si
   `keep` (a reason) shows a place anyway: Jumbo King Burgers was asked for by name.
 - Every place needs `lat`/`lng`. The build stops if a pin lands more than 60 km from the rest of its city.
 - **Fully satvik** shows only for `satvik: "all"` (from your own notes). Everywhere else the card says
-  "Ask for no onion, no garlic". A `tip` is your note and shows as "Note:".
+  "Ask for no onion, no garlic".
 - The 15 "new finds" (`found: true`) came from other guides. They stay in the data but are left off until you've
   tried them. Set `SHOW_NEW_FINDS = true` in `build.js` to show them: they get a "New find · not tried yet" tag and
   only facts (area, price), with no note and no satvik claim.
 - City names: the data keeps the official ones (Bengaluru, Mumbai, Delhi NCR, Vadodara); `CITIES` in `build.js`
   turns them into Bangalore, Bombay, Gurgaon, Delhi and Baroda.
 - "Open in Google Maps" searches the place's name at its coordinates.
+
+## Adding a note
+A note is what to order, or why the place is on your list. It shows on the card right under the name and area.
+Every place in `data/places.json` already has a `"note"` field, so adding one is a single edit between the quotes,
+then `node build.js` and push. Places without a note just don't show the line.
+
+One place per line. An example entry:
+
+```json
+{"id":"kulcha-kulture-ln","name":"Kulcha Kulture","city":"Delhi NCR","area":"Lajpat Nagar II, New Delhi","lat":28.5702,"lng":77.23747,"rating":4.8,"reviews":8135,"price":"₹200–400","cuisine":"Amritsari kulcha","type":"meal","satvik":"ask","note":"What to order, or why it's here."}
+```
+
+| Field | What it is |
+|---|---|
+| `id` | Unique, lowercase-with-dashes. Used in links and "Show on map". |
+| `name`, `area`, `city` | Shown on the card. `city` is the official name: Delhi NCR, Bengaluru, Mumbai or Vadodara (Gurgaon is Delhi NCR with "Gurugram" in the area). |
+| `lat`, `lng` | Where the pin goes. |
+| `rating`, `reviews` | From Google Maps. Not shown; used for the 3.6 cut-off and ordering. |
+| `price` | Price per person from Google Maps, e.g. `₹200–400`. Leave `""` if unknown. |
+| `cuisine`, `type` | The card's small heading. `type` is `meal`, `pizza`, `quick` or `sweet` and sets the pin. |
+| `satvik` | `"all"` shows the Fully satvik badge. |
+| `note` | Your note. |
+| `hide` | Optional: a reason to leave the place off (closed, gone…). |
+| `keep` | Optional: a reason to show it even though it's rated below 3.6. |
+
+## TODO: places without a note
+**Bangalore**
+- [ ] Taaza Thindi (`taaza-thindi`)
+- [ ] Brik Oven — Forum Falcon City, Kanakapura Road (`brik-oven-kanakapura`)
+- [ ] Anand Sweets & Savouries — Jayanagar (`anand-sweets-jayanagar`)
+- [ ] Gramin — Koramangala (`gramin`)
+- [ ] Anand Sweets & Savouries — Koramangala (`anand-sweets-koramangala`)
+- [ ] Kailash Parbat — Indiranagar (`kailash-parbat-indiranagar`)
+- [ ] The Soya Chaap Co. — Arakere, Bannerghatta Road (`soya-chaap-co`)
+- [ ] Kota Kachori — Koramangala (`kota-kachori`)
+- [ ] Kapoor's Cafe — Jayanagar (`kapoors-cafe`)
+- [ ] Sterlings Mac Hotel — Old Airport Road (`sterlings-mac`)
+- [ ] MTR (`mtr`)
+- [ ] Kailash Parbat — Jayanagar (`kailash-parbat-jayanagar`)
+- [ ] Kesariya (`kesariya-north`)
+- [ ] Bhartiya Jalpan (`bhartiya-jalpan`)
+- [ ] Kesariya (`kesariya-south`)
+- [ ] Kailash Parbat — Vega City Mall, BTM Layout (`kailash-parbat-vega`)
+- [ ] ParkView Vegetarian (`parkview`)
+
+**Bombay**
+- [ ] Ram Ashraya — Matunga East (`ram-ashraya`)
+- [ ] Joey's Pizza — D.N. Nagar, Andheri West (`joeys-pizza`)
+- [ ] Soam — Babulnath, Chowpatty (`soam`)
+- [ ] Udupi Shree Krishna — JP Road, Andheri West (`usk`)
+- [ ] Vithal's Family Restaurant — Fort, near CST (`vithals`)
+- [ ] Guru Da Dhaba — Lokhandwala, Andheri West (`guru-da-dhaba`)
+
+**Gurgaon**
+- [ ] Haldiram's — MGF Metropolitan Mall (`haldirams-mgf`)
+- [ ] Kulcha Kulture — AIPL Joy Street, Sector 66 (`kulcha-kulture-ggn`)
+- [ ] Copper Chimney — Cyber Hub (`copper-chimney-cyberhub`)
+- [ ] Pizzeria da Susy — Crosspoint Mall, DLF City IV (`pizzeria-da-susy`)
+- [ ] PizzaExpress — Ambience Mall (`pizzaexpress-ambience`)
+- [ ] Naivedyam — Vipul Square, Sushant Lok (`naivedyam-sushant-lok`)
+- [ ] Naivedyam — Suncity, Sector 54 (`naivedyam-suncity`)
+- [ ] Haldiram's — Ambience Mall (`haldirams-ambience`)
+- [ ] Kulcha Lal Parantha Das — Huda Market, Sector 46 (`kulcha-lal-parantha-das`)
+- [ ] Punjabi Angithi — DLF Phase 3 (`punjabi-angithi`)
+- [ ] Benne – Heritage Bangalore Dosa — Cyber Hub (`benne-cyberhub`)
+- [ ] Jay Bhavani Vadapav — DLF Phase IV (`jay-bhavani-vadapav`)
+- [ ] Om Chole Bhature Delhi Wale — Vyapar Kendra, Sushant Lok Phase I (`om-chole-bhature`)
+- [ ] Prem Bhature Wala — Sushant Lok (`prem-bhature-wala`)
+- [ ] Chaat Ka Chaska — MGF Metropolitan Mall (`chaat-ka-chaska-mgf`)
+
+**Delhi**
+- [ ] Kulcha Kulture — Lajpat Nagar II (`kulcha-kulture-ln`)
+- [ ] Sattvik — Select Citywalk, Saket (`sattvik-saket`)
+- [ ] Toscano — Select Citywalk, Saket (`toscano-saket`)
+- [ ] Karnataka Food Centre — Sector 12, RK Puram (`karnataka-food-centre`)
+- [ ] Veg Gulati — Pandara Road (`veg-gulati`)
+- [ ] Moolchand Parantha — Moolchand, Lajpat Nagar (`moolchand-parantha`)
+- [ ] Kake Di Hatti — Chandni Chowk (`kake-di-hatti`)
+- [ ] Bengali Sweet Centre — South Extension I (`bengali-sweet-centre`)
+- [ ] Old Famous Jalebi Wala — Dariba Kalan, Chandni Chowk (`old-famous-jalebi-wala`)
+- [ ] Krishna Di Kulfi — Pandara Market (`krishna-di-kulfi`)
+- [ ] Shri Hanuman Kachori — Hanuman Mandir, Connaught Place (`shri-hanuman-kachori`)
+- [ ] Softyboy Ice Cream — Central Market, Lajpat Nagar II (`softyboy`)
+
+**Baroda**
+- [ ] Pizza On The Rock — Old Padra Road (`pizza-on-the-rock`)
+- [ ] Sawan's Gravies — Race Course Road (`sawans-gravies`)
 
 ## Data notes
 - Added for this site and read from Google Maps on 7 Oct 2026: Om Chole Bhature Delhi Wale, Jumbo King Burgers,
