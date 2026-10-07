@@ -5,7 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Satvik Map</title>
 <script>document.documentElement.dataset.view = location.hash.slice(1).indexOf('list') === 0 ? 'list' : 'map';</script>
-<meta name="description" content="A map and list of {{TOTAL}} places in {{CITY_NAMES}} where you can eat food without onion and garlic (satvik food).">
+<meta name="description" content="{{DESCRIPTION}}">
+<link rel="canonical" href="{{SITE}}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Satvik Map">
+<meta property="og:title" content="The Satvik Map">
+<meta property="og:description" content="{{DESCRIPTION}}">
+<meta property="og:url" content="{{SITE}}">
+<meta property="og:image" content="{{SITE}}og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#f3f6ee" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f1511" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 36'%3E%3Cpath d='M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z' fill='%232d6a38'/%3E%3Ccircle cx='14' cy='13.5' r='4.6' fill='%23f0c14b'/%3E%3C/svg%3E">
@@ -76,7 +86,8 @@ a { color: var(--leaf); }
 h1 { font-family: var(--display); font-weight: 400; font-size: 26px; line-height: 1.1; margin: 0; }
 h1 em { font-style: normal; color: var(--leaf); }
 .views { display: inline-flex; justify-self: start; flex: none; border: 1px solid var(--line); border-radius: 999px; padding: 2px; background: var(--card); }
-.views button { font: inherit; font-size: 13.5px; font-weight: 700; line-height: 1; border: 0; background: none; color: var(--muted); border-radius: 999px; padding: 0 12px; min-height: 28px; cursor: pointer; }
+.views button { position: relative; font: inherit; font-size: 13.5px; font-weight: 700; line-height: 1; border: 0; background: none; color: var(--muted); border-radius: 999px; padding: 0 12px; min-height: 28px; cursor: pointer; }
+.views button::after { content: ""; position: absolute; inset: -8px -2px; }
 .views button[aria-pressed="true"] { background: var(--leaf); color: var(--card); }
 .lede { margin: 0; font-size: 14.5px; line-height: 1.45; color: var(--muted); }
 .lede strong, .lede b { color: var(--ink); }
@@ -103,11 +114,12 @@ h1 em { font-style: normal; color: var(--leaf); }
 .count { margin: 0; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .about { font-size: 14.5px; color: var(--muted); }
-.about summary { cursor: pointer; font-weight: 700; color: var(--leaf); width: max-content; padding-block: 2px; }
+.about summary { cursor: pointer; font-weight: 700; color: var(--leaf); width: max-content; padding-block: 11px; margin-block: -9px; }
 .about p { margin: 8px 0 0; }
 .about b { color: var(--ink); }
 .links { margin: 0; font-size: 14px; color: var(--muted); }
-.links a, .links .copy { font: inherit; font-weight: 700; color: var(--leaf); text-decoration: none; background: none; border: 0; padding: 4px 0; cursor: pointer; }
+.links a, .links .copy { position: relative; font: inherit; font-weight: 700; color: var(--leaf); text-decoration: none; background: none; border: 0; padding: 4px 0; cursor: pointer; }
+.links a::after, .links .copy::after { content: ""; position: absolute; inset: -8px -4px; }
 .links a:hover, .links .copy:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 /* List view */
@@ -125,7 +137,7 @@ h1 em { font-style: normal; color: var(--leaf); }
   background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
   padding: 14px 16px 10px; display: grid; gap: 6px; align-content: start; }
 .card:focus { outline: none; }
-.card .close { position: absolute; top: 4px; right: 4px; width: 40px; height: 40px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: 400 26px/1 var(--body); cursor: pointer; }
+.card .close { position: absolute; top: 2px; right: 2px; width: 44px; height: 44px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: 400 26px/1 var(--body); cursor: pointer; }
 .card .close:hover { color: var(--ink); background: var(--bg); }
 .found { font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--turmeric); border: 1px solid var(--turmeric); border-radius: 999px; padding: 0 9px; white-space: nowrap; }
 .kind { font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
@@ -141,13 +153,15 @@ h1 em { font-style: normal; color: var(--leaf); }
 .note { margin: 0; font-size: 16px; line-height: 1.45; color: var(--ink); }
 /* margin-top: auto keeps the actions on the bottom edge, so they line up across a row of cards. */
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0 18px; margin-top: auto; }
-.maps { font-weight: 700; text-decoration: none; font-size: 15px; padding-block: 6px; }
+.maps { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; text-decoration: none; font-size: 15px; }
 .maps:hover { text-decoration: underline; text-underline-offset: 3px; }
-.onmap { font: inherit; font-size: 15px; font-weight: 700; color: var(--muted); background: none; border: 0; padding: 6px 0; cursor: pointer; }
+.onmap { min-height: 44px; font: inherit; font-size: 15px; font-weight: 700; color: var(--muted); background: none; border: 0; padding: 0; cursor: pointer; }
 .onmap:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 
 /* Pins and clusters */
 .pinwrap { background: none; border: 0; }
+.pinwrap::after, .cluster::after { content: ""; position: absolute; inset: -5px; }
+.pinwrap::after { inset: -4px -8px; }
 .pinwrap:focus-visible { outline: none; }
 .pin { display: block; width: 28px; height: 36px; overflow: visible; transform-origin: 50% 96%; transition: transform .15s ease; filter: drop-shadow(0 0 1px rgba(0, 0, 0, .75)) drop-shadow(0 1px 2px rgba(0, 0, 0, .35)); }
 .pin .body { fill: var(--c); stroke: #fff; stroke-width: 2; }
@@ -173,6 +187,11 @@ h1 em { font-style: normal; color: var(--leaf); }
 .leaflet-container .leaflet-control-attribution { background: var(--card); opacity: .9; color: var(--muted); font-size: 11px; }
 .leaflet-container .leaflet-control-attribution a { color: var(--leaf); }
 
+/* Touch screens: 44px tap targets for controls that sit in tight rows. */
+@media (pointer: coarse) {
+  .chip { min-height: 44px; }
+  .leaflet-touch .leaflet-bar a { width: 44px; height: 44px; line-height: 44px; }
+}
 @media (min-width: 640px) {
   .card { left: 16px; right: auto; width: 360px; bottom: 30px; }
 }

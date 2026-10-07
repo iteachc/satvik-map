@@ -14,6 +14,11 @@ It started as [The Satvik List](https://github.com/iteachc/satvik-list); that si
 
 `node build.js` writes `docs/index.html`. Commit and push `docs/` to update the website.
 
+**Sharing on WhatsApp:** apps never see the part of a link after `#`, so for a city preview share
+`…/satvik-map/gurgaon/` (or `bangalore/`, `bombay/`, `delhi/`, `baroda/`). It previews as "Satvik food in Gurgaon" and opens the
+map on that city. The build writes these pages too. The preview picture is `docs/og.jpg` (1200×630), a screenshot
+of the map you can swap for any picture.
+
 ## Files
 | File | What it is |
 |---|---|
