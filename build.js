@@ -28,6 +28,9 @@ const START = 'gurgaon'; // where the map opens
 // New finds (found: true) came from other guides, not your own list. They stay in the data but are left off
 // until you've tried them; set this to true to show them, tagged "New find · not tried yet".
 const SHOW_NEW_FINDS = false;
+// Your links, under "About these places". Discord has no link for a username, so the page copies it on tap.
+const GITHUB = 'https://github.com/iteachc';
+const DISCORD = 'iteachchem';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const mapsUrl = (p) => p.lat != null
@@ -145,6 +148,8 @@ const html = template
   .replace('{{FINDS_SWITCH}}', foundCount ? `<button type="button" class="switch" id="finds" role="switch" aria-checked="true"><span class="track" aria-hidden="true"></span>New finds <span class="n">${foundCount}</span></button>` : '')
   .replace('{{FINDS_ABOUT}}', foundCount ? " Places tagged <b>New find</b> were found through other guides and checked on Google Maps, but haven't been tried yet." : '')
   .replace('{{UPDATED}}', UPDATED)
+  .replace('{{LINKS}}', `<p class="links">Made by iteachc: <a href="${esc(GITHUB)}" target="_blank" rel="me noopener">GitHub</a> · `
+    + `<button type="button" class="copy" data-copy="${esc(DISCORD)}" title="Copy Discord username">Discord: ${esc(DISCORD)}</button></p>`)
   .replace('{{START}}', START)
   .replace('{{SECTIONS}}', sections)
   .replace('{{PINS}}', JSON.stringify(Object.fromEntries(Object.keys(TYPES).map((k) => [k, pinSvg(k)]))).replace(/</g, '\\u003c'))

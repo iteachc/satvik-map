@@ -105,6 +105,9 @@ h1 em { font-style: normal; color: var(--leaf); }
 .about summary { cursor: pointer; font-weight: 700; color: var(--leaf); width: max-content; padding-block: 2px; }
 .about p { margin: 8px 0 0; }
 .about b { color: var(--ink); }
+.links { margin: 0; font-size: 14px; color: var(--muted); }
+.links a, .links .copy { font: inherit; font-weight: 700; color: var(--leaf); text-decoration: none; background: none; border: 0; padding: 4px 0; cursor: pointer; }
+.links a:hover, .links .copy:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 /* List view */
 .listwrap { position: absolute; inset: 0; z-index: 1100; overflow-y: auto; background: var(--bg); padding: 16px 16px 48px; display: grid; gap: 28px; align-content: start; }
@@ -207,6 +210,8 @@ h1 em { font-style: normal; color: var(--leaf); }
         <p class="count" id="count" aria-live="polite">{{TOTAL}} places</p>
       </div>
     </nav>
+
+    {{LINKS}}
 
     <details class="about" id="about">
       <summary>About these places</summary>
@@ -472,6 +477,18 @@ h1 em { font-style: normal; color: var(--leaf); }
     map.setView(m.getLatLng(), 17, { animate: false });
     cluster.zoomToShowLayer(m, function () { open(m); });
     setHash();
+  });
+
+  // Discord: copy the username (there's no link for it).
+  [].slice.call(document.querySelectorAll('[data-copy]')).forEach(function (b) {
+    var label = b.textContent;
+    b.addEventListener('click', function () {
+      if (!navigator.clipboard) return;
+      navigator.clipboard.writeText(b.dataset.copy).then(function () {
+        b.textContent = 'Copied ' + b.dataset.copy;
+        setTimeout(function () { b.textContent = label; }, 1800);
+      }, function () {});
+    });
   });
 
   // The panel can change height (About opened, phone rotated), so keep Leaflet's idea of the map size current.
