@@ -7,8 +7,8 @@ It started as [The Satvik List](https://github.com/iteachc/satvik-list); that si
 **Website (GitHub Pages):** https://iteachc.github.io/satvik-map/ (served from `docs/index.html` on `main`).
 
 - It opens on the map, zoomed to Gurgaon. The **Map | List** switch shows every place as a card, grouped by city.
-- City buttons: All India, Bangalore, Bombay, Gurgaon, Delhi, Baroda. On the map they zoom to that city; in the list
-  they show only that city. Each list card has "Show on map".
+- City buttons: All India, Bangalore, Bombay, Gurgaon, Delhi, Baroda. They show only that city's places, on the map
+  (fitted to its pins) and in the list, and the count reads e.g. "16 places in Gurgaon". Each list card has "Show on map".
 - Links: `…/satvik-map/#delhi` opens the map on a city; `#list` opens the list, `#list-bombay` the list for one city.
   City ids: `bangalore`, `bombay`, `gurgaon`, `delhi`, `baroda`, `all`.
 
