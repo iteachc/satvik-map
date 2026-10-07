@@ -117,7 +117,7 @@ h1 em { font-style: normal; color: var(--leaf); }
 .city > h2 { font-family: var(--display); font-weight: 400; font-size: 28px; line-height: 1.1; margin: 0; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .city > h2 small { font-family: var(--body); font-size: 15px; color: var(--muted); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 12px; }
-.place { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 8px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.place { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 8px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .empty { margin: 0; color: var(--muted); }
 
 /* Card */
@@ -127,19 +127,20 @@ h1 em { font-style: normal; color: var(--leaf); }
 .card:focus { outline: none; }
 .card .close { position: absolute; top: 4px; right: 4px; width: 40px; height: 40px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: 400 26px/1 var(--body); cursor: pointer; }
 .card .close:hover { color: var(--ink); background: var(--bg); }
-.found { justify-self: start; font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--turmeric); border: 1px solid var(--turmeric); border-radius: 999px; padding: 0 9px; white-space: nowrap; }
+.found { font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--turmeric); border: 1px solid var(--turmeric); border-radius: 999px; padding: 0 9px; white-space: nowrap; }
 .kind { font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.card .kind { padding-right: 36px; }
+.head { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.card .head { padding-right: 36px; }
 .place h3, .card h3 { font-family: var(--display); font-weight: 400; font-size: 23px; line-height: 1.15; margin: 0; overflow-wrap: anywhere; }
 .card h3 { padding-right: 30px; }
 .where { margin: 0; color: var(--muted); font-size: 15px; }
-.stats { margin: 0; font-size: 15px; font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; gap: 2px 12px; }
-.badges { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
-.badge { font-size: 13px; font-weight: 700; border-radius: 6px; padding: 1px 8px; border: 1px solid transparent; }
+.price { margin: 0; font-size: 15px; font-variant-numeric: tabular-nums; }
+.badge { font-size: 12px; font-weight: 700; border-radius: 6px; padding: 0 7px; border: 1px solid transparent; }
 .badge.all { background: var(--leaf); color: var(--card); }
 .badge.veg { border-color: var(--line); color: var(--ink); }
 .note { margin: 0; font-size: 16px; line-height: 1.45; color: var(--ink); }
-.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0 18px; }
+/* margin-top: auto keeps the actions on the bottom edge, so they line up across a row of cards. */
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0 18px; margin-top: auto; }
 .maps { font-weight: 700; text-decoration: none; font-size: 15px; padding-block: 6px; }
 .maps:hover { text-decoration: underline; text-underline-offset: 3px; }
 .onmap { font: inherit; font-size: 15px; font-weight: 700; color: var(--muted); background: none; border: 0; padding: 6px 0; cursor: pointer; }
@@ -228,63 +229,53 @@ h1 em { font-style: normal; color: var(--leaf); }
         <h2 id="h-bangalore">Bangalore <small>22 places</small></h2>
         <div class="grid">
         <article class="place" id="p-satvik-kitchen" data-id="satvik-kitchen">
-          
-          <span class="kind">Meals · Vegetarian</span>
+          <p class="head"><span class="kind">Meals · Vegetarian</span><span class="badge all">Fully satvik</span></p>
           <h3>Satvik Kitchen</h3>
           <p class="where">Padmanabhanagar, Bangalore</p>
           <p class="note">Everything here is without onion and garlic.</p>
-          <p class="stats">₹1–200 per person</p>
-          <p class="badges"><span class="badge all">Fully satvik</span></p>
+          <p class="price">₹1–200 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Satvik%20Kitchen/@12.91806,77.55718,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="satvik-kitchen">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-taaza-thindi" data-id="taaza-thindi">
-          
-          <span class="kind">Quick bites · South Indian breakfast</span>
+          <p class="head"><span class="kind">Quick bites · South Indian breakfast</span></p>
           <h3>Taaza Thindi</h3>
           <p class="where">Bangalore</p>
           
-          <p class="stats">₹1–200 per person</p>
-          
+          <p class="price">₹1–200 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Taaza%20Thindi/@12.92284,77.59328,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="taaza-thindi">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-brik-oven-kanakapura" data-id="brik-oven-kanakapura">
-          
-          <span class="kind">Pizza &amp; Italian · Wood-fired pizza</span>
+          <p class="head"><span class="kind">Pizza &amp; Italian · Wood-fired pizza</span></p>
           <h3>Brik Oven</h3>
           <p class="where">Forum Falcon City, Kanakapura Road, Bangalore</p>
           
-          <p class="stats">₹400–1,200 per person</p>
-          
+          <p class="price">₹400–1,200 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Brik%20Oven/@12.88736,77.56251,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="brik-oven-kanakapura">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-brik-oven-koramangala" data-id="brik-oven-koramangala">
-          
-          <span class="kind">Pizza &amp; Italian · Wood-fired pizza</span>
+          <p class="head"><span class="kind">Pizza &amp; Italian · Wood-fired pizza</span></p>
           <h3>Brik Oven</h3>
           <p class="where">Koramangala, Bangalore</p>
           <p class="note">Sauce does not have onion or garlic.</p>
-          <p class="stats">₹400–1,200 per person</p>
-          
+          <p class="price">₹400–1,200 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Brik%20Oven/@12.9341,77.63028,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="brik-oven-koramangala">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-anand-sweets-jayanagar" data-id="anand-sweets-jayanagar">
-          
-          <span class="kind">Sweets &amp; desserts · Sweets &amp; savouries</span>
+          <p class="head"><span class="kind">Sweets &amp; desserts · Sweets &amp; savouries</span></p>
           <h3>Anand Sweets &amp; Savouries</h3>
           <p class="where">Jayanagar, Bangalore</p>
-          
           
           
           <div class="actions">
@@ -293,12 +284,10 @@ h1 em { font-style: normal; color: var(--leaf); }
           </div>
         </article>
         <article class="place" id="p-corner-house-bannerghatta" data-id="corner-house-bannerghatta">
-          
-          <span class="kind">Sweets &amp; desserts · Ice cream &amp; desserts</span>
+          <p class="head"><span class="kind">Sweets &amp; desserts · Ice cream &amp; desserts</span></p>
           <h3>Corner House</h3>
           <p class="where">Bannerghatta Road, Bangalore</p>
           <p class="note">Apple crumble, butterscotch. Litchi or mangoes with cream.</p>
-          
           
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Corner%20House/@12.89237,77.59711,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
@@ -306,24 +295,20 @@ h1 em { font-style: normal; color: var(--leaf); }
           </div>
         </article>
         <article class="place" id="p-gramin" data-id="gramin">
-          
-          <span class="kind">Meals · North Indian</span>
+          <p class="head"><span class="kind">Meals · North Indian</span></p>
           <h3>Gramin</h3>
           <p class="where">Koramangala, Bangalore</p>
           
-          <p class="stats">₹400–600 per person</p>
-          
+          <p class="price">₹400–600 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Gramin/@12.93446,77.61343,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="gramin">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-anand-sweets-koramangala" data-id="anand-sweets-koramangala">
-          
-          <span class="kind">Sweets &amp; desserts · Sweets &amp; savouries</span>
+          <p class="head"><span class="kind">Sweets &amp; desserts · Sweets &amp; savouries</span></p>
           <h3>Anand Sweets &amp; Savouries</h3>
           <p class="where">Koramangala, Bangalore</p>
-          
           
           
           <div class="actions">
@@ -332,63 +317,53 @@ h1 em { font-style: normal; color: var(--leaf); }
           </div>
         </article>
         <article class="place" id="p-kailash-parbat-indiranagar" data-id="kailash-parbat-indiranagar">
-          
-          <span class="kind">Meals · North Indian</span>
+          <p class="head"><span class="kind">Meals · North Indian</span></p>
           <h3>Kailash Parbat</h3>
           <p class="where">Indiranagar, Bangalore</p>
           
-          <p class="stats">₹400–1,400 per person</p>
-          
+          <p class="price">₹400–1,400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kailash%20Parbat/@12.97176,77.64734,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kailash-parbat-indiranagar">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-soya-chaap-co" data-id="soya-chaap-co">
-          
-          <span class="kind">Meals · Soya chaap</span>
+          <p class="head"><span class="kind">Meals · Soya chaap</span></p>
           <h3>The Soya Chaap Co.</h3>
           <p class="where">Arakere, Bannerghatta Road, Bangalore</p>
           
-          <p class="stats">₹200–400 per person</p>
-          
+          <p class="price">₹200–400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/The%20Soya%20Chaap%20Co./@12.88461,77.59124,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="soya-chaap-co">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-kota-kachori" data-id="kota-kachori">
-          
-          <span class="kind">Quick bites · Rajasthani snacks</span>
+          <p class="head"><span class="kind">Quick bites · Rajasthani snacks</span></p>
           <h3>Kota Kachori</h3>
           <p class="where">Koramangala, Bangalore</p>
           
-          <p class="stats">₹1–200 per person</p>
-          
+          <p class="price">₹1–200 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kota%20Kachori/@12.93464,77.61246,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kota-kachori">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-kapoors-cafe" data-id="kapoors-cafe">
-          
-          <span class="kind">Meals · Punjabi</span>
+          <p class="head"><span class="kind">Meals · Punjabi</span></p>
           <h3>Kapoor&#39;s Cafe</h3>
           <p class="where">Jayanagar, Bangalore</p>
           
-          <p class="stats">₹200–1,000 per person</p>
-          
+          <p class="price">₹200–1,000 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kapoor&#39;s%20Cafe/@12.93274,77.58507,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kapoors-cafe">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-sterlings-mac" data-id="sterlings-mac">
-          
-          <span class="kind">Meals · Hotel restaurants</span>
+          <p class="head"><span class="kind">Meals · Hotel restaurants</span></p>
           <h3>Sterlings Mac Hotel</h3>
           <p class="where">Old Airport Road, Bangalore</p>
-          
           
           
           <div class="actions">
@@ -397,117 +372,99 @@ h1 em { font-style: normal; color: var(--leaf); }
           </div>
         </article>
         <article class="place" id="p-mtr" data-id="mtr">
-          
-          <span class="kind">Meals · South Indian</span>
+          <p class="head"><span class="kind">Meals · South Indian</span></p>
           <h3>MTR</h3>
           <p class="where">Bangalore</p>
           
-          <p class="stats">₹200–400 per person</p>
-          
+          <p class="price">₹200–400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/MTR/@12.91166,77.59901,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="mtr">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-kailash-parbat-jayanagar" data-id="kailash-parbat-jayanagar">
-          
-          <span class="kind">Meals · North Indian</span>
+          <p class="head"><span class="kind">Meals · North Indian</span></p>
           <h3>Kailash Parbat</h3>
           <p class="where">Jayanagar, Bangalore</p>
           
-          <p class="stats">₹200–1,200 per person</p>
-          
+          <p class="price">₹200–1,200 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kailash%20Parbat/@12.93395,77.58261,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kailash-parbat-jayanagar">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-kesariya-north" data-id="kesariya-north">
-          
-          <span class="kind">Meals · Rajasthani thali</span>
+          <p class="head"><span class="kind">Meals · Rajasthani thali</span></p>
           <h3>Kesariya</h3>
           <p class="where">Bangalore</p>
           
-          <p class="stats">₹600–800 per person</p>
-          
+          <p class="price">₹600–800 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kesariya/@13.0051,77.58387,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kesariya-north">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-bhartiya-jalpan" data-id="bhartiya-jalpan">
-          
-          <span class="kind">Meals · North Indian</span>
+          <p class="head"><span class="kind">Meals · North Indian</span></p>
           <h3>Bhartiya Jalpan</h3>
           <p class="where">Bangalore</p>
           
-          <p class="stats">₹200–400 per person</p>
-          
+          <p class="price">₹200–400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Bhartiya%20Jalpan/@12.91557,77.65161,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="bhartiya-jalpan">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-kesariya-south" data-id="kesariya-south">
-          
-          <span class="kind">Meals · Rajasthani thali</span>
+          <p class="head"><span class="kind">Meals · Rajasthani thali</span></p>
           <h3>Kesariya</h3>
           <p class="where">Bangalore</p>
           
-          <p class="stats">₹600–800 per person</p>
-          
+          <p class="price">₹600–800 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kesariya/@12.90658,77.58962,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kesariya-south">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-kailash-parbat-vega" data-id="kailash-parbat-vega">
-          
-          <span class="kind">Meals · North Indian</span>
+          <p class="head"><span class="kind">Meals · North Indian</span></p>
           <h3>Kailash Parbat</h3>
           <p class="where">Vega City Mall, BTM Layout, Bangalore</p>
           
-          <p class="stats">₹400–600 per person</p>
-          
+          <p class="price">₹400–600 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kailash%20Parbat/@12.90779,77.60122,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kailash-parbat-vega">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-parkview" data-id="parkview">
-          
-          <span class="kind">Quick bites · Vegetarian fast food</span>
+          <p class="head"><span class="kind">Quick bites · Vegetarian fast food</span></p>
           <h3>ParkView Vegetarian</h3>
           <p class="where">Bangalore</p>
           
-          <p class="stats">₹1–200 per person</p>
-          
+          <p class="price">₹1–200 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/ParkView%20Vegetarian/@12.88701,77.61036,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="parkview">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-idc-kitchen" data-id="idc-kitchen">
-          
-          <span class="kind">Quick bites · South Indian breakfast</span>
+          <p class="head"><span class="kind">Quick bites · South Indian breakfast</span></p>
           <h3>IDC Kitchen</h3>
           <p class="where">Forum Mall Road, Konanakunte, Bangalore</p>
           <p class="note">Cheese dosa, chutney.</p>
-          <p class="stats">₹1–400 per person</p>
-          
+          <p class="price">₹1–400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/IDC%20Kitchen/@12.88725,77.56226,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="idc-kitchen">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-kailash-parbat-forum" data-id="kailash-parbat-forum">
-          
-          <span class="kind">Meals · North Indian</span>
+          <p class="head"><span class="kind">Meals · North Indian</span></p>
           <h3>Kailash Parbat</h3>
           <p class="where">Forum Falcon City Mall, Bangalore</p>
           <p class="note">Paneer makhani, butter naan.</p>
-          <p class="stats">₹1–800 per person</p>
-          
+          <p class="price">₹1–800 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kailash%20Parbat/@12.88787,77.5629,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kailash-parbat-forum">Show on map</button>
@@ -519,78 +476,66 @@ h1 em { font-style: normal; color: var(--leaf); }
         <h2 id="h-bombay">Bombay <small>6 places</small></h2>
         <div class="grid">
         <article class="place" id="p-ram-ashraya" data-id="ram-ashraya">
-          
-          <span class="kind">Meals · South Indian</span>
+          <p class="head"><span class="kind">Meals · South Indian</span></p>
           <h3>Ram Ashraya</h3>
           <p class="where">Matunga East, Bombay</p>
           
-          <p class="stats">₹200–400 per person</p>
-          
+          <p class="price">₹200–400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Ram%20Ashraya/@19.02793,72.85179,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="ram-ashraya">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-joeys-pizza" data-id="joeys-pizza">
-          
-          <span class="kind">Pizza &amp; Italian · Pizza</span>
+          <p class="head"><span class="kind">Pizza &amp; Italian · Pizza</span></p>
           <h3>Joey&#39;s Pizza</h3>
           <p class="where">D.N. Nagar, Andheri West, Bombay</p>
           
-          <p class="stats">₹200–600 per person</p>
-          
+          <p class="price">₹200–600 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Joey&#39;s%20Pizza/@19.12663,72.83011,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="joeys-pizza">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-soam" data-id="soam">
-          
-          <span class="kind">Meals · Gujarati</span>
+          <p class="head"><span class="kind">Meals · Gujarati</span></p>
           <h3>Soam</h3>
           <p class="where">Babulnath, Chowpatty, Bombay</p>
           
-          <p class="stats">₹400–1,200 per person</p>
-          
+          <p class="price">₹400–1,200 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Soam/@18.95737,72.80894,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="soam">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-usk" data-id="usk">
-          
-          <span class="kind">Meals · South Indian</span>
+          <p class="head"><span class="kind">Meals · South Indian</span></p>
           <h3>Udupi Shree Krishna</h3>
           <p class="where">JP Road, Andheri West, Bombay</p>
           
-          <p class="stats">₹200–400 per person</p>
-          
+          <p class="price">₹200–400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Udupi%20Shree%20Krishna/@19.12768,72.8339,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="usk">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-vithals" data-id="vithals">
-          
-          <span class="kind">Meals · Indian</span>
+          <p class="head"><span class="kind">Meals · Indian</span></p>
           <h3>Vithal&#39;s Family Restaurant</h3>
           <p class="where">Fort, near CST, Bombay</p>
           
-          <p class="stats">₹200–1,000 per person</p>
-          
+          <p class="price">₹200–1,000 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Vithal&#39;s%20Family%20Restaurant/@18.9381,72.83376,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="vithals">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-guru-da-dhaba" data-id="guru-da-dhaba">
-          
-          <span class="kind">Meals · North Indian</span>
+          <p class="head"><span class="kind">Meals · North Indian</span></p>
           <h3>Guru Da Dhaba</h3>
           <p class="where">Lokhandwala, Andheri West, Bombay</p>
           
-          <p class="stats">₹200–400 per person</p>
-          
+          <p class="price">₹200–400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Guru%20Da%20Dhaba/@19.14163,72.82518,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="guru-da-dhaba">Show on map</button>
@@ -602,102 +547,86 @@ h1 em { font-style: normal; color: var(--leaf); }
         <h2 id="h-gurgaon">Gurgaon <small>16 places</small></h2>
         <div class="grid">
         <article class="place" id="p-haldirams-mgf" data-id="haldirams-mgf">
-          
-          <span class="kind">Meals · North Indian, chaat &amp; sweets</span>
+          <p class="head"><span class="kind">Meals · North Indian, chaat &amp; sweets</span></p>
           <h3>Haldiram&#39;s</h3>
           <p class="where">MGF Metropolitan Mall, Gurgaon</p>
           
-          <p class="stats">₹200–400 per person</p>
-          
+          <p class="price">₹200–400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Haldiram&#39;s/@28.48097,77.08038,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="haldirams-mgf">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-kulcha-kulture-ggn" data-id="kulcha-kulture-ggn">
-          
-          <span class="kind">Meals · Amritsari kulcha</span>
+          <p class="head"><span class="kind">Meals · Amritsari kulcha</span></p>
           <h3>Kulcha Kulture</h3>
           <p class="where">AIPL Joy Street, Sector 66, Gurgaon</p>
           
-          <p class="stats">₹200–400 per person</p>
-          
+          <p class="price">₹200–400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kulcha%20Kulture/@28.39176,77.05857,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kulcha-kulture-ggn">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-copper-chimney-cyberhub" data-id="copper-chimney-cyberhub">
-          
-          <span class="kind">Meals · North Indian</span>
+          <p class="head"><span class="kind">Meals · North Indian</span></p>
           <h3>Copper Chimney</h3>
           <p class="where">Cyber Hub, Gurgaon</p>
           
-          <p class="stats">₹2,000+ per person</p>
-          
+          <p class="price">₹2,000+ per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Copper%20Chimney/@28.49583,77.08888,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="copper-chimney-cyberhub">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-pizzeria-da-susy" data-id="pizzeria-da-susy">
-          
-          <span class="kind">Pizza &amp; Italian · Italian</span>
+          <p class="head"><span class="kind">Pizza &amp; Italian · Italian</span></p>
           <h3>Pizzeria da Susy</h3>
           <p class="where">Crosspoint Mall, DLF City IV, Gurgaon</p>
           
-          <p class="stats">₹800–1,800 per person</p>
-          
+          <p class="price">₹800–1,800 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Pizzeria%20da%20Susy/@28.46832,77.08294,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="pizzeria-da-susy">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-pizzaexpress-ambience" data-id="pizzaexpress-ambience">
-          
-          <span class="kind">Pizza &amp; Italian · Pizza</span>
+          <p class="head"><span class="kind">Pizza &amp; Italian · Pizza</span></p>
           <h3>PizzaExpress</h3>
           <p class="where">Ambience Mall, Gurgaon</p>
           
-          <p class="stats">₹600–1,800 per person</p>
-          
+          <p class="price">₹600–1,800 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/PizzaExpress/@28.50547,77.09599,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="pizzaexpress-ambience">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-naivedyam-sushant-lok" data-id="naivedyam-sushant-lok">
-          
-          <span class="kind">Meals · South Indian</span>
+          <p class="head"><span class="kind">Meals · South Indian</span></p>
           <h3>Naivedyam</h3>
           <p class="where">Vipul Square, Sushant Lok, Gurgaon</p>
           
-          <p class="stats">₹200–400 per person</p>
-          
+          <p class="price">₹200–400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Naivedyam/@28.46495,77.0788,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="naivedyam-sushant-lok">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-naivedyam-suncity" data-id="naivedyam-suncity">
-          
-          <span class="kind">Meals · South Indian</span>
+          <p class="head"><span class="kind">Meals · South Indian</span></p>
           <h3>Naivedyam</h3>
           <p class="where">Suncity, Sector 54, Gurgaon</p>
           
-          <p class="stats">₹200–400 per person</p>
-          
+          <p class="price">₹200–400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Naivedyam/@28.43474,77.10665,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="naivedyam-suncity">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-haldirams-ambience" data-id="haldirams-ambience">
-          
-          <span class="kind">Meals · North Indian, chaat &amp; sweets</span>
+          <p class="head"><span class="kind">Meals · North Indian, chaat &amp; sweets</span></p>
           <h3>Haldiram&#39;s</h3>
           <p class="where">Ambience Mall, Gurgaon</p>
-          
           
           
           <div class="actions">
@@ -706,104 +635,88 @@ h1 em { font-style: normal; color: var(--leaf); }
           </div>
         </article>
         <article class="place" id="p-kulcha-lal-parantha-das" data-id="kulcha-lal-parantha-das">
-          
-          <span class="kind">Quick bites · Kulcha &amp; paranthas</span>
+          <p class="head"><span class="kind">Quick bites · Kulcha &amp; paranthas</span></p>
           <h3>Kulcha Lal Parantha Das</h3>
           <p class="where">Huda Market, Sector 46, Gurgaon</p>
           
-          <p class="stats">₹1–200 per person</p>
-          
+          <p class="price">₹1–200 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kulcha%20Lal%20Parantha%20Das/@28.4355,77.05909,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kulcha-lal-parantha-das">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-punjabi-angithi" data-id="punjabi-angithi">
-          
-          <span class="kind">Meals · North Indian (takeaway)</span>
+          <p class="head"><span class="kind">Meals · North Indian (takeaway)</span></p>
           <h3>Punjabi Angithi</h3>
           <p class="where">DLF Phase 3, Gurgaon</p>
           
-          <p class="stats">₹200–1,000 per person</p>
-          
+          <p class="price">₹200–1,000 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Punjabi%20Angithi/@28.48778,77.10374,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="punjabi-angithi">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-benne-cyberhub" data-id="benne-cyberhub">
-          
-          <span class="kind">Meals · Bangalore-style dosa</span>
+          <p class="head"><span class="kind">Meals · Bangalore-style dosa</span></p>
           <h3>Benne – Heritage Bangalore Dosa</h3>
           <p class="where">Cyber Hub, Gurgaon</p>
           
-          <p class="stats">₹200–400 per person</p>
-          
+          <p class="price">₹200–400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Benne%20%E2%80%93%20Heritage%20Bangalore%20Dosa/@28.49609,77.0889,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="benne-cyberhub">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-jay-bhavani-vadapav" data-id="jay-bhavani-vadapav">
-          
-          <span class="kind">Quick bites · Vada pav</span>
+          <p class="head"><span class="kind">Quick bites · Vada pav</span></p>
           <h3>Jay Bhavani Vadapav</h3>
           <p class="where">DLF Phase IV, Gurgaon</p>
           
-          <p class="stats">₹1–600 per person</p>
-          
+          <p class="price">₹1–600 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Jay%20Bhavani%20Vadapav/@28.4622,77.08744,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="jay-bhavani-vadapav">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-om-chole-bhature" data-id="om-chole-bhature">
-          
-          <span class="kind">Quick bites · Chhole bhature</span>
+          <p class="head"><span class="kind">Quick bites · Chhole bhature</span></p>
           <h3>Om Chole Bhature Delhi Wale</h3>
           <p class="where">Vyapar Kendra, Sushant Lok Phase I, Gurgaon</p>
           
-          <p class="stats">₹1–200 per person</p>
-          
+          <p class="price">₹1–200 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Om%20Chole%20Bhature%20Delhi%20Wale/@28.46055,77.08384,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="om-chole-bhature">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-prem-bhature-wala" data-id="prem-bhature-wala">
-          
-          <span class="kind">Quick bites · Chhole bhature</span>
+          <p class="head"><span class="kind">Quick bites · Chhole bhature</span></p>
           <h3>Prem Bhature Wala</h3>
           <p class="where">Sushant Lok, Gurgaon</p>
           
-          <p class="stats">₹1–200 per person</p>
-          
+          <p class="price">₹1–200 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Prem%20Bhature%20Wala/@28.4604,77.0838,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="prem-bhature-wala">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-chaat-ka-chaska-mgf" data-id="chaat-ka-chaska-mgf">
-          
-          <span class="kind">Quick bites · Chaat</span>
+          <p class="head"><span class="kind">Quick bites · Chaat</span></p>
           <h3>Chaat Ka Chaska</h3>
           <p class="where">MGF Metropolitan Mall, Gurgaon</p>
           
-          <p class="stats">₹1–200 per person</p>
-          
+          <p class="price">₹1–200 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Chaat%20Ka%20Chaska/@28.47857,77.08208,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="chaat-ka-chaska-mgf">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-jumbo-king-huda" data-id="jumbo-king-huda">
-          
-          <span class="kind">Quick bites · Burgers</span>
+          <p class="head"><span class="kind">Quick bites · Burgers</span></p>
           <h3>Jumbo King Burgers</h3>
           <p class="where">HUDA City Centre metro, Sector 29, Gurgaon</p>
           <p class="note">Great paneer burger.</p>
-          <p class="stats">₹1–200 per person</p>
-          
+          <p class="price">₹1–200 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Jumbo%20King%20Burgers/@28.45902,77.07277,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="jumbo-king-huda">Show on map</button>
@@ -815,24 +728,20 @@ h1 em { font-style: normal; color: var(--leaf); }
         <h2 id="h-delhi">Delhi <small>12 places</small></h2>
         <div class="grid">
         <article class="place" id="p-kulcha-kulture-ln" data-id="kulcha-kulture-ln">
-          
-          <span class="kind">Meals · Amritsari kulcha</span>
+          <p class="head"><span class="kind">Meals · Amritsari kulcha</span></p>
           <h3>Kulcha Kulture</h3>
           <p class="where">Lajpat Nagar II, Delhi</p>
           
-          <p class="stats">₹200–400 per person</p>
-          
+          <p class="price">₹200–400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kulcha%20Kulture/@28.5702,77.23747,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kulcha-kulture-ln">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-sattvik-saket" data-id="sattvik-saket">
-          
-          <span class="kind">Meals · North Indian</span>
+          <p class="head"><span class="kind">Meals · North Indian</span></p>
           <h3>Sattvik</h3>
           <p class="where">Select Citywalk, Saket, Delhi</p>
-          
           
           
           <div class="actions">
@@ -841,37 +750,31 @@ h1 em { font-style: normal; color: var(--leaf); }
           </div>
         </article>
         <article class="place" id="p-toscano-saket" data-id="toscano-saket">
-          
-          <span class="kind">Pizza &amp; Italian · Italian</span>
+          <p class="head"><span class="kind">Pizza &amp; Italian · Italian</span></p>
           <h3>Toscano</h3>
           <p class="where">Select Citywalk, Saket, Delhi</p>
           
-          <p class="stats">₹800–1,800 per person</p>
-          
+          <p class="price">₹800–1,800 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Toscano/@28.52835,77.21895,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="toscano-saket">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-karnataka-food-centre" data-id="karnataka-food-centre">
-          
-          <span class="kind">Meals · South Indian</span>
+          <p class="head"><span class="kind">Meals · South Indian</span></p>
           <h3>Karnataka Food Centre</h3>
           <p class="where">Sector 12, RK Puram, Delhi</p>
           
-          <p class="stats">₹200–400 per person</p>
-          
+          <p class="price">₹200–400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Karnataka%20Food%20Centre/@28.57792,77.17535,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="karnataka-food-centre">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-veg-gulati" data-id="veg-gulati">
-          
-          <span class="kind">Meals · North Indian</span>
+          <p class="head"><span class="kind">Meals · North Indian</span></p>
           <h3>Veg Gulati</h3>
           <p class="where">Pandara Road, Delhi</p>
-          
           
           
           <div class="actions">
@@ -880,50 +783,42 @@ h1 em { font-style: normal; color: var(--leaf); }
           </div>
         </article>
         <article class="place" id="p-moolchand-parantha" data-id="moolchand-parantha">
-          
-          <span class="kind">Quick bites · Paranthas</span>
+          <p class="head"><span class="kind">Quick bites · Paranthas</span></p>
           <h3>Moolchand Parantha</h3>
           <p class="where">Moolchand, Lajpat Nagar, Delhi</p>
           
-          <p class="stats">₹1–200 per person</p>
-          
+          <p class="price">₹1–200 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Moolchand%20Parantha/@28.56408,77.23424,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="moolchand-parantha">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-kake-di-hatti" data-id="kake-di-hatti">
-          
-          <span class="kind">Meals · Stuffed naan</span>
+          <p class="head"><span class="kind">Meals · Stuffed naan</span></p>
           <h3>Kake Di Hatti</h3>
           <p class="where">Chandni Chowk, Delhi</p>
           
-          <p class="stats">₹200–400 per person</p>
-          
+          <p class="price">₹200–400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Kake%20Di%20Hatti/@28.65813,77.22321,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="kake-di-hatti">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-bengali-sweet-centre" data-id="bengali-sweet-centre">
-          
-          <span class="kind">Meals · North Indian &amp; sweets</span>
+          <p class="head"><span class="kind">Meals · North Indian &amp; sweets</span></p>
           <h3>Bengali Sweet Centre</h3>
           <p class="where">South Extension I, Delhi</p>
           
-          <p class="stats">₹200–400 per person</p>
-          
+          <p class="price">₹200–400 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Bengali%20Sweet%20Centre/@28.5696,77.22092,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="bengali-sweet-centre">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-old-famous-jalebi-wala" data-id="old-famous-jalebi-wala">
-          
-          <span class="kind">Sweets &amp; desserts · Jalebi</span>
+          <p class="head"><span class="kind">Sweets &amp; desserts · Jalebi</span></p>
           <h3>Old Famous Jalebi Wala</h3>
           <p class="where">Dariba Kalan, Chandni Chowk, Delhi</p>
-          
           
           
           <div class="actions">
@@ -932,11 +827,9 @@ h1 em { font-style: normal; color: var(--leaf); }
           </div>
         </article>
         <article class="place" id="p-krishna-di-kulfi" data-id="krishna-di-kulfi">
-          
-          <span class="kind">Sweets &amp; desserts · Kulfi</span>
+          <p class="head"><span class="kind">Sweets &amp; desserts · Kulfi</span></p>
           <h3>Krishna Di Kulfi</h3>
           <p class="where">Pandara Market, Delhi</p>
-          
           
           
           <div class="actions">
@@ -945,24 +838,20 @@ h1 em { font-style: normal; color: var(--leaf); }
           </div>
         </article>
         <article class="place" id="p-shri-hanuman-kachori" data-id="shri-hanuman-kachori">
-          
-          <span class="kind">Quick bites · Kachori</span>
+          <p class="head"><span class="kind">Quick bites · Kachori</span></p>
           <h3>Shri Hanuman Kachori</h3>
           <p class="where">Hanuman Mandir, Connaught Place, Delhi</p>
           
-          <p class="stats">₹1–200 per person</p>
-          
+          <p class="price">₹1–200 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Shri%20Hanuman%20Kachori/@28.63004,77.21448,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="shri-hanuman-kachori">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-softyboy" data-id="softyboy">
-          
-          <span class="kind">Sweets &amp; desserts · Ice cream</span>
+          <p class="head"><span class="kind">Sweets &amp; desserts · Ice cream</span></p>
           <h3>Softyboy Ice Cream</h3>
           <p class="where">Central Market, Lajpat Nagar II, Delhi</p>
-          
           
           
           <div class="actions">
@@ -976,26 +865,22 @@ h1 em { font-style: normal; color: var(--leaf); }
         <h2 id="h-baroda">Baroda <small>2 places</small></h2>
         <div class="grid">
         <article class="place" id="p-pizza-on-the-rock" data-id="pizza-on-the-rock">
-          
-          <span class="kind">Pizza &amp; Italian · Pizza</span>
+          <p class="head"><span class="kind">Pizza &amp; Italian · Pizza</span></p>
           <h3>Pizza On The Rock</h3>
           <p class="where">Old Padra Road, Baroda</p>
           
-          <p class="stats">₹200–1,000 per person</p>
-          
+          <p class="price">₹200–1,000 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Pizza%20On%20The%20Rock/@22.29841,73.1646,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="pizza-on-the-rock">Show on map</button>
           </div>
         </article>
         <article class="place" id="p-sawans-gravies" data-id="sawans-gravies">
-          
-          <span class="kind">Meals · Indian</span>
+          <p class="head"><span class="kind">Meals · Indian</span></p>
           <h3>Sawan&#39;s Gravies</h3>
           <p class="where">Race Course Road, Baroda</p>
           
-          <p class="stats">₹200–800 per person</p>
-          
+          <p class="price">₹200–800 per person</p>
           <div class="actions">
             <a class="maps" href="https://www.google.com/maps/search/Sawan&#39;s%20Gravies/@22.3154,73.16358,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="sawans-gravies">Show on map</button>

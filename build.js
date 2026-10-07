@@ -78,21 +78,23 @@ const where = (p) => {
   return area ? `${area}, ${c.label}` : c.label;
 };
 
-// One card per place. The List view shows them all; the Map view copies one into its popup card.
+// One card per place, always in this order: category (with any badges), name, area, note, price, actions.
+// The List view shows them all; the Map view copies one into its popup card.
 // Honesty rules: "Fully satvik" comes only from your own notes (fullySatvik: true), `note` is your note, and new finds
 // carry no note and no satvik claim.
 function card(p) {
   const full = p.fullySatvik && !p.found;
   const note = p.found ? '' : p.note;
+  const badges = (p.found ? '<span class="found">New find · not tried yet</span>' : '')
+    + (full ? '<span class="badge all">Fully satvik</span>' : '')
+    + (p.pureVeg ? '<span class="badge veg">Pure veg</span>' : '');
   return `
         <article class="place" id="p-${p.id}" data-id="${p.id}">
-          ${p.found ? '<span class="found">New find · not tried yet</span>' : ''}
-          <span class="kind">${esc(TYPES[p.type])} · ${esc(p.cuisine)}</span>
+          <p class="head"><span class="kind">${esc(TYPES[p.type])} · ${esc(p.cuisine)}</span>${badges}</p>
           <h3>${esc(p.name)}</h3>
           <p class="where">${esc(where(p))}</p>
           ${note ? `<p class="note">${esc(note)}</p>` : ''}
-          ${p.price ? `<p class="stats">${esc(p.price)} per person</p>` : ''}
-          ${full || p.pureVeg ? `<p class="badges">${full ? '<span class="badge all">Fully satvik</span>' : ''}${p.pureVeg ? '<span class="badge veg">Pure veg</span>' : ''}</p>` : ''}
+          ${p.price ? `<p class="price">${esc(p.price)} per person</p>` : ''}
           <div class="actions">
             <a class="maps" href="${esc(mapsUrl(p))}" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="${p.id}">Show on map</button>
