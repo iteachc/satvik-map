@@ -180,7 +180,7 @@ h1 em { font-style: normal; color: var(--leaf); }
       <div class="chiprow" role="group" aria-label="Go to"><span class="label">Go to</span>{{JUMP_CHIPS}}</div>
       <div class="chiprow" role="group" aria-label="Type of food"><span class="label">Food</span>{{TYPE_CHIPS}}</div>
       <div class="row">
-        <button type="button" class="switch" id="finds" role="switch" aria-checked="true"><span class="track" aria-hidden="true"></span>New finds <span class="n">{{FOUND_COUNT}}</span></button>
+        {{FINDS_SWITCH}}
         <p class="count" id="count" aria-live="polite">{{TOTAL}} places on the map</p>
       </div>
     </nav>
@@ -189,7 +189,7 @@ h1 em { font-style: normal; color: var(--leaf); }
       <summary>About this map</summary>
       <p>Places marked <b>Fully satvik</b> don't use onion or garlic at all. Everywhere else, ask for no onion, no garlic when you order.</p>
       <p>Eating Jain? Jain food also leaves out root vegetables like potato, carrot and ginger. Say "Jain" when you order, and double-check.</p>
-      <p>Started from a personal list of favourite satvik spots. Places tagged <b>New find</b> were found through other guides and checked on Google Maps, but haven't been tried yet.</p>
+      <p>Started from a personal list of favourite satvik spots.{{FINDS_ABOUT}}</p>
       <p>Ratings and review counts are from Google Maps, {{UPDATED}}. Kitchens and recipes change, so always ask before you order.</p>
     </details>
   </header>
@@ -388,7 +388,7 @@ h1 em { font-style: normal; color: var(--leaf); }
       apply();
     });
   });
-  findsBtn.addEventListener('click', function () {
+  if (findsBtn) findsBtn.addEventListener('click', function () {
     state.finds = !state.finds;
     findsBtn.setAttribute('aria-checked', String(state.finds));
     apply();

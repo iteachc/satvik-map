@@ -20,6 +20,9 @@ const SATVIK = ['all', 'sauce', 'ask'];
 // Parts of a city that get their own jump button. The map opens on START.
 const AREAS = [{ id: 'gurugram', label: 'Gurugram', city: 'Delhi NCR', match: (p) => /Gurugram/.test(p.area) }];
 const START = 'gurugram';
+// New finds (found: true) came from other guides, not your own list. They stay in the data but are left off
+// the map until you've tried them; set this to true to show them, tagged "New find · not tried yet".
+const SHOW_NEW_FINDS = false;
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -35,7 +38,8 @@ for (const p of places) {
   if (!SATVIK.includes(p.satvik)) throw new Error(`${p.id}: unknown satvik value "${p.satvik}"`);
 }
 
-const listed = places.filter((p) => !p.hide && p.rating != null && (p.rating >= MIN_RATING || p.keep));
+const waiting = places.filter((p) => p.found && !SHOW_NEW_FINDS);
+const listed = places.filter((p) => !waiting.includes(p) && !p.hide && p.rating != null && (p.rating >= MIN_RATING || p.keep));
 const noPin = listed.filter((p) => p.lat == null || p.lng == null);
 const shown = listed.filter((p) => !noPin.includes(p));
 
@@ -105,7 +109,8 @@ const html = template
   .replaceAll('{{CITY_NAMES}}', esc(cityNames))
   .replace('{{JUMP_CHIPS}}', jumpChips)
   .replace('{{TYPE_CHIPS}}', typeChips)
-  .replace('{{FOUND_COUNT}}', String(foundCount))
+  .replace('{{FINDS_SWITCH}}', foundCount ? `<button type="button" class="switch" id="finds" role="switch" aria-checked="true"><span class="track" aria-hidden="true"></span>New finds <span class="n">${foundCount}</span></button>` : '')
+  .replace('{{FINDS_ABOUT}}', foundCount ? " Places tagged <b>New find</b> were found through other guides and checked on Google Maps, but haven't been tried yet." : '')
   .replaceAll('{{LIST_URL}}', LIST_URL)
   .replace('{{UPDATED}}', UPDATED)
   .replace('{{START}}', START)
@@ -119,8 +124,8 @@ fs.mkdirSync(path.join(root, 'docs'), { recursive: true });
 const out = path.join(root, 'docs', 'index.html');
 fs.writeFileSync(out, html);
 
-const hidden = places.filter((p) => !listed.includes(p));
-console.log(`Built ${path.relative(root, out)}: ${shown.length} pins (${jumps.filter((j) => j.id !== 'all').map((j) => `${j.label} ${j.places.length}`).join(', ')}), ${foundCount} of them new finds. ${hidden.length} left off.`);
+const hidden = places.filter((p) => !listed.includes(p) && !waiting.includes(p));
+console.log(`Built ${path.relative(root, out)}: ${shown.length} pins (${jumps.filter((j) => j.id !== 'all').map((j) => `${j.label} ${j.places.length}`).join(', ')}), ${foundCount} of them new finds. ${hidden.length} left off${waiting.length ? `, plus ${waiting.length} new finds waiting to be tried (SHOW_NEW_FINDS)` : ''}.`);
 for (const p of listed.filter((p) => p.keep)) console.log(`  + ${p.name} (${p.city}): kept, ${p.keep}`);
 for (const p of hidden) console.log(`  - ${p.name} (${p.city}): ${p.hide || (p.rating == null ? 'no rating' : 'rating below ' + MIN_RATING)}`);
 for (const p of noPin) console.log(`  ! ${p.name} (${p.city}): no lat/lng, so no pin`);
