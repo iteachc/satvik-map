@@ -28,11 +28,12 @@
   --leaf-soft: #e2eedd;
   --turmeric: #a86f00;
   --turmeric-soft: #faefd0;
-  /* Pin colours by food type, checked for colour-blind separation; each pin also has its own shape. */
-  --meal: #2d6a38;
-  --pizza: #e8682f;
-  --quick: #2a78d6;
-  --sweet: #a8459e;
+  /* Pin colours by food type, checked for colour-blind separation; each pin also has its own shape.
+     Green is kept for selection and links. */
+  --meal: #c98500;
+  --pizza: #d23f2e;
+  --quick: #1d5fc8;
+  --sweet: #96409c;
   --tiles: none;
   --shadow: 0 10px 30px rgba(23, 34, 26, .18);
   --display: "Young Serif", Georgia, serif;
@@ -42,7 +43,7 @@
   :root:not([data-theme="light"]) {
     --bg: #0f1511; --card: #17201a; --ink: #edf2ea; --muted: #a3b1a6; --line: #29362d;
     --leaf: #8ccf98; --leaf-soft: #1b2d20; --turmeric: #f0c14b; --turmeric-soft: #322810;
-    --meal: #2b7643; --pizza: #e06d2c; --quick: #3f86e3; --sweet: #bb5bb0;
+    --meal: #c4861a; --pizza: #c4342a; --quick: #4a8aee; --sweet: #c06ab9;
     --tiles: invert(1) hue-rotate(180deg) brightness(.92) contrast(.88) saturate(.45);
     --shadow: 0 10px 30px rgba(0, 0, 0, .5);
     color-scheme: dark;
@@ -51,7 +52,7 @@
 :root[data-theme="dark"] {
   --bg: #0f1511; --card: #17201a; --ink: #edf2ea; --muted: #a3b1a6; --line: #29362d;
   --leaf: #8ccf98; --leaf-soft: #1b2d20; --turmeric: #f0c14b; --turmeric-soft: #322810;
-  --meal: #2b7643; --pizza: #e06d2c; --quick: #3f86e3; --sweet: #bb5bb0;
+  --meal: #c4861a; --pizza: #c4342a; --quick: #4a8aee; --sweet: #c06ab9;
   --tiles: invert(1) hue-rotate(180deg) brightness(.92) contrast(.88) saturate(.45);
   --shadow: 0 10px 30px rgba(0, 0, 0, .5);
   color-scheme: dark;
@@ -147,8 +148,8 @@ h1 em { font-style: normal; color: var(--leaf); }
 /* Pins and clusters */
 .pinwrap { background: none; border: 0; }
 .pinwrap:focus-visible { outline: none; }
-.pin { display: block; width: 28px; height: 36px; overflow: visible; transform-origin: 50% 96%; transition: transform .15s ease; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .4)); }
-.pin .body { fill: var(--c); stroke: #fff; stroke-width: 1.6; }
+.pin { display: block; width: 28px; height: 36px; overflow: visible; transform-origin: 50% 96%; transition: transform .15s ease; filter: drop-shadow(0 0 1px rgba(0, 0, 0, .75)) drop-shadow(0 1px 2px rgba(0, 0, 0, .35)); }
+.pin .body { fill: var(--c); stroke: #fff; stroke-width: 2; }
 .pin .glyph { fill: #fff; }
 .pin-meal { --c: var(--meal); }
 .pin-pizza { --c: var(--pizza); }
@@ -158,13 +159,14 @@ h1 em { font-style: normal; color: var(--leaf); }
 .pinwrap.is-on .pin, .pinwrap:focus-visible .pin { transform: scale(1.35); }
 .pinwrap:focus-visible .pin .body { stroke: var(--turmeric); stroke-width: 2.5; }
 .cluster { background: none; }
-.cluster span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: var(--leaf); color: var(--card);
-  font: 700 14px/1 var(--body); border: 2px solid var(--card); box-shadow: 0 0 0 4px rgba(45, 106, 56, .25), 0 1px 4px rgba(0, 0, 0, .3); }
+.cluster span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: #fbfbf8; color: #17221a;
+  font: 700 14px/1 var(--body); border: 1px solid rgba(23, 34, 26, .3); box-shadow: 0 0 0 3px rgba(0, 0, 0, .14), 0 1px 4px rgba(0, 0, 0, .4); }
 .cluster:focus-visible { outline: none; }
 .cluster:focus-visible span { box-shadow: 0 0 0 4px var(--turmeric); }
 
 .leaflet-container { font-family: var(--body); background: var(--bg); }
-.leaflet-tile-pane { filter: var(--tiles); }
+/* The base map is dimmed so the pins stand out. */
+.leaflet-tile-pane { filter: var(--tiles); opacity: .6; }
 .leaflet-bar a, .leaflet-bar a:hover { background: var(--card); color: var(--ink); border-color: var(--line); }
 .leaflet-touch .leaflet-bar { border-color: var(--line); }
 .leaflet-container .leaflet-control-attribution { background: var(--card); opacity: .9; color: var(--muted); font-size: 11px; }
