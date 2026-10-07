@@ -180,7 +180,7 @@ const names = cities.map((c) => c.label);
 const cityNames = names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names[0];
 const foundCount = shown.filter((p) => p.found).length;
 
-const description = `Satvik food is cooked without onion and garlic. My picks: ${shown.length} places in ${cityNames}, on a map and as a list.`;
+const description = `Satvik food: no onion, no garlic, no caffeine. My picks: ${shown.length} places in ${cityNames}, on a map and as a list.`;
 
 const html = template
   .replaceAll('{{SITE}}', SITE)
