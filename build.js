@@ -10,7 +10,6 @@ const root = __dirname;
 const places = JSON.parse(fs.readFileSync(path.join(root, 'data/places.json'), 'utf8'));
 const template = fs.readFileSync(path.join(root, 'template.html'), 'utf8');
 
-const UPDATED = 'October 2026';
 const MIN_RATING = 3.6;
 const TYPES = { meal: 'Meals', pizza: 'Pizza & Italian', quick: 'Quick bites', sweet: 'Sweets & desserts' };
 const SATVIK = ['all', 'sauce', 'ask'];
@@ -91,7 +90,7 @@ function card(p) {
           <span class="kind">${esc(TYPES[p.type])} · ${esc(p.cuisine)}</span>
           <h3>${esc(p.name)}</h3>
           <p class="where">${esc(where(p))}</p>
-          <p class="stats"><span><span class="star">★ ${p.rating.toFixed(1)}</span> · ${p.reviews.toLocaleString('en-IN')} Google review${p.reviews === 1 ? '' : 's'}</span>${p.price ? `<span>${esc(p.price)} per person</span>` : ''}</p>
+          ${p.price ? `<p class="stats">${esc(p.price)} per person</p>` : ''}
           <span class="badge ${full ? 'all' : 'ask'}">${full ? 'Fully satvik' : 'Ask for no onion, no garlic'}</span>
           ${note ? `<p class="tip"><b>Note:</b> ${esc(note)}</p>` : ''}
           <div class="actions">
@@ -147,7 +146,6 @@ const html = template
   .replace('{{TYPE_CHIPS}}', typeChips)
   .replace('{{FINDS_SWITCH}}', foundCount ? `<button type="button" class="switch" id="finds" role="switch" aria-checked="true"><span class="track" aria-hidden="true"></span>New finds <span class="n">${foundCount}</span></button>` : '')
   .replace('{{FINDS_ABOUT}}', foundCount ? " Places tagged <b>New find</b> were found through other guides and checked on Google Maps, but haven't been tried yet." : '')
-  .replace('{{UPDATED}}', UPDATED)
   .replace('{{LINKS}}', `<p class="links">Made by iteachc: <a href="${esc(GITHUB)}" target="_blank" rel="me noopener">GitHub</a> · `
     + `<button type="button" class="copy" data-copy="${esc(DISCORD)}" title="Copy Discord username">Discord: ${esc(DISCORD)}</button></p>`)
   .replace('{{START}}', START)
