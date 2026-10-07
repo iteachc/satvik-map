@@ -75,42 +75,78 @@ for (const c of cities) {
   }
 }
 
-const where = (p) => {
-  const c = cityOf(p);
-  const area = c.trim ? p.area.replace(c.trim, '') : p.area;
-  return area ? `${area}, ${c.label}` : c.label;
-};
+// The area without the part the city name already says, and the full "area, city" line.
+const areaOf = (p) => { const c = cityOf(p); return c.trim ? p.area.replace(c.trim, '') : p.area; };
+const where = (p) => (areaOf(p) ? `${areaOf(p)}, ${cityOf(p).label}` : cityOf(p).label);
 
-// One card per place, always in this order: category (with any badges), name, area, note, price, actions.
-// The List view shows them all; the Map view copies one into its popup card.
+// Cards always read: category line (with any badges), name, area, note, price, actions.
 // Honesty rules: "Fully satvik" comes only from your own notes (fullySatvik: true), `note` is your note, and new finds
 // carry no note and no satvik claim.
-function card(p) {
-  const full = p.fullySatvik && !p.found;
-  const note = p.found ? '' : p.note;
-  const badges = (p.found ? '<span class="found">New find · not tried yet</span>' : '')
-    + (full ? '<span class="badge all">Fully satvik</span>' : '')
-    + (p.pureVeg ? '<span class="badge veg">Pure veg</span>' : '');
+const badgesOf = (p) => (p.found ? '<span class="found">New find · not tried yet</span>' : '')
+  + (p.fullySatvik && !p.found ? '<span class="badge all">Fully satvik</span>' : '')
+  + (p.pureVeg ? '<span class="badge veg">Pure veg</span>' : '');
+const noteOf = (p) => (p.found ? '' : p.note || '');
+const kindOf = (p) => `${esc(TYPES[p.type])} · ${esc(p.cuisine)}`;
+const actions = (p, onMap) => `<div class="actions">
+            <a class="maps" href="${esc(mapsUrl(p))}" target="_blank" rel="noopener">Open in Google Maps →</a>${onMap ? `
+            <button type="button" class="onmap" data-show="${p.id}">Show on map</button>` : ''}
+          </div>`;
+
+// One place: its list card (with "Show on map"), or the map's popup card (without it).
+function card(p, popup) {
+  const note = noteOf(p);
   return `
-        <article class="place" id="p-${p.id}" data-id="${p.id}">
-          <p class="head"><span class="kind">${esc(TYPES[p.type])} · ${esc(p.cuisine)}</span>${badges}</p>
+        <article class="place"${popup ? ` id="p-${p.id}"` : ` data-ids="${p.id}"`}>
+          <p class="head"><span class="kind">${kindOf(p)}</span>${badgesOf(p)}</p>
           <h3>${esc(p.name)}</h3>
           <p class="where">${esc(where(p))}</p>
           ${note ? `<p class="note">${esc(note)}</p>` : ''}
           ${p.price ? `<p class="price">${esc(priceText(p.price))}</p>` : ''}
-          <div class="actions">
-            <a class="maps" href="${esc(mapsUrl(p))}" target="_blank" rel="noopener">Open in Google Maps →</a>
-            <button type="button" class="onmap" data-show="${p.id}">Show on map</button>
-          </div>
+          ${actions(p, !popup)}
         </article>`;
+}
+
+// Branches of one chain in the same city share a list card: "4 locations in Bangalore", then each branch's area,
+// note, price and its own "Show on map". Badges every branch shares go on the category line, others on the branch.
+function groupCard(ps, city) {
+  const shared = badgesOf(ps[0]);
+  const same = ps.every((p) => badgesOf(p) === shared);
+  return `
+        <article class="place group" data-ids="${ps.map((p) => p.id).join(' ')}">
+          <p class="head"><span class="kind">${kindOf(ps[0])}</span>${same ? shared : ''}</p>
+          <h3>${esc(ps[0].name)}</h3>
+          <p class="where">${ps.length} locations in ${esc(city.label)}</p>
+          <ul class="branches">${ps.map((p) => {
+    const note = noteOf(p);
+    return `
+            <li data-id="${p.id}">
+              <p class="branch">${esc(areaOf(p) || city.label)}${same ? '' : badgesOf(p)}</p>
+              ${note ? `<p class="note">${esc(note)}</p>` : ''}
+              ${p.price ? `<p class="price">${esc(priceText(p.price))}</p>` : ''}
+              ${actions(p, true)}
+            </li>`;
+  }).join('')}
+          </ul>
+        </article>`;
+}
+
+// A city's list: places with the same name become one group card, placed where its best branch would be.
+function cityCards(c) {
+  const groups = [];
+  for (const p of c.places) {
+    const g = groups.find((g) => g[0].name === p.name);
+    if (g) g.push(p); else groups.push([p]);
+  }
+  return groups.map((g) => (g.length === 1 ? card(g[0], false) : groupCard(g, c))).join('');
 }
 
 const sections = cities.map((c) => `
       <section class="city" id="list-${c.id}" data-city="${c.id}" aria-labelledby="h-${c.id}">
         <h2 id="h-${c.id}">${esc(c.label)} <small>${c.places.length} place${c.places.length === 1 ? '' : 's'}</small></h2>
-        <div class="grid">${c.places.map(card).join('')}
+        <div class="grid">${cityCards(c)}
         </div>
       </section>`).join('');
+const popups = shown.map((p) => card(p, true)).join('');
 
 // What the pins need; everything else is in the cards.
 const data = cities.flatMap((c) => c.places.map((p) => ({
@@ -159,6 +195,7 @@ const html = template
     + `<button type="button" class="copy" data-copy="${esc(DISCORD)}" title="Copy Discord username">Discord: ${esc(DISCORD)}</button></p>`)
   .replace('{{START}}', START)
   .replace('{{SECTIONS}}', sections)
+  .replace('{{POPUPS}}', popups)
   .replace('{{PINS}}', JSON.stringify(Object.fromEntries(Object.keys(TYPES).map((k) => [k, pinSvg(k)]))).replace(/</g, '\\u003c'))
   .replace('{{DATA}}', JSON.stringify(data).replace(/</g, '\\u003c'));
 

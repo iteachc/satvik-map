@@ -41,6 +41,8 @@ of the map you can swap for any picture.
 - City names: the data keeps the official ones (Bengaluru, Mumbai, Delhi NCR, Vadodara); `CITIES` in `build.js`
   turns them into Bangalore, Bombay, Gurgaon, Delhi and Baroda.
 - "Open in Google Maps" searches the place's name at its coordinates.
+- In the list, branches of one chain in the same city (same `name`, e.g. Kailash Parbat ×4 in Bangalore) share one card:
+  "4 locations in Bangalore", then each branch with its own note, price and "Show on map". On the map each branch keeps its own pin.
 
 ## Adding a note
 A note is what to order, or why the place is on your list. It shows on the card right under the name and area.
