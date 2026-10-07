@@ -23,6 +23,7 @@ const CITIES = [
   { id: 'baroda', label: 'Baroda', match: (p) => p.city === 'Vadodara' },
 ];
 const START = 'gurgaon'; // where the map opens
+const SITE = 'https://iteachc.github.io/satvik-map/'; // for link previews
 // New finds (found: true) came from other guides, not your own list. They stay in the data but are left off
 // until you've tried them; set this to true to show them, tagged "New find · not tried yet".
 const SHOW_NEW_FINDS = false;
@@ -31,6 +32,8 @@ const GITHUB = 'https://github.com/iteachc';
 const DISCORD = 'iteachchem';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// "₹1–200" reads better as "Under ₹200".
+const priceText = (s) => `${s.replace(/^₹1–/, 'Under ₹')} per person`;
 const mapsUrl = (p) => p.lat != null
   ? `https://www.google.com/maps/search/${encodeURIComponent(p.name)}/@${p.lat},${p.lng},17z`
   : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.maps || `${p.name} ${p.area}`)}`;
@@ -94,7 +97,7 @@ function card(p) {
           <h3>${esc(p.name)}</h3>
           <p class="where">${esc(where(p))}</p>
           ${note ? `<p class="note">${esc(note)}</p>` : ''}
-          ${p.price ? `<p class="price">${esc(p.price)} per person</p>` : ''}
+          ${p.price ? `<p class="price">${esc(priceText(p.price))}</p>` : ''}
           <div class="actions">
             <a class="maps" href="${esc(mapsUrl(p))}" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="${p.id}">Show on map</button>
@@ -141,7 +144,11 @@ const names = cities.map((c) => c.label);
 const cityNames = names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names[0];
 const foundCount = shown.filter((p) => p.found).length;
 
+const description = `Satvik food is cooked without onion and garlic. My picks: ${shown.length} places in ${cityNames}, on a map and as a list.`;
+
 const html = template
+  .replaceAll('{{SITE}}', SITE)
+  .replaceAll('{{DESCRIPTION}}', esc(description))
   .replaceAll('{{TOTAL}}', String(shown.length))
   .replaceAll('{{CITY_NAMES}}', esc(cityNames))
   .replace('{{JUMP_CHIPS}}', jumpChips)
@@ -161,6 +168,41 @@ if (leftover) throw new Error(`template placeholder ${leftover[0]} was not fille
 fs.mkdirSync(path.join(root, 'docs'), { recursive: true });
 const out = path.join(root, 'docs', 'index.html');
 fs.writeFileSync(out, html);
+
+// Share pages: WhatsApp and other apps never see the part of a link after "#", so …/satvik-map/#gurgaon can't have
+// its own preview. …/satvik-map/gurgaon/ can: it carries the preview tags and then opens the map on that city.
+for (const c of cities) {
+  const url = `${SITE}${c.id}/`;
+  const title = `Satvik food in ${c.label}`;
+  const desc = `${c.places.length} place${c.places.length === 1 ? '' : 's'} in ${c.label} to eat food without onion and garlic, on The Satvik Map.`;
+  fs.mkdirSync(path.join(root, 'docs', c.id), { recursive: true });
+  fs.writeFileSync(path.join(root, 'docs', c.id, 'index.html'), `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(title)} — The Satvik Map</title>
+<meta name="description" content="${esc(desc)}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Satvik Map">
+<meta property="og:title" content="${esc(title)}">
+<meta property="og:description" content="${esc(desc)}">
+<meta property="og:url" content="${url}">
+<meta property="og:image" content="${SITE}og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script>location.replace('../#${c.id}');</script>
+<noscript><meta http-equiv="refresh" content="0; url=../#${c.id}"></noscript>
+<style>body { margin: 0; padding: 40px 16px; font: 17px/1.5 system-ui, sans-serif; background: #f3f6ee; color: #17221a; } a { color: #2d6a38; font-weight: 700; }
+@media (prefers-color-scheme: dark) { body { background: #0f1511; color: #edf2ea; } a { color: #8ccf98; } }</style>
+</head>
+<body>
+<p>Opening <a href="../#${c.id}">The Satvik Map: ${esc(c.label)}</a>…</p>
+</body>
+</html>
+`);
+}
 
 const hidden = places.filter((p) => !listed.includes(p) && !waiting.includes(p));
 console.log(`Built ${path.relative(root, out)}: ${shown.length} places (${cities.map((c) => `${c.label} ${c.places.length}`).join(', ')}), ${foundCount} of them new finds. ${hidden.length} left off${waiting.length ? `, plus ${waiting.length} new finds waiting to be tried (SHOW_NEW_FINDS)` : ''}.`);
