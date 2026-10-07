@@ -41,6 +41,7 @@ for (const p of places) {
   if (ids.has(p.id)) throw new Error(`Duplicate id ${p.id}`);
   ids.add(p.id);
   if (!TYPES[p.type]) throw new Error(`${p.id}: unknown type "${p.type}"`);
+  if (p.note != null && typeof p.note !== 'string') throw new Error(`${p.id}: note must be text`);
   if (!SATVIK.includes(p.satvik)) throw new Error(`${p.id}: unknown satvik value "${p.satvik}"`);
 }
 
@@ -79,20 +80,20 @@ const where = (p) => {
 };
 
 // One card per place. The List view shows them all; the Map view copies one into its popup card.
-// Honesty rules: "Fully satvik" comes only from your own notes (satvik "all"), a tip is your note, and new finds
+// Honesty rules: "Fully satvik" comes only from your own notes (satvik "all"), `note` is your note, and new finds
 // carry no note and no satvik claim.
 function card(p) {
   const full = p.satvik === 'all' && !p.found;
-  const note = p.found ? '' : p.tip;
+  const note = p.found ? '' : p.note;
   return `
         <article class="place" id="p-${p.id}" data-id="${p.id}">
           ${p.found ? '<span class="found">New find · not tried yet</span>' : ''}
           <span class="kind">${esc(TYPES[p.type])} · ${esc(p.cuisine)}</span>
           <h3>${esc(p.name)}</h3>
           <p class="where">${esc(where(p))}</p>
+          ${note ? `<p class="note">${esc(note)}</p>` : ''}
           ${p.price ? `<p class="stats">${esc(p.price)} per person</p>` : ''}
           <span class="badge ${full ? 'all' : 'ask'}">${full ? 'Fully satvik' : 'Ask for no onion, no garlic'}</span>
-          ${note ? `<p class="tip"><b>Note:</b> ${esc(note)}</p>` : ''}
           <div class="actions">
             <a class="maps" href="${esc(mapsUrl(p))}" target="_blank" rel="noopener">Open in Google Maps →</a>
             <button type="button" class="onmap" data-show="${p.id}">Show on map</button>
@@ -165,3 +166,5 @@ console.log(`Built ${path.relative(root, out)}: ${shown.length} places (${cities
 for (const p of listed.filter((p) => p.keep)) console.log(`  + ${p.name} (${p.city}): kept, ${p.keep}`);
 for (const p of hidden) console.log(`  - ${p.name} (${p.city}): ${p.hide || (p.rating == null ? 'no rating' : 'rating below ' + MIN_RATING)}`);
 for (const p of noPin) console.log(`  ! ${p.name} (${p.city}): no lat/lng, so no pin`);
+const noNote = shown.filter((p) => !p.found && !p.note);
+if (noNote.length) console.log(`${noNote.length} of ${shown.length} places have no note yet (see the TODO list in README.md).`);
