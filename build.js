@@ -14,18 +14,23 @@ const template = fs.readFileSync(path.join(root, 'template.html'), 'utf8');
 const UPDATED = 'October 2026';
 const MIN_RATING = 3.6;
 const LIST_URL = 'https://iteachc.github.io/satvik-list/';
-const CITY_ORDER = ['Delhi NCR', 'Bengaluru', 'Mumbai', 'Vadodara'];
 const TYPES = { meal: 'Meals', pizza: 'Pizza & Italian', quick: 'Quick bites', sweet: 'Sweets & desserts' };
 const SATVIK = ['all', 'sauce', 'ask'];
-// Parts of a city that get their own jump button. The map opens on START.
-const AREAS = [{ id: 'gurugram', label: 'Gurugram', city: 'Delhi NCR', match: (p) => /Gurugram/.test(p.area) }];
-const START = 'gurugram';
+// The jump buttons, in this order, with the names people use; Gurgaon and Delhi split the data's "Delhi NCR".
+// `trim` drops the end of an area that the city name already says ("Cyber Hub, Gurugram" → "Cyber Hub, Gurgaon").
+const CITIES = [
+  { id: 'bangalore', label: 'Bangalore', match: (p) => p.city === 'Bengaluru' },
+  { id: 'bombay', label: 'Bombay', match: (p) => p.city === 'Mumbai' },
+  { id: 'gurgaon', label: 'Gurgaon', match: (p) => p.city === 'Delhi NCR' && /Gurugram/.test(p.area), trim: /,\s*Gurugram$/ },
+  { id: 'delhi', label: 'Delhi', match: (p) => p.city === 'Delhi NCR' && !/Gurugram/.test(p.area), trim: /,\s*New Delhi$/ },
+  { id: 'baroda', label: 'Baroda', match: (p) => p.city === 'Vadodara' },
+];
+const START = 'gurgaon'; // where the map opens
 // New finds (found: true) came from other guides, not your own list. They stay in the data but are left off
 // the map until you've tried them; set this to true to show them, tagged "New find · not tried yet".
 const SHOW_NEW_FINDS = false;
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const mapsUrl = (p) => p.lat != null
   ? `https://www.google.com/maps/search/${encodeURIComponent(p.name)}/@${p.lat},${p.lng},17z`
   : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.maps || `${p.name} ${p.area}`)}`;
@@ -43,36 +48,42 @@ const listed = places.filter((p) => !waiting.includes(p) && !p.hide && p.rating 
 const noPin = listed.filter((p) => p.lat == null || p.lng == null);
 const shown = listed.filter((p) => !noPin.includes(p));
 
-const cities = [...new Set(shown.map((p) => p.city))].sort((a, b) => {
-  const ia = CITY_ORDER.indexOf(a), ib = CITY_ORDER.indexOf(b);
-  return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
-});
+const cityOf = (p) => {
+  const c = CITIES.find((c) => c.match(p));
+  if (!c) throw new Error(`${p.id}: no city button for "${p.city}"; add it to CITIES`);
+  return c;
+};
+const cities = CITIES.filter((c) => shown.some(c.match));
 
 // A pin far from the rest of its city is almost always a copy-paste slip in the coordinates.
 const median = (xs) => xs.slice().sort((a, b) => a - b)[Math.floor(xs.length / 2)];
 for (const c of cities) {
-  const inCity = shown.filter((p) => p.city === c);
+  const inCity = shown.filter(c.match);
   const lat = median(inCity.map((p) => p.lat)), lng = median(inCity.map((p) => p.lng));
   for (const p of inCity) {
     const km = Math.hypot((p.lat - lat) * 111, (p.lng - lng) * 111 * Math.cos(lat * Math.PI / 180));
-    if (km > 60) throw new Error(`${p.id}: pin is ${Math.round(km)} km from the rest of ${c}; check lat/lng`);
+    if (km > 60) throw new Error(`${p.id}: pin is ${Math.round(km)} km from the rest of ${c.label}; check lat/lng`);
   }
 }
 
 const jumps = [
   { id: 'all', label: 'All India', places: shown },
-  ...AREAS.map((a) => ({ id: a.id, label: a.label, places: shown.filter(a.match) })),
-  ...cities.map((c) => ({ id: slug(c), label: c, places: shown.filter((p) => p.city === c) })),
-].filter((j) => j.places.length);
+  ...cities.map((c) => ({ id: c.id, label: c.label, places: shown.filter(c.match) })),
+];
 if (!jumps.some((j) => j.id === START)) throw new Error(`START "${START}" has no places`);
 
 // Only what the page needs. Honesty rules: "Fully satvik" comes only from your own notes (satvik "all"),
 // and new finds carry no note and no satvik claim.
+const where = (p) => {
+  const c = cityOf(p);
+  const area = c.trim ? p.area.replace(c.trim, '') : p.area;
+  return area ? `${area}, ${c.label}` : c.label;
+};
 const data = shown.map((p) => ({
   id: p.id,
   name: p.name,
-  where: p.area ? `${p.area}, ${p.city}` : p.city,
-  in: jumps.filter((j) => j.id !== 'all' && j.places.includes(p)).map((j) => j.id),
+  where: where(p),
+  in: [cityOf(p).id],
   lat: p.lat,
   lng: p.lng,
   rating: p.rating,
@@ -101,7 +112,8 @@ const typeChips = chip('data-type="all"', 'All', null, true)
   + Object.entries(TYPES).filter(([k]) => shown.some((p) => p.type === k))
     .map(([k, label]) => chip(`data-type="${k}"`, label, shown.filter((p) => p.type === k).length, false, pinSvg(k))).join('');
 
-const cityNames = cities.length > 1 ? `${cities.slice(0, -1).join(', ')} and ${cities[cities.length - 1]}` : cities[0];
+const names = cities.map((c) => c.label);
+const cityNames = names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names[0];
 const foundCount = shown.filter((p) => p.found).length;
 
 const html = template
