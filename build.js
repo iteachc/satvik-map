@@ -1,7 +1,7 @@
 // Builds docs/index.html (The Satvik Map, with its Map and List views) from template.html + data/places.json.
 // Usage: node build.js   (Node 18+, no dependencies)
 // Places with a "hide" reason (closed, gone, low rating), no rating, or a rating below 3.6 stay in the data but are
-// left off. A "keep" reason overrides the rating rule for a place asked for by name. Every place needs lat/lng.
+// left off. A "keep" reason overrides the rating rule (low or no rating) for a place asked for by name. Every place needs lat/lng.
 
 const fs = require('fs');
 const path = require('path');
@@ -34,7 +34,8 @@ const DISCORD = 'iteachchem';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 // "₹1–200" reads better as "Under ₹200".
 const priceText = (s) => `${s.replace(/^₹1–/, 'Under ₹')} per person`;
-const mapsUrl = (p) => p.lat != null
+// "link": a Google Maps share link from Ashish, used as is.
+const mapsUrl = (p) => p.link ? p.link : p.lat != null
   ? `https://www.google.com/maps/search/${encodeURIComponent(p.name)}/@${p.lat},${p.lng},17z`
   : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.maps || `${p.name} ${p.area}`)}`;
 
@@ -48,7 +49,7 @@ for (const p of places) {
 }
 
 const waiting = places.filter((p) => p.found && !SHOW_NEW_FINDS);
-const listed = places.filter((p) => !waiting.includes(p) && !p.hide && p.rating != null && (p.rating >= MIN_RATING || p.keep));
+const listed = places.filter((p) => !waiting.includes(p) && !p.hide && (p.keep || (p.rating != null && p.rating >= MIN_RATING)));
 const noPin = listed.filter((p) => p.lat == null || p.lng == null);
 const shown = listed.filter((p) => !noPin.includes(p));
 
@@ -61,7 +62,7 @@ const cityOf = (p) => {
 const rank = (p) => (p.fullySatvik && !p.found ? 1 : 0);
 const cities = CITIES.map((c) => ({
   ...c,
-  places: shown.filter(c.match).sort((a, b) => rank(b) - rank(a) || b.rating - a.rating || b.reviews - a.reviews),
+  places: shown.filter(c.match).sort((a, b) => rank(b) - rank(a) || (b.rating ?? 0) - (a.rating ?? 0) || b.reviews - a.reviews),
 })).filter((c) => c.places.length);
 if (!cities.some((c) => c.id === START)) throw new Error(`START "${START}" has no places`);
 
