@@ -203,6 +203,7 @@ h1 em { font-style: normal; color: var(--leaf); }
 }
 /* Phones and tablets, List view: one plain page scroll. The header scrolls away with the list. */
 @media (max-width: 899px) {
+  [data-view="list"], [data-view="list"] body { height: auto; overflow: visible; }
   [data-view="list"] .app { height: auto; }
   [data-view="list"] .panel { max-height: none; overflow: visible; }
   [data-view="list"] .mapwrap { flex: none; }
@@ -1787,7 +1788,11 @@ h1 em { font-style: normal; color: var(--leaf); }
     if (!pts.length) pts = places.filter(inCity);
     closeCard(false);
     mapCity = current;
-    map.fitBounds(L.latLngBounds(pts.map(function (p) { return [p.lat, p.lng]; })), { padding: [36, 36], maxZoom: 15, animate: animate });
+    var bounds = L.latLngBounds(pts.map(function (p) { return [p.lat, p.lng]; }));
+    // Phones: one step further out than a tight fit, so you see the area around the places.
+    var out = window.matchMedia('(max-width: 899px)').matches ? 1 : 0;
+    var zoom = Math.min(map.getBoundsZoom(bounds, false, L.point(72, 72)), 15) - out;
+    map.setView(bounds.getCenter(), zoom, { animate: animate });
   }
 
   function setView(v) {
