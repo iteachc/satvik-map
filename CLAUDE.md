@@ -15,3 +15,15 @@ Lessons from getting the previews to work:
 - No `og:image` means a text-only card; add a 1200×630 picture for a big preview.
 - This cloud environment can't open `*.github.io` (network policy), so check the published
   files via the Actions run, or ask the owner to open the page.
+
+## Testing on phones
+
+- **Test scrolling with real finger swipes, not code.** `window.scrollTo` and `scrollTop`
+  move a page that a finger can't (e.g. `overflow: hidden` on html/body), so a code-only
+  test passes while the site is stuck on a real phone (Satvik Map list, 2026-10-08).
+- In Playwright, swipe with raw touch events over CDP: `Input.dispatchTouchEvent` with a
+  `touchStart`, a run of `touchMove` steps, then `touchEnd`, and read `scrollY` after.
+  `Input.synthesizeScrollGesture` and `mouse.wheel` don't scroll in headless phone emulation.
+- Reproduce the bug on the live version first, then show the fix passes the same test.
+- The cloud environment blocks cdnjs: for tests, serve libraries from npm (`npm pack`)
+  through `page.route`, and strip the `integrity` attributes.
