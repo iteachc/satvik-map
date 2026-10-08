@@ -100,7 +100,7 @@ function card(p, popup) {
           <p class="head"><span class="kind">${kindOf(p)}</span>${badgesOf(p)}</p>
           <h3>${esc(p.name)}</h3>
           <p class="where">${esc(where(p))}</p>
-          ${note ? `<p class="note">${esc(note)}</p>` : ''}
+          ${note ? `<p class="note"><span class="by">From my visit</span> ${esc(note)}</p>` : ''}
           ${p.price ? `<p class="price">${esc(priceText(p.price))}</p>` : ''}
           ${actions(p, !popup)}
         </article>`;
@@ -121,7 +121,7 @@ function groupCard(ps, city) {
     return `
             <li data-id="${p.id}">
               <p class="branch">${esc(areaOf(p) || city.label)}${same ? '' : badgesOf(p)}</p>
-              ${note ? `<p class="note">${esc(note)}</p>` : ''}
+              ${note ? `<p class="note"><span class="by">From my visit</span> ${esc(note)}</p>` : ''}
               ${p.price ? `<p class="price">${esc(priceText(p.price))}</p>` : ''}
               ${actions(p, true)}
             </li>`;
@@ -179,14 +179,20 @@ const typeChips = chip('data-type="all"', 'All', null, true)
 const names = cities.map((c) => c.label);
 const cityNames = names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names[0];
 const foundCount = shown.filter((p) => p.found).length;
+const tried = shown.length - foundCount;
+// Say plainly that these are places you've eaten at (New finds, when shown, are the exception).
+const eaten = foundCount
+  ? `I've eaten at ${tried} of these ${shown.length} places in ${cityNames}; the rest are marked <b>New find</b>.`
+  : `I've eaten at every one of these ${shown.length} places, in ${cityNames}.`;
 
-const description = `Satvik food: no onion, no garlic, no caffeine. My picks: ${shown.length} places in ${cityNames}, on a map and as a list.`;
+const description = `Satvik food: no onion, no garlic, no caffeine. ${tried} places I've eaten at in ${cityNames}, on a map and as a list.`;
 
 const html = template
   .replaceAll('{{SITE}}', SITE)
   .replaceAll('{{DESCRIPTION}}', esc(description))
   .replaceAll('{{TOTAL}}', String(shown.length))
   .replaceAll('{{CITY_NAMES}}', esc(cityNames))
+  .replaceAll('{{EATEN}}', eaten.replace(cityNames, esc(cityNames)))
   .replace('{{JUMP_CHIPS}}', jumpChips)
   .replace('{{TYPE_CHIPS}}', typeChips)
   .replace('{{FINDS_SWITCH}}', foundCount ? `<button type="button" class="switch" id="finds" role="switch" aria-checked="true"><span class="track" aria-hidden="true"></span>New finds <span class="n">${foundCount}</span></button>` : '')
@@ -211,7 +217,8 @@ fs.writeFileSync(out, html);
 for (const c of cities) {
   const url = `${SITE}${c.id}/`;
   const title = `Satvik food in ${c.label}`;
-  const desc = `${c.places.length} place${c.places.length === 1 ? '' : 's'} in ${c.label} to eat food without onion and garlic, on The Satvik Map.`;
+  const n = c.places.filter((p) => !p.found).length;
+  const desc = `${n} place${n === 1 ? '' : 's'} in ${c.label} where I've eaten food without onion and garlic. On The Satvik Map.`;
   fs.mkdirSync(path.join(root, 'docs', c.id), { recursive: true });
   fs.writeFileSync(path.join(root, 'docs', c.id, 'index.html'), `<!doctype html>
 <html lang="en">
