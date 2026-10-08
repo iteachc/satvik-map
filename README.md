@@ -64,7 +64,7 @@ One place per line. An example entry:
 | `price` | Price per person from Google Maps, e.g. `₹200–400`. Leave `""` if unknown. |
 | `cuisine`, `type` | The card's small heading. `type` is `meal`, `pizza`, `quick` or `sweet` and sets the pin. |
 | `fullySatvik` | Optional. `true` shows the **Fully satvik** badge: nothing there has onion or garlic. |
-| `pureVeg` | Optional. `true` shows a **Pure veg** badge. Not set on any place yet. |
+| `pureVeg` | Optional. `true` shows a **Pure veg** badge (set on Sagar Ratna, A2B and both Veg Gulatis). |
 | `note` | Your note. |
 | `hide` | Optional: a reason to leave the place off (closed, gone…). |
 | `keep` | Optional: a reason to show it even though it's rated below 3.6. |
