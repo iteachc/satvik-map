@@ -76,6 +76,8 @@ One place per line. An example entry:
 - **Structured data:** each city page has a hidden schema.org list of its places (name, area, city, location, cuisine,
   price, your note, Google Maps link) that Google and AI assistants read. The main page lists the city pages. No ratings.
 - **Sitemap:** `docs/sitemap.xml` lists the main page and the city pages.
+- **Google ownership file:** `docs/googlecfa21355d9ee791d.html` proves to Google Search Console that the site is yours.
+  Keep it (the build leaves it alone); deleting it un-verifies the site.
 - **Signing up (once, free):**
   1. Google Search Console (search.google.com/search-console): Add property → "URL prefix" →
      `https://iteachc.github.io/satvik-map/` → verify with "HTML tag". Copy the `content="…"` value into
