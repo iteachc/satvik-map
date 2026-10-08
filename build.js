@@ -1,4 +1,5 @@
-// Builds docs/index.html (The Satvik Map, with its Map and List views) from template.html + data/places.json.
+// Builds docs/index.html (The Satvik Map, with its Map and List views), one page per city (docs/<city>/index.html)
+// and docs/sitemap.xml from template.html + data/places.json.
 // Usage: node build.js   (Node 18+, no dependencies)
 // Places with a "hide" reason (closed, gone, low rating), no rating, or a rating below 3.6 stay in the data but are
 // left off. A "keep" reason overrides the rating rule (low or no rating) for a place asked for by name. Every place needs lat/lng.
@@ -16,11 +17,11 @@ const TYPES = { meal: 'Meals', pizza: 'Pizza & Italian', quick: 'Quick bites', s
 // data's "Delhi NCR". `trim` drops the end of an area that the city name already says
 // ("Cyber Hub, Gurugram" → "Cyber Hub, Gurgaon").
 const CITIES = [
-  { id: 'bangalore', label: 'Bangalore', match: (p) => p.city === 'Bengaluru' },
-  { id: 'bombay', label: 'Bombay', match: (p) => p.city === 'Mumbai' },
-  { id: 'gurgaon', label: 'Gurgaon', match: (p) => p.city === 'Delhi NCR' && /Gurugram/.test(p.area), trim: /,\s*Gurugram$/ },
-  { id: 'delhi', label: 'Delhi', match: (p) => p.city === 'Delhi NCR' && !/Gurugram/.test(p.area), trim: /,\s*New Delhi$/ },
-  { id: 'baroda', label: 'Baroda', match: (p) => p.city === 'Vadodara' },
+  { id: 'bangalore', label: 'Bangalore', locality: 'Bengaluru', region: 'Karnataka', match: (p) => p.city === 'Bengaluru' },
+  { id: 'bombay', label: 'Bombay', locality: 'Mumbai', region: 'Maharashtra', match: (p) => p.city === 'Mumbai' },
+  { id: 'gurgaon', label: 'Gurgaon', locality: 'Gurugram', region: 'Haryana', match: (p) => p.city === 'Delhi NCR' && /Gurugram/.test(p.area), trim: /,\s*Gurugram$/ },
+  { id: 'delhi', label: 'Delhi', locality: 'New Delhi', region: 'Delhi', match: (p) => p.city === 'Delhi NCR' && !/Gurugram/.test(p.area), trim: /,\s*New Delhi$/ },
+  { id: 'baroda', label: 'Baroda', locality: 'Vadodara', region: 'Gujarat', match: (p) => p.city === 'Vadodara' },
 ];
 const START = 'gurgaon'; // where the map opens
 const SITE = 'https://iteachc.github.io/satvik-map/'; // for link previews
@@ -30,6 +31,10 @@ const SHOW_NEW_FINDS = false;
 // Your links, under "About these places". Discord has no link for a username, so the page copies it on tap.
 const GITHUB = 'https://github.com/iteachc';
 const DISCORD = 'iteachchem';
+// Ownership codes from Google Search Console and Bing Webmaster Tools ("HTML tag" method): paste the content="…"
+// value here, run the build and push. Leave '' until you have them.
+const GOOGLE_VERIFY = '';
+const BING_VERIFY = '';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 // "₹1–200" reads better as "Under ₹200".
@@ -141,26 +146,6 @@ function cityCards(c) {
   return groups.map((g) => (g.length === 1 ? card(g[0], false) : groupCard(g, c))).join('');
 }
 
-const sections = cities.map((c) => `
-      <section class="city" id="list-${c.id}" data-city="${c.id}" aria-labelledby="h-${c.id}">
-        <h2 id="h-${c.id}">${esc(c.label)} <small>${c.places.length} place${c.places.length === 1 ? '' : 's'}</small></h2>
-        <div class="grid">${cityCards(c)}
-        </div>
-      </section>`).join('');
-const popups = shown.map((p) => card(p, true)).join('');
-
-// What the pins need; everything else is in the cards.
-const data = cities.flatMap((c) => c.places.map((p) => ({
-  id: p.id,
-  title: `${p.name}, ${where(p)}`,
-  in: c.id,
-  lat: p.lat,
-  lng: p.lng,
-  type: p.type,
-  full: !!p.fullySatvik && !p.found,
-  found: !!p.found,
-})));
-
 const PIN_GLYPHS = {
   meal: '<circle cx="14" cy="13.5" r="4.6"/>',
   pizza: '<path d="M8.4 9h11.2L14 19.6z"/>',
@@ -171,86 +156,141 @@ const pinSvg = (type) => `<svg class="pin pin-${type}" viewBox="0 0 28 36" aria-
 
 const chip = (attrs, label, n, on, icon = '') =>
   `<button type="button" class="chip" ${attrs} aria-pressed="${on}">${icon}${esc(label)}${n != null ? `<span class="n">${n}</span>` : ''}</button>`;
-const jumpChips = chip('data-jump="all" data-label="India"', 'All India', shown.length, false)
-  + cities.map((c) => chip(`data-jump="${c.id}" data-label="${esc(c.label)}"`, c.label, c.places.length, c.id === START)).join('');
-const typeChips = chip('data-type="all"', 'All', null, true)
-  + Object.entries(TYPES).filter(([k]) => shown.some((p) => p.type === k))
-    .map(([k, label]) => chip(`data-type="${k}"`, label, shown.filter((p) => p.type === k).length, false, pinSvg(k))).join('');
+// On a city page the other cities are links to their own pages (with #list when the List view is open).
+const navChip = (mapHref, listHref, label, n) =>
+  `<a class="chip" href="${mapHref}" data-nav-map="${mapHref}" data-nav-list="${listHref}">${esc(label)}<span class="n">${n}</span></a>`;
+const andList = (xs) => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}` : xs[0]);
 
-const names = cities.map((c) => c.label);
-const cityNames = names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names[0];
-const foundCount = shown.filter((p) => p.found).length;
-const tried = shown.length - foundCount;
-// Say plainly that these are places you've eaten at (New finds, when shown, are the exception).
-const eaten = foundCount
-  ? `I've eaten at ${tried} of these ${shown.length} places in ${cityNames}; the rest are marked <b>New find</b>.`
-  : `I've eaten at every one of these ${shown.length} places, in ${cityNames}.`;
+// Structured data: a hidden, machine-readable description of the page for search engines and AI assistants.
+// Only facts already on the page; no ratings.
+const SCHEMA_TYPE = { meal: 'Restaurant', pizza: 'Restaurant', quick: 'FastFoodRestaurant', sweet: 'FoodEstablishment' };
+const jsonLd = (obj) => `<script type="application/ld+json">${JSON.stringify(obj).replace(/</g, '\\u003c')}</script>\n`;
+const restaurant = (p, c) => ({
+  '@type': SCHEMA_TYPE[p.type],
+  name: p.name,
+  address: { '@type': 'PostalAddress', ...(areaOf(p) ? { streetAddress: areaOf(p) } : {}), addressLocality: c.locality, addressRegion: c.region, addressCountry: 'IN' },
+  geo: { '@type': 'GeoCoordinates', latitude: p.lat, longitude: p.lng },
+  servesCuisine: p.cuisine,
+  ...(p.price ? { priceRange: p.price.replace(/^₹1–/, 'Under ₹') } : {}),
+  ...(noteOf(p) ? { description: noteOf(p) } : {}),
+  hasMap: mapsUrl(p),
+});
 
-const description = `Satvik food: no onion, no garlic, no caffeine. ${tried} places I've eaten at in ${cityNames}, on a map and as a list.`;
+// One page: the whole site (only = null), or one city's own page (only = that city). City pages carry their
+// places in the page itself, so search engines can show "Satvik food in Gurgaon" on its own; WhatsApp and
+// Telegram also preview them as that city.
+function page(only) {
+  const pageCities = only ? [only] : cities;
+  const pagePlaces = pageCities.flatMap((c) => c.places);
+  const url = only ? `${SITE}${only.id}/` : SITE;
+  const base = only ? '../' : '';
 
-const html = template
-  .replaceAll('{{SITE}}', SITE)
-  .replaceAll('{{DESCRIPTION}}', esc(description))
-  .replaceAll('{{TOTAL}}', String(shown.length))
-  .replaceAll('{{CITY_NAMES}}', esc(cityNames))
-  .replaceAll('{{ASK}}', shown.some((p) => p.fullySatvik && !p.found)
-    ? 'Unless marked <b>Fully satvik</b>, ask for no onion, no garlic when you order.'
-    : 'Ask for no onion, no garlic when you order.')
-  .replaceAll('{{EATEN}}', eaten.replace(cityNames, esc(cityNames)))
-  .replace('{{JUMP_CHIPS}}', jumpChips)
-  .replace('{{TYPE_CHIPS}}', typeChips)
-  .replace('{{FINDS_SWITCH}}', foundCount ? `<button type="button" class="switch" id="finds" role="switch" aria-checked="true"><span class="track" aria-hidden="true"></span>New finds <span class="n">${foundCount}</span></button>` : '')
-  .replace('{{FINDS_ABOUT}}', foundCount ? "<p>Places tagged <b>New find</b> were found through other guides and checked on Google Maps, but haven't been tried yet.</p>" : '')
-  .replaceAll('{{LINKS}}', `<p class="links">Made by iteachc: <a href="${esc(GITHUB)}" target="_blank" rel="me noopener">GitHub</a> · `
-    + `<button type="button" class="copy" data-copy="${esc(DISCORD)}" title="Copy Discord username">Discord: ${esc(DISCORD)}</button></p>`)
-  .replace('{{START}}', START)
-  .replace('{{SECTIONS}}', sections)
-  .replace('{{POPUPS}}', popups)
-  .replace('{{PINS}}', JSON.stringify(Object.fromEntries(Object.keys(TYPES).map((k) => [k, pinSvg(k)]))).replace(/</g, '\\u003c'))
-  .replace('{{DATA}}', JSON.stringify(data).replace(/</g, '\\u003c'));
+  const sections = pageCities.map((c) => `
+      <section class="city" id="list-${c.id}" data-city="${c.id}" aria-labelledby="h-${c.id}">
+        <h2 id="h-${c.id}">${esc(c.label)} <small>${c.places.length} place${c.places.length === 1 ? '' : 's'}</small></h2>
+        <div class="grid">${cityCards(c)}
+        </div>
+      </section>`).join('');
+  const popups = pagePlaces.map((p) => card(p, true)).join('');
 
-const leftover = html.match(/\{\{[A-Z_]+\}\}/);
-if (leftover) throw new Error(`template placeholder ${leftover[0]} was not filled`);
+  // What the pins need; everything else is in the cards.
+  const data = pageCities.flatMap((c) => c.places.map((p) => ({
+    id: p.id,
+    title: `${p.name}, ${where(p)}`,
+    in: c.id,
+    lat: p.lat,
+    lng: p.lng,
+    type: p.type,
+    full: !!p.fullySatvik && !p.found,
+    found: !!p.found,
+  })));
+
+  const jumpChips = only
+    ? navChip('../#all', '../#list', 'All India', shown.length)
+      + cities.map((c) => (c.id === only.id
+        ? chip(`data-jump="${c.id}" data-label="${esc(c.label)}"`, c.label, c.places.length, true)
+        : navChip(`../${c.id}/`, `../${c.id}/#list`, c.label, c.places.length))).join('')
+    : chip('data-jump="all" data-label="India"', 'All India', shown.length, false)
+      + cities.map((c) => chip(`data-jump="${c.id}" data-label="${esc(c.label)}"`, c.label, c.places.length, c.id === START)).join('');
+  const typeChips = chip('data-type="all"', 'All', null, true)
+    + Object.entries(TYPES).filter(([k]) => pagePlaces.some((p) => p.type === k))
+      .map(([k, label]) => chip(`data-type="${k}"`, label, pagePlaces.filter((p) => p.type === k).length, false, pinSvg(k))).join('');
+
+  const cityNames = andList(pageCities.map((c) => c.label));
+  const foundCount = pagePlaces.filter((p) => p.found).length;
+  const tried = pagePlaces.length - foundCount;
+  // Say plainly that these are places you've eaten at (New finds, when shown, are the exception).
+  const eaten = foundCount
+    ? `I've eaten at ${tried} of these ${pagePlaces.length} places in ${cityNames}; the rest are marked <b>New find</b>.`
+    : `I've eaten at every one of these ${pagePlaces.length} places, in ${cityNames}.`;
+  const description = only
+    ? `Satvik food: no onion, no garlic, no caffeine. ${tried} place${tried === 1 ? '' : 's'} in ${only.label} I've eaten at, on a map and as a list.`
+    : `Satvik food: no onion, no garlic, no caffeine. ${tried} places I've eaten at in ${cityNames}, on a map and as a list.`;
+  const title = only ? `Satvik food in ${only.label}` : 'The Satvik Map';
+
+  const structured = only
+    ? jsonLd({
+      '@context': 'https://schema.org', '@type': 'ItemList', name: title, description, url, numberOfItems: pagePlaces.length,
+      itemListElement: pagePlaces.map((p, i) => ({ '@type': 'ListItem', position: i + 1, item: restaurant(p, only) })),
+    })
+    : jsonLd([
+      { '@context': 'https://schema.org', '@type': 'WebSite', name: 'The Satvik Map', url: SITE, description, inLanguage: 'en-IN' },
+      {
+        '@context': 'https://schema.org', '@type': 'ItemList', name: 'Satvik food by city',
+        itemListElement: cities.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: `Satvik food in ${c.label}`, url: `${SITE}${c.id}/` })),
+      },
+    ]);
+  // Search Console / Bing Webmaster Tools ownership codes go on the main page only.
+  const verify = only ? '' : (GOOGLE_VERIFY ? `<meta name="google-site-verification" content="${esc(GOOGLE_VERIFY)}">\n` : '')
+    + (BING_VERIFY ? `<meta name="msvalidate.01" content="${esc(BING_VERIFY)}">\n` : '');
+  const cityLinks = `<p class="cities">Share a city: ${cities.map((c) => `<a href="${base}${c.id}/">${esc(c.label)}</a>`).join(' · ')}</p>`;
+
+  const html = template
+    .replaceAll('{{TITLE}}', esc(only ? `${title} — The Satvik Map` : title))
+    .replaceAll('{{OG_TITLE}}', esc(title))
+    .replaceAll('{{URL}}', url)
+    .replace('{{HEAD_EXTRA}}', verify + structured)
+    .replace('{{CITY_LINKS}}', cityLinks)
+    .replace('{{LOCKED}}', String(!!only))
+    .replaceAll('{{SITE}}', SITE)
+    .replaceAll('{{DESCRIPTION}}', esc(description))
+    .replaceAll('{{TOTAL}}', String(pagePlaces.length))
+    .replaceAll('{{CITY_NAMES}}', esc(cityNames))
+    .replaceAll('{{ASK}}', pagePlaces.some((p) => p.fullySatvik && !p.found)
+      ? 'Unless marked <b>Fully satvik</b>, ask for no onion, no garlic when you order.'
+      : 'Ask for no onion, no garlic when you order.')
+    .replaceAll('{{EATEN}}', eaten.replace(cityNames, esc(cityNames)))
+    .replace('{{JUMP_CHIPS}}', jumpChips)
+    .replace('{{TYPE_CHIPS}}', typeChips)
+    .replace('{{FINDS_SWITCH}}', foundCount ? `<button type="button" class="switch" id="finds" role="switch" aria-checked="true"><span class="track" aria-hidden="true"></span>New finds <span class="n">${foundCount}</span></button>` : '')
+    .replace('{{FINDS_ABOUT}}', foundCount ? "<p>Places tagged <b>New find</b> were found through other guides and checked on Google Maps, but haven't been tried yet.</p>" : '')
+    .replaceAll('{{LINKS}}', `<p class="links">Made by iteachc: <a href="${esc(GITHUB)}" target="_blank" rel="me noopener">GitHub</a> · `
+      + `<button type="button" class="copy" data-copy="${esc(DISCORD)}" title="Copy Discord username">Discord: ${esc(DISCORD)}</button></p>`)
+    .replace('{{START}}', only ? only.id : START)
+    .replace('{{SECTIONS}}', sections)
+    .replace('{{POPUPS}}', popups)
+    .replace('{{PINS}}', JSON.stringify(Object.fromEntries(Object.keys(TYPES).map((k) => [k, pinSvg(k)]))).replace(/</g, '\\u003c'))
+    .replace('{{DATA}}', JSON.stringify(data).replace(/</g, '\\u003c'));
+
+  const leftover = html.match(/\{\{[A-Z_]+\}\}/);
+  if (leftover) throw new Error(`template placeholder ${leftover[0]} was not filled`);
+  return html;
+}
 
 fs.mkdirSync(path.join(root, 'docs'), { recursive: true });
 const out = path.join(root, 'docs', 'index.html');
-fs.writeFileSync(out, html);
-
-// Share pages: WhatsApp and other apps never see the part of a link after "#", so …/satvik-map/#gurgaon can't have
-// its own preview. …/satvik-map/gurgaon/ can: it carries the preview tags and then opens the map on that city.
+fs.writeFileSync(out, page(null));
 for (const c of cities) {
-  const url = `${SITE}${c.id}/`;
-  const title = `Satvik food in ${c.label}`;
-  const n = c.places.filter((p) => !p.found).length;
-  const desc = `${n} place${n === 1 ? '' : 's'} in ${c.label} where I've eaten food without onion and garlic. On The Satvik Map.`;
   fs.mkdirSync(path.join(root, 'docs', c.id), { recursive: true });
-  fs.writeFileSync(path.join(root, 'docs', c.id, 'index.html'), `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${esc(title)} — The Satvik Map</title>
-<meta name="description" content="${esc(desc)}">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="The Satvik Map">
-<meta property="og:title" content="${esc(title)}">
-<meta property="og:description" content="${esc(desc)}">
-<meta property="og:url" content="${url}">
-<meta property="og:image" content="${SITE}og.jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image">
-<script>location.replace('../#${c.id}');</script>
-<noscript><meta http-equiv="refresh" content="0; url=../#${c.id}"></noscript>
-<style>body { margin: 0; padding: 40px 16px; font: 17px/1.5 system-ui, sans-serif; background: #f3f6ee; color: #17221a; } a { color: #2d6a38; font-weight: 700; }
-@media (prefers-color-scheme: dark) { body { background: #0f1511; color: #edf2ea; } a { color: #8ccf98; } }</style>
-</head>
-<body>
-<p>Opening <a href="../#${c.id}">The Satvik Map: ${esc(c.label)}</a>…</p>
-</body>
-</html>
-`);
+  fs.writeFileSync(path.join(root, 'docs', c.id, 'index.html'), page(c));
 }
+// The list of pages for Google and Bing (submit it once in Search Console / Bing Webmaster Tools).
+fs.writeFileSync(path.join(root, 'docs', 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${[SITE, ...cities.map((c) => `${SITE}${c.id}/`)].map((u) => `  <url><loc>${u}</loc></url>`).join('\n')}
+</urlset>
+`);
+const foundCount = shown.filter((p) => p.found).length;
 
 const hidden = places.filter((p) => !listed.includes(p) && !waiting.includes(p));
 console.log(`Built ${path.relative(root, out)}: ${shown.length} places (${cities.map((c) => `${c.label} ${c.places.length}`).join(', ')}), ${foundCount} of them new finds. ${hidden.length} left off${waiting.length ? `, plus ${waiting.length} new finds waiting to be tried (SHOW_NEW_FINDS)` : ''}.`);
@@ -258,4 +298,4 @@ for (const p of listed.filter((p) => p.keep)) console.log(`  + ${p.name} (${p.ci
 for (const p of hidden) console.log(`  - ${p.name} (${p.city}): ${p.hide || (p.rating == null ? 'no rating' : 'rating below ' + MIN_RATING)}`);
 for (const p of noPin) console.log(`  ! ${p.name} (${p.city}): no lat/lng, so no pin`);
 const noNote = shown.filter((p) => !p.found && !p.note);
-if (noNote.length) console.log(`${noNote.length} of ${shown.length} places have no note yet (see the TODO list in README.md).`);
+if (noNote.length) console.log(`${noNote.length} of ${shown.length} places have no note yet: ${noNote.map((p) => p.id).join(', ')}`);

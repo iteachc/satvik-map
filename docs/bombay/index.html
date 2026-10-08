@@ -2,24 +2,664 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Satvik food in Bombay — The Satvik Map</title>
-<meta name="description" content="5 places in Bombay where I&#39;ve eaten food without onion and garlic. On The Satvik Map.">
+<script>document.documentElement.dataset.view = location.hash.slice(1).indexOf('list') === 0 ? 'list' : 'map';</script>
+<meta name="description" content="Satvik food: no onion, no garlic, no caffeine. 5 places in Bombay I&#39;ve eaten at, on a map and as a list.">
+<link rel="canonical" href="https://iteachc.github.io/satvik-map/bombay/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Satvik Map">
 <meta property="og:title" content="Satvik food in Bombay">
-<meta property="og:description" content="5 places in Bombay where I&#39;ve eaten food without onion and garlic. On The Satvik Map.">
+<meta property="og:description" content="Satvik food: no onion, no garlic, no caffeine. 5 places in Bombay I&#39;ve eaten at, on a map and as a list.">
 <meta property="og:url" content="https://iteachc.github.io/satvik-map/bombay/">
 <meta property="og:image" content="https://iteachc.github.io/satvik-map/og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<script>location.replace('../#bombay');</script>
-<noscript><meta http-equiv="refresh" content="0; url=../#bombay"></noscript>
-<style>body { margin: 0; padding: 40px 16px; font: 17px/1.5 system-ui, sans-serif; background: #f3f6ee; color: #17221a; } a { color: #2d6a38; font-weight: 700; }
-@media (prefers-color-scheme: dark) { body { background: #0f1511; color: #edf2ea; } a { color: #8ccf98; } }</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"Satvik food in Bombay","description":"Satvik food: no onion, no garlic, no caffeine. 5 places in Bombay I've eaten at, on a map and as a list.","url":"https://iteachc.github.io/satvik-map/bombay/","numberOfItems":5,"itemListElement":[{"@type":"ListItem","position":1,"item":{"@type":"Restaurant","name":"Govinda's (ISKCON Juhu)","address":{"@type":"PostalAddress","streetAddress":"Hare Krishna Land, Juhu","addressLocality":"Mumbai","addressRegion":"Maharashtra","addressCountry":"IN"},"geo":{"@type":"GeoCoordinates","latitude":19.1133,"longitude":72.8266},"servesCuisine":"Indian","description":"Hands down the best place to eat in Bombay. High-quality food and lots of options. My favourites: the dosa, the Ekadashi buffet and the kulfi. There's also a small open-air eatery just outside the temple with dosa and sambar.","hasMap":"https://share.google/ILJTUPcAQ0xBdZ0oI"}},{"@type":"ListItem","position":2,"item":{"@type":"Restaurant","name":"Ram Ashraya","address":{"@type":"PostalAddress","streetAddress":"Matunga East","addressLocality":"Mumbai","addressRegion":"Maharashtra","addressCountry":"IN"},"geo":{"@type":"GeoCoordinates","latitude":19.02793,"longitude":72.85179},"servesCuisine":"South Indian","priceRange":"₹200–400","description":"I had the Jain thali, and the Mysore pak is really good too.","hasMap":"https://www.google.com/maps/search/Ram%20Ashraya/@19.02793,72.85179,17z"}},{"@type":"ListItem","position":3,"item":{"@type":"Restaurant","name":"Joey's Pizza","address":{"@type":"PostalAddress","streetAddress":"D.N. Nagar, Andheri West","addressLocality":"Mumbai","addressRegion":"Maharashtra","addressCountry":"IN"},"geo":{"@type":"GeoCoordinates","latitude":19.12663,"longitude":72.83011},"servesCuisine":"Pizza","priceRange":"₹200–600","description":"Thick, very tasty American-style pizza: greasy, lots of sauce, and the sauce has no onion or garlic. The owner is an amazing guy; I used to chat with him a lot, and he's kept the place going.","hasMap":"https://www.google.com/maps/search/Joey's%20Pizza/@19.12663,72.83011,17z"}},{"@type":"ListItem","position":4,"item":{"@type":"Restaurant","name":"Udupi Shree Krishna","address":{"@type":"PostalAddress","streetAddress":"JP Road, Andheri West","addressLocality":"Mumbai","addressRegion":"Maharashtra","addressCountry":"IN"},"geo":{"@type":"GeoCoordinates","latitude":19.12768,"longitude":72.8339},"servesCuisine":"South Indian","priceRange":"₹200–400","description":"My go-to, a standard.","hasMap":"https://www.google.com/maps/search/Udupi%20Shree%20Krishna/@19.12768,72.8339,17z"}},{"@type":"ListItem","position":5,"item":{"@type":"Restaurant","name":"Vithal's Family Restaurant","address":{"@type":"PostalAddress","streetAddress":"Fort, near CST","addressLocality":"Mumbai","addressRegion":"Maharashtra","addressCountry":"IN"},"geo":{"@type":"GeoCoordinates","latitude":18.9381,"longitude":72.83376},"servesCuisine":"Indian","priceRange":"₹200–1,000","description":"Really good chaat. I've only been once, on a trip, but it was so good I had to put it here. Bombay food is brilliant when it's good and very strange when it's not; this is one of the good ones.","hasMap":"https://www.google.com/maps/search/Vithal's%20Family%20Restaurant/@18.9381,72.83376,17z"}}]}</script>
+<meta name="theme-color" content="#f3f6ee" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1511" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 36'%3E%3Cpath d='M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z' fill='%232d6a38'/%3E%3Ccircle cx='14' cy='13.5' r='4.6' fill='%23f0c14b'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&family=Young+Serif&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css" integrity="sha512-ENrTWqddXrLJsQS2A86QmvA17PkJ0GVm1bqj5aTgpeMAfDKN2+SIOLpKG8R/6KkimnhTb+VW5qqUHB/r1zaRgg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<style>
+/* Layout: phones get a compact header (title, Map/List switch, one line on satvik food, city and food filters) over a
+   full-height map; from 900px the header becomes a sidebar. Tapping a pin opens a card over the bottom of the map.
+   The List view covers the map with every place's card, one section per city. Without JavaScript the list shows. */
+:root {
+  --bg: #f3f6ee;
+  --card: #ffffff;
+  --ink: #17221a;
+  --muted: #58665b;
+  --line: #dce3d4;
+  --leaf: #2d6a38;
+  --leaf-soft: #e2eedd;
+  --turmeric: #a86f00;
+  --turmeric-soft: #faefd0;
+  /* Pin colours by food type, checked for colour-blind separation; each pin also has its own shape.
+     Green is kept for selection and links. */
+  --meal: #c98500;
+  --pizza: #d23f2e;
+  --quick: #1d5fc8;
+  --sweet: #96409c;
+  --tiles: none;
+  --shadow: 0 10px 30px rgba(23, 34, 26, .18);
+  --display: "Young Serif", Georgia, serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1511; --card: #17201a; --ink: #edf2ea; --muted: #a3b1a6; --line: #29362d;
+    --leaf: #8ccf98; --leaf-soft: #1b2d20; --turmeric: #f0c14b; --turmeric-soft: #322810;
+    --meal: #c4861a; --pizza: #c4342a; --quick: #4a8aee; --sweet: #c06ab9;
+    --tiles: invert(1) hue-rotate(180deg) brightness(.92) contrast(.88) saturate(.45);
+    --shadow: 0 10px 30px rgba(0, 0, 0, .5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1511; --card: #17201a; --ink: #edf2ea; --muted: #a3b1a6; --line: #29362d;
+  --leaf: #8ccf98; --leaf-soft: #1b2d20; --turmeric: #f0c14b; --turmeric-soft: #322810;
+  --meal: #c4861a; --pizza: #c4342a; --quick: #4a8aee; --sweet: #c06ab9;
+  --tiles: invert(1) hue-rotate(180deg) brightness(.92) contrast(.88) saturate(.45);
+  --shadow: 0 10px 30px rgba(0, 0, 0, .5);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; overflow: hidden; }
+[hidden] { display: none !important; }
+a { color: var(--leaf); }
+:focus-visible { outline: 3px solid var(--turmeric); outline-offset: 2px; }
+
+.app { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
+.panel { flex: none; position: relative; z-index: 2; min-width: 0; max-height: 45%; overflow-y: auto; display: grid; gap: 8px; align-content: start;
+  padding: max(12px, env(safe-area-inset-top)) 16px 10px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.mapwrap { flex: 1 1 auto; position: relative; min-height: 0; }
+#map { position: absolute; inset: 0; }
+
+.top { display: flex; align-items: center; justify-content: space-between; gap: 4px 12px; flex-wrap: wrap; }
+.eyebrow { display: none; font-size: 14px; font-weight: 500; color: var(--muted); }
+h1 { font-family: var(--display); font-weight: 400; font-size: 26px; line-height: 1.1; margin: 0; }
+h1 em { font-style: normal; color: var(--leaf); }
+.views { display: inline-flex; justify-self: start; flex: none; border: 1px solid var(--line); border-radius: 999px; padding: 2px; background: var(--card); }
+.views button { position: relative; font: inherit; font-size: 13.5px; font-weight: 700; line-height: 1; border: 0; background: none; color: var(--muted); border-radius: 999px; padding: 0 12px; min-height: 28px; cursor: pointer; }
+.views button::after { content: ""; position: absolute; inset: -8px -2px; }
+.views button[aria-pressed="true"] { background: var(--leaf); color: var(--card); }
+.lede { margin: 0; font-size: 14.5px; line-height: 1.45; color: var(--muted); }
+.lede strong, .lede b { color: var(--ink); }
+
+.filters { display: grid; gap: 8px; min-width: 0; }
+.chiprow { display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
+.chiprow::-webkit-scrollbar { display: none; }
+.chiprow .label { flex: none; font-size: 14px; font-weight: 500; color: var(--muted); min-width: 40px; }
+.chip { flex: none; display: inline-flex; align-items: center; font: inherit; font-size: 14.5px; font-weight: 500; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 5px 12px; cursor: pointer; min-height: 36px; white-space: nowrap; }
+a.chip { text-decoration: none; }
+.chip .n { color: var(--muted); font-variant-numeric: tabular-nums; margin-left: 5px; }
+.chip[aria-pressed="true"] { background: var(--leaf); border-color: var(--leaf); color: var(--card); }
+.chip[aria-pressed="true"] .n { color: var(--card); opacity: .8; }
+.chip .pin { width: 13px; height: 17px; margin-right: 6px; filter: none; }
+.chip .pin .body { stroke-width: 0; }
+.chip[aria-pressed="true"] .pin .body { stroke: var(--card); stroke-width: 2.5; }
+
+.row { display: flex; align-items: center; justify-content: space-between; gap: 6px 12px; flex-wrap: wrap; }
+.switch { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 14.5px; font-weight: 500; color: var(--ink); background: none; border: 0; padding: 4px 0; min-height: 36px; cursor: pointer; }
+.switch .track { width: 36px; height: 22px; border-radius: 999px; background: var(--line); position: relative; transition: background .15s; flex: none; }
+.switch .track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: transform .15s; }
+.switch[aria-checked="true"] .track { background: var(--leaf); }
+.switch[aria-checked="true"] .track::after { transform: translateX(14px); }
+.switch .n { color: var(--muted); font-variant-numeric: tabular-nums; }
+.count { margin: 0; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.about { font-size: 14.5px; color: var(--muted); }
+.about summary { cursor: pointer; font-weight: 700; color: var(--leaf); width: max-content; padding-block: 11px; margin-block: -9px; }
+.about p { margin: 8px 0 0; }
+.about ul { margin: 4px 0 0; padding-left: 18px; }
+.about li + li { margin-top: 4px; }
+.about b { color: var(--ink); }
+.links { margin: 0; font-size: 14px; color: var(--muted); }
+.links a, .links .copy { position: relative; font: inherit; font-weight: 700; color: var(--leaf); text-decoration: none; background: none; border: 0; padding: 4px 0; cursor: pointer; }
+.links a::after, .links .copy::after { content: ""; position: absolute; inset: -8px -4px; }
+.links a:hover, .links .copy:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* List view */
+.listwrap { position: absolute; inset: 0; z-index: 1100; overflow-y: auto; background: var(--bg); padding: 16px 16px 48px; display: grid; gap: 28px; align-content: start; }
+[data-view="map"] .listwrap { display: none; }
+.city { display: grid; gap: 12px; min-width: 0; }
+.city > h2 { font-family: var(--display); font-weight: 400; font-size: 28px; line-height: 1.1; margin: 0; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.city > h2 small { font-family: var(--body); font-size: 15px; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 12px; }
+.place { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 8px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.empty { margin: 0; color: var(--muted); }
+.branches { list-style: none; margin: 2px 0 0; padding: 0; display: grid; }
+.branches li { border-top: 1px solid var(--line); padding-top: 8px; display: grid; gap: 2px; }
+.branch { margin: 0; font-weight: 700; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.branches .actions { margin-top: 0; }
+
+/* Card */
+.card { position: absolute; z-index: 1001; left: 10px; right: 10px; bottom: 26px; max-height: calc(100% - 44px); overflow-y: auto;
+  background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+  padding: 14px 16px 10px; display: grid; gap: 6px; align-content: start; }
+.card:focus { outline: none; }
+.card .close { position: absolute; top: 2px; right: 2px; width: 44px; height: 44px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: 400 26px/1 var(--body); cursor: pointer; }
+.card .close:hover { color: var(--ink); background: var(--bg); }
+.found { font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--turmeric); border: 1px solid var(--turmeric); border-radius: 999px; padding: 0 9px; white-space: nowrap; }
+.kind { font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.head { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.card .head { padding-right: 36px; }
+.place h3, .card h3 { font-family: var(--display); font-weight: 400; font-size: 23px; line-height: 1.15; margin: 0; overflow-wrap: anywhere; }
+.card h3 { padding-right: 30px; }
+.where { margin: 0; color: var(--muted); font-size: 15px; }
+.price { margin: 0; font-size: 15px; font-variant-numeric: tabular-nums; }
+.badge { font-size: 12px; font-weight: 700; border-radius: 6px; padding: 0 7px; border: 1px solid transparent; }
+.badge.all { background: var(--leaf); color: var(--card); }
+.badge.veg { border-color: var(--line); color: var(--ink); }
+.note { margin: 0; font-size: 16px; line-height: 1.45; color: var(--ink); }
+/* Your notes are first-hand: a small label says so. */
+.note .by { display: block; font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--leaf); }
+/* margin-top: auto keeps the actions on the bottom edge, so they line up across a row of cards. */
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0 18px; margin-top: auto; }
+.maps { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; text-decoration: none; font-size: 15px; }
+.maps:hover { text-decoration: underline; text-underline-offset: 3px; }
+.onmap { min-height: 44px; font: inherit; font-size: 15px; font-weight: 700; color: var(--muted); background: none; border: 0; padding: 0; cursor: pointer; }
+.onmap:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+
+/* Pins and clusters */
+.pinwrap { background: none; border: 0; }
+.pinwrap::after, .cluster::after { content: ""; position: absolute; inset: -5px; }
+.pinwrap::after { inset: -4px -8px; }
+.pinwrap:focus-visible { outline: none; }
+.pin { display: block; width: 28px; height: 36px; overflow: visible; transform-origin: 50% 96%; transition: transform .15s ease; filter: drop-shadow(0 0 1px rgba(0, 0, 0, .75)) drop-shadow(0 1px 2px rgba(0, 0, 0, .35)); }
+.pin .body { fill: var(--c); stroke: #fff; stroke-width: 2; }
+.pin .glyph { fill: #fff; }
+.pin-meal { --c: var(--meal); }
+.pin-pizza { --c: var(--pizza); }
+.pin-quick { --c: var(--quick); }
+.pin-sweet { --c: var(--sweet); }
+.pinwrap:hover .pin { transform: scale(1.12); }
+.pinwrap.is-on .pin, .pinwrap:focus-visible .pin { transform: scale(1.35); }
+.pinwrap:focus-visible .pin .body { stroke: var(--turmeric); stroke-width: 2.5; }
+.cluster { background: none; }
+.cluster span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: #fbfbf8; color: #17221a;
+  font: 700 14px/1 var(--body); border: 1px solid rgba(23, 34, 26, .3); box-shadow: 0 0 0 3px rgba(0, 0, 0, .14), 0 1px 4px rgba(0, 0, 0, .4); }
+.cluster:focus-visible { outline: none; }
+.cluster:focus-visible span { box-shadow: 0 0 0 4px var(--turmeric); }
+
+.leaflet-container { font-family: var(--body); background: var(--bg); }
+/* The base map is dimmed so the pins stand out. */
+.leaflet-tile-pane { filter: var(--tiles); opacity: .6; }
+.leaflet-bar a, .leaflet-bar a:hover { background: var(--card); color: var(--ink); border-color: var(--line); }
+.leaflet-touch .leaflet-bar { border-color: var(--line); }
+.leaflet-container .leaflet-control-attribution { background: var(--card); opacity: .9; color: var(--muted); font-size: 11px; }
+.leaflet-container .leaflet-control-attribution a { color: var(--leaf); }
+
+/* Phones and tablets: the intro and your links fold into "About these places" to leave room
+   for the map. Wider screens show them in the panel, as before. */
+@media (max-width: 899px) {
+  .panel > .lede, .panel > .links { display: none; }
+}
+@media (min-width: 900px) {
+  .about .lede, .about .links { display: none; }
+}
+/* Phones and tablets, List view: one plain page scroll. The header scrolls away with the list. */
+@media (max-width: 899px) {
+  [data-view="list"], [data-view="list"] body { height: auto; overflow: visible; }
+  [data-view="list"] .app { height: auto; }
+  [data-view="list"] .panel { max-height: none; overflow: visible; }
+  [data-view="list"] .mapwrap { flex: none; }
+  [data-view="list"] #map { display: none; }
+  [data-view="list"] .listwrap { position: static; overflow: visible; }
+}
+/* Touch screens: 44px tap targets for controls that sit in tight rows. */
+@media (pointer: coarse) {
+  .chip { min-height: 44px; }
+  .leaflet-touch .leaflet-bar a { width: 44px; height: 44px; line-height: 44px; }
+}
+@media (min-width: 640px) {
+  .card { left: 16px; right: auto; width: 360px; bottom: 30px; }
+}
+@media (min-width: 900px) {
+  .app { display: grid; grid-template-columns: 380px 1fr; }
+  .panel { max-height: none; height: 100%; padding: 28px 24px; gap: 16px; border-bottom: 0; border-right: 1px solid var(--line); }
+  .eyebrow { display: block; }
+  .top { display: grid; gap: 6px; }
+  h1 { font-size: 36px; }
+  .lede { font-size: 16.5px; }
+  .chiprow { flex-wrap: wrap; overflow: visible; margin-inline: 0; padding-inline: 0; }
+  .chiprow .label { flex-basis: 100%; }
+  .card { width: 380px; }
+  .listwrap { padding: 28px 32px 56px; gap: 36px; }
+  .city > h2 { font-size: 32px; }
+}
+</style>
 </head>
 <body>
-<p>Opening <a href="../#bombay">The Satvik Map: Bombay</a>…</p>
+<div class="app">
+  <header class="panel">
+    <span class="eyebrow">Places I've eaten at · No onion, no garlic</span>
+    <div class="top">
+      <h1>The Satvik <em>Map</em></h1>
+      <div class="views" role="group" aria-label="View">
+        <button type="button" data-view="map" aria-pressed="true">Map</button>
+        <button type="button" data-view="list" aria-pressed="false">List</button>
+      </div>
+    </div>
+    <p class="lede"><strong>Satvik food:</strong> no onion, no garlic, no caffeine. I've eaten at every one of these 5 places, in Bombay. Unless marked <b>Fully satvik</b>, ask for no onion, no garlic when you order.</p>
+
+    <nav class="filters" aria-label="Filters">
+      <div class="chiprow" role="group" aria-label="City"><span class="label">City</span><a class="chip" href="../#all" data-nav-map="../#all" data-nav-list="../#list">All India<span class="n">65</span></a><a class="chip" href="../bangalore/" data-nav-map="../bangalore/" data-nav-list="../bangalore/#list">Bangalore<span class="n">27</span></a><button type="button" class="chip" data-jump="bombay" data-label="Bombay" aria-pressed="true">Bombay<span class="n">5</span></button><a class="chip" href="../gurgaon/" data-nav-map="../gurgaon/" data-nav-list="../gurgaon/#list">Gurgaon<span class="n">17</span></a><a class="chip" href="../delhi/" data-nav-map="../delhi/" data-nav-list="../delhi/#list">Delhi<span class="n">14</span></a><a class="chip" href="../baroda/" data-nav-map="../baroda/" data-nav-list="../baroda/#list">Baroda<span class="n">2</span></a></div>
+      <div class="chiprow" role="group" aria-label="Type of food"><span class="label">Food</span><button type="button" class="chip" data-type="all" aria-pressed="true">All</button><button type="button" class="chip" data-type="meal" aria-pressed="false"><svg class="pin pin-meal" viewBox="0 0 28 36" aria-hidden="true"><path class="body" d="M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z"/><g class="glyph"><circle cx="14" cy="13.5" r="4.6"/></g></svg>Meals<span class="n">4</span></button><button type="button" class="chip" data-type="pizza" aria-pressed="false"><svg class="pin pin-pizza" viewBox="0 0 28 36" aria-hidden="true"><path class="body" d="M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z"/><g class="glyph"><path d="M8.4 9h11.2L14 19.6z"/></g></svg>Pizza &amp; Italian<span class="n">1</span></button></div>
+      <div class="row">
+        
+        <p class="count" id="count" aria-live="polite">5 places</p>
+      </div>
+    </nav>
+
+    <p class="links">Made by iteachc: <a href="https://github.com/iteachc" target="_blank" rel="me noopener">GitHub</a> · <button type="button" class="copy" data-copy="iteachchem" title="Copy Discord username">Discord: iteachchem</button></p>
+
+    <details class="about" id="about">
+      <summary>About these places</summary>
+      <p>My focus is satvik food: no onion, no garlic, no caffeine. Jain food goes further and also leaves out root vegetables like potato, carrot and ginger, so if you eat Jain, check with the kitchen.</p>
+      <p class="lede">I've eaten at every one of these 5 places, in Bombay. Unless marked <b>Fully satvik</b>, ask for no onion, no garlic when you order.</p>
+      <p><b>Tips for ordering</b></p>
+      <ul>
+        <li>If they don't know "satvik", say "Jain, but potato and ginger are fine."</li>
+        <li>In Bombay, the usual way to ask is "half Jain": no onion, no garlic.</li>
+        <li>In North India, and especially around Delhi and Gurgaon, many places serve food without onion and garlic during Navratri, in the run-up to Ram Navami and Dussehra. I always look forward to it.</li>
+      </ul>
+      
+      <p class="cities">Share a city: <a href="../bangalore/">Bangalore</a> · <a href="../bombay/">Bombay</a> · <a href="../gurgaon/">Gurgaon</a> · <a href="../delhi/">Delhi</a> · <a href="../baroda/">Baroda</a></p>
+      <p class="links">Made by iteachc: <a href="https://github.com/iteachc" target="_blank" rel="me noopener">GitHub</a> · <button type="button" class="copy" data-copy="iteachchem" title="Copy Discord username">Discord: iteachchem</button></p>
+    </details>
+  </header>
+
+  <main class="mapwrap">
+    <div id="map" role="region" aria-label="Map of satvik places"></div>
+    <div class="listwrap" id="list" aria-label="All places">
+      <section class="city" id="list-bombay" data-city="bombay" aria-labelledby="h-bombay">
+        <h2 id="h-bombay">Bombay <small>5 places</small></h2>
+        <div class="grid">
+        <article class="place" data-ids="govindas-juhu">
+          <p class="head"><span class="kind">Meals · Indian</span><span class="badge all">Fully satvik</span><span class="badge veg">Pure veg</span></p>
+          <h3>Govinda&#39;s (ISKCON Juhu)</h3>
+          <p class="where">Hare Krishna Land, Juhu, Bombay</p>
+          <p class="note"><span class="by">From my visit</span> Hands down the best place to eat in Bombay. High-quality food and lots of options. My favourites: the dosa, the Ekadashi buffet and the kulfi. There&#39;s also a small open-air eatery just outside the temple with dosa and sambar.</p>
+          
+          <div class="actions">
+            <a class="maps" href="https://share.google/ILJTUPcAQ0xBdZ0oI" target="_blank" rel="noopener">Open in Google Maps →</a>
+            <button type="button" class="onmap" data-show="govindas-juhu">Show on map</button>
+          </div>
+        </article>
+        <article class="place" data-ids="ram-ashraya">
+          <p class="head"><span class="kind">Meals · South Indian</span><span class="badge veg">Pure veg</span></p>
+          <h3>Ram Ashraya</h3>
+          <p class="where">Matunga East, Bombay</p>
+          <p class="note"><span class="by">From my visit</span> I had the Jain thali, and the Mysore pak is really good too.</p>
+          <p class="price">₹200–400 per person</p>
+          <div class="actions">
+            <a class="maps" href="https://www.google.com/maps/search/Ram%20Ashraya/@19.02793,72.85179,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
+            <button type="button" class="onmap" data-show="ram-ashraya">Show on map</button>
+          </div>
+        </article>
+        <article class="place" data-ids="joeys-pizza">
+          <p class="head"><span class="kind">Pizza &amp; Italian · Pizza</span></p>
+          <h3>Joey&#39;s Pizza</h3>
+          <p class="where">D.N. Nagar, Andheri West, Bombay</p>
+          <p class="note"><span class="by">From my visit</span> Thick, very tasty American-style pizza: greasy, lots of sauce, and the sauce has no onion or garlic. The owner is an amazing guy; I used to chat with him a lot, and he&#39;s kept the place going.</p>
+          <p class="price">₹200–600 per person</p>
+          <div class="actions">
+            <a class="maps" href="https://www.google.com/maps/search/Joey&#39;s%20Pizza/@19.12663,72.83011,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
+            <button type="button" class="onmap" data-show="joeys-pizza">Show on map</button>
+          </div>
+        </article>
+        <article class="place" data-ids="usk">
+          <p class="head"><span class="kind">Meals · South Indian</span><span class="badge veg">Pure veg</span></p>
+          <h3>Udupi Shree Krishna</h3>
+          <p class="where">JP Road, Andheri West, Bombay</p>
+          <p class="note"><span class="by">From my visit</span> My go-to, a standard.</p>
+          <p class="price">₹200–400 per person</p>
+          <div class="actions">
+            <a class="maps" href="https://www.google.com/maps/search/Udupi%20Shree%20Krishna/@19.12768,72.8339,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
+            <button type="button" class="onmap" data-show="usk">Show on map</button>
+          </div>
+        </article>
+        <article class="place" data-ids="vithals">
+          <p class="head"><span class="kind">Meals · Indian</span></p>
+          <h3>Vithal&#39;s Family Restaurant</h3>
+          <p class="where">Fort, near CST, Bombay</p>
+          <p class="note"><span class="by">From my visit</span> Really good chaat. I&#39;ve only been once, on a trip, but it was so good I had to put it here. Bombay food is brilliant when it&#39;s good and very strange when it&#39;s not; this is one of the good ones.</p>
+          <p class="price">₹200–1,000 per person</p>
+          <div class="actions">
+            <a class="maps" href="https://www.google.com/maps/search/Vithal&#39;s%20Family%20Restaurant/@18.9381,72.83376,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
+            <button type="button" class="onmap" data-show="vithals">Show on map</button>
+          </div>
+        </article>
+        </div>
+      </section>
+      <p class="empty" id="empty" hidden>Nothing matches those filters. Try another city or type of food.</p>
+    </div>
+    <template id="popups">
+        <article class="place" id="p-govindas-juhu">
+          <p class="head"><span class="kind">Meals · Indian</span><span class="badge all">Fully satvik</span><span class="badge veg">Pure veg</span></p>
+          <h3>Govinda&#39;s (ISKCON Juhu)</h3>
+          <p class="where">Hare Krishna Land, Juhu, Bombay</p>
+          <p class="note"><span class="by">From my visit</span> Hands down the best place to eat in Bombay. High-quality food and lots of options. My favourites: the dosa, the Ekadashi buffet and the kulfi. There&#39;s also a small open-air eatery just outside the temple with dosa and sambar.</p>
+          
+          <div class="actions">
+            <a class="maps" href="https://share.google/ILJTUPcAQ0xBdZ0oI" target="_blank" rel="noopener">Open in Google Maps →</a>
+          </div>
+        </article>
+        <article class="place" id="p-ram-ashraya">
+          <p class="head"><span class="kind">Meals · South Indian</span><span class="badge veg">Pure veg</span></p>
+          <h3>Ram Ashraya</h3>
+          <p class="where">Matunga East, Bombay</p>
+          <p class="note"><span class="by">From my visit</span> I had the Jain thali, and the Mysore pak is really good too.</p>
+          <p class="price">₹200–400 per person</p>
+          <div class="actions">
+            <a class="maps" href="https://www.google.com/maps/search/Ram%20Ashraya/@19.02793,72.85179,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
+          </div>
+        </article>
+        <article class="place" id="p-joeys-pizza">
+          <p class="head"><span class="kind">Pizza &amp; Italian · Pizza</span></p>
+          <h3>Joey&#39;s Pizza</h3>
+          <p class="where">D.N. Nagar, Andheri West, Bombay</p>
+          <p class="note"><span class="by">From my visit</span> Thick, very tasty American-style pizza: greasy, lots of sauce, and the sauce has no onion or garlic. The owner is an amazing guy; I used to chat with him a lot, and he&#39;s kept the place going.</p>
+          <p class="price">₹200–600 per person</p>
+          <div class="actions">
+            <a class="maps" href="https://www.google.com/maps/search/Joey&#39;s%20Pizza/@19.12663,72.83011,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
+          </div>
+        </article>
+        <article class="place" id="p-usk">
+          <p class="head"><span class="kind">Meals · South Indian</span><span class="badge veg">Pure veg</span></p>
+          <h3>Udupi Shree Krishna</h3>
+          <p class="where">JP Road, Andheri West, Bombay</p>
+          <p class="note"><span class="by">From my visit</span> My go-to, a standard.</p>
+          <p class="price">₹200–400 per person</p>
+          <div class="actions">
+            <a class="maps" href="https://www.google.com/maps/search/Udupi%20Shree%20Krishna/@19.12768,72.8339,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
+          </div>
+        </article>
+        <article class="place" id="p-vithals">
+          <p class="head"><span class="kind">Meals · Indian</span></p>
+          <h3>Vithal&#39;s Family Restaurant</h3>
+          <p class="where">Fort, near CST, Bombay</p>
+          <p class="note"><span class="by">From my visit</span> Really good chaat. I&#39;ve only been once, on a trip, but it was so good I had to put it here. Bombay food is brilliant when it&#39;s good and very strange when it&#39;s not; this is one of the good ones.</p>
+          <p class="price">₹200–1,000 per person</p>
+          <div class="actions">
+            <a class="maps" href="https://www.google.com/maps/search/Vithal&#39;s%20Family%20Restaurant/@18.9381,72.83376,17z" target="_blank" rel="noopener">Open in Google Maps →</a>
+          </div>
+        </article></template>
+    <article class="card" id="card" tabindex="-1" aria-labelledby="card-name" hidden>
+      <button type="button" class="close" id="card-close" aria-label="Close">×</button>
+      <div id="card-body" style="display:contents"></div>
+    </article>
+  </main>
+</div>
+
+<script type="application/json" id="places">[{"id":"govindas-juhu","title":"Govinda's (ISKCON Juhu), Hare Krishna Land, Juhu, Bombay","in":"bombay","lat":19.1133,"lng":72.8266,"type":"meal","full":true,"found":false},{"id":"ram-ashraya","title":"Ram Ashraya, Matunga East, Bombay","in":"bombay","lat":19.02793,"lng":72.85179,"type":"meal","full":false,"found":false},{"id":"joeys-pizza","title":"Joey's Pizza, D.N. Nagar, Andheri West, Bombay","in":"bombay","lat":19.12663,"lng":72.83011,"type":"pizza","full":false,"found":false},{"id":"usk","title":"Udupi Shree Krishna, JP Road, Andheri West, Bombay","in":"bombay","lat":19.12768,"lng":72.8339,"type":"meal","full":false,"found":false},{"id":"vithals","title":"Vithal's Family Restaurant, Fort, near CST, Bombay","in":"bombay","lat":18.9381,"lng":72.83376,"type":"meal","full":false,"found":false}]</script>
+<script type="application/json" id="pins">{"meal":"\u003csvg class=\"pin pin-meal\" viewBox=\"0 0 28 36\" aria-hidden=\"true\">\u003cpath class=\"body\" d=\"M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z\"/>\u003cg class=\"glyph\">\u003ccircle cx=\"14\" cy=\"13.5\" r=\"4.6\"/>\u003c/g>\u003c/svg>","pizza":"\u003csvg class=\"pin pin-pizza\" viewBox=\"0 0 28 36\" aria-hidden=\"true\">\u003cpath class=\"body\" d=\"M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z\"/>\u003cg class=\"glyph\">\u003cpath d=\"M8.4 9h11.2L14 19.6z\"/>\u003c/g>\u003c/svg>","quick":"\u003csvg class=\"pin pin-quick\" viewBox=\"0 0 28 36\" aria-hidden=\"true\">\u003cpath class=\"body\" d=\"M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z\"/>\u003cg class=\"glyph\">\u003cpath d=\"M14 7.8l5.7 5.7-5.7 5.7-5.7-5.7z\"/>\u003c/g>\u003c/svg>","sweet":"\u003csvg class=\"pin pin-sweet\" viewBox=\"0 0 28 36\" aria-hidden=\"true\">\u003cpath class=\"body\" d=\"M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z\"/>\u003cg class=\"glyph\">\u003cpath d=\"M14 19.4s-5.8-3.5-5.8-7.4c0-1.8 1.3-3.1 3-3.1 1.2 0 2.2.6 2.8 1.6.6-1 1.6-1.6 2.8-1.6 1.7 0 3 1.3 3 3.1 0 3.9-5.8 7.4-5.8 7.4z\"/>\u003c/g>\u003c/svg>"}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js" integrity="sha512-TiMWaqipFi2Vqt4ugRzsF8oRoGFlFFuqIi30FFxEPNw58Ov9mOy6LgC05ysfkxwLE0xVeZtmr92wVg9siAFRWA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+(function () {
+  var places = JSON.parse(document.getElementById('places').textContent);
+  var PINS = JSON.parse(document.getElementById('pins').textContent);
+  var START = 'bombay';
+  // A city's own page (…/gurgaon/) only has that city; the other city buttons there are links to their pages.
+  var LOCKED = true;
+  var navLinks = [].slice.call(document.querySelectorAll('a[data-nav-map]'));
+  var state = { type: 'all', finds: true };
+  var view = 'map';
+  var root = document.documentElement;
+  var jumpBtns = [].slice.call(document.querySelectorAll('[data-jump]'));
+  var typeBtns = [].slice.call(document.querySelectorAll('[data-type]'));
+  var viewBtns = [].slice.call(document.querySelectorAll('[data-view]'));
+  var findsBtn = document.getElementById('finds');
+  var countEl = document.getElementById('count');
+  var card = document.getElementById('card');
+  var cardBody = document.getElementById('card-body');
+  var mapEl = document.getElementById('map');
+  var listEl = document.getElementById('list');
+  var emptyEl = document.getElementById('empty');
+  var cards = [].slice.call(listEl.querySelectorAll('.place'));
+  var popups = document.getElementById('popups').content;
+  var sections = [].slice.call(listEl.querySelectorAll('.city'));
+  var byId = {};
+  places.forEach(function (p) { byId[p.id] = p; });
+
+  var map = L.map(mapEl, { zoomControl: false, minZoom: 4, maxZoom: 19 });
+  L.control.zoom({ position: 'topright' }).addTo(map);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(map);
+
+  var cluster = L.markerClusterGroup({
+    showCoverageOnHover: false,
+    maxClusterRadius: 44,
+    spiderfyOnMaxZoom: true,
+    iconCreateFunction: function (c) {
+      var n = c.getChildCount();
+      var s = n < 10 ? 34 : n < 25 ? 40 : 48;
+      return L.divIcon({ html: '<span>' + n + '</span>', className: 'cluster', iconSize: [s, s] });
+    },
+  });
+
+  var selected = null;
+  places.forEach(function (p) {
+    var m = L.marker([p.lat, p.lng], {
+      icon: L.divIcon({ html: PINS[p.type], className: 'pinwrap', iconSize: [28, 36], iconAnchor: [14, 34] }),
+      title: p.title,
+      riseOnHover: true,
+      zIndexOffset: p.full ? 500 : 0,
+    });
+    m.place = p;
+    m.on('click', function () { open(m); });
+    m.on('add', function () { if (m === selected) highlight(m, true); });
+    p.marker = m;
+  });
+
+  // The city, food type and new-finds switch together decide which places show, on the map and in the list.
+  function visible(p) {
+    return inCity(p) && (state.type === 'all' || p.type === state.type) && (state.finds || !p.found);
+  }
+  function inCity(p) { return current === 'all' || p.in === current; }
+  function plural(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
+  function cityName(id) {
+    var b = jumpBtns.filter(function (b) { return b.dataset.jump === id; })[0];
+    return b ? b.dataset.label : '';
+  }
+
+  function updateCount() {
+    var n = places.filter(visible).length;
+    var where = current === 'all' ? 'across India' : 'in ' + cityName(current);
+    countEl.textContent = n ? plural(n, 'place') + ' ' + where : 'No places ' + where + ' match these filters';
+  }
+
+  function applyList() {
+    var n = 0;
+    // A card shows if any of its places do; a chain's card also hides branches that don't match.
+    cards.forEach(function (c) {
+      var shownHere = 0;
+      c.dataset.ids.split(' ').forEach(function (id) {
+        var ok = visible(byId[id]);
+        var row = c.querySelector('li[data-id="' + id + '"]');
+        if (row) row.hidden = !ok;
+        if (ok) shownHere++;
+      });
+      c.hidden = !shownHere;
+      n += shownHere;
+    });
+    sections.forEach(function (s) { s.hidden = !s.querySelector('.place:not([hidden])'); });
+    emptyEl.hidden = n !== 0;
+  }
+
+  function apply() {
+    cluster.clearLayers();
+    cluster.addLayers(places.filter(visible).map(function (p) { return p.marker; }));
+    if (selected && !visible(selected.place)) closeCard(false);
+    applyList();
+    updateCount();
+  }
+
+  // City buttons: show only that city's places, on the map and in the list.
+  var current = START, mapCity = null;
+  function setCity(id) {
+    current = id;
+    jumpBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.jump === id)); });
+    document.title = id === 'all' ? 'The Satvik Map' : 'Satvik food in ' + cityName(id) + ' — The Satvik Map';
+    apply();
+  }
+  // Fit the map to the pins showing (or to the whole city if the food filter leaves none).
+  function fit(animate) {
+    var pts = places.filter(visible);
+    if (!pts.length) pts = places.filter(inCity);
+    closeCard(false);
+    mapCity = current;
+    var bounds = L.latLngBounds(pts.map(function (p) { return [p.lat, p.lng]; }));
+    // Phones: one step further out than a tight fit, so you see the area around the places.
+    var out = window.matchMedia('(max-width: 899px)').matches ? 1 : 0;
+    var zoom = Math.min(map.getBoundsZoom(bounds, false, L.point(72, 72)), 15) - out;
+    map.setView(bounds.getCenter(), zoom, { animate: animate });
+  }
+
+  function setView(v) {
+    view = v;
+    root.dataset.view = v;
+    viewBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === v)); });
+    mapEl.inert = v === 'list';
+    closeCard(false);
+    window.scrollTo(0, 0);
+    navLinks.forEach(function (a) { a.setAttribute('href', v === 'list' ? a.dataset.navList : a.dataset.navMap); });
+    if (v === 'list') {
+      listEl.scrollTop = 0;
+    } else {
+      map.invalidateSize();
+      if (current !== mapCity) fit(false);
+    }
+  }
+
+  function setHash() {
+    var h = LOCKED ? (view === 'list' ? 'list' : '') : view === 'list' ? (current === 'all' ? 'list' : 'list-' + current) : current;
+    try { history.replaceState(null, '', h ? '#' + h : location.pathname + location.search); } catch (e) {}
+  }
+
+  function highlight(m, on) {
+    var el = m.getElement();
+    if (el) el.classList.toggle('is-on', on);
+    m.setZIndexOffset(on ? 1000 : (m.place.full ? 500 : 0));
+  }
+
+  // The map's card is a copy of the place's popup card (built with the list, kept in a <template>).
+  function open(m) {
+    var p = m.place;
+    if (selected) highlight(selected, false);
+    selected = m;
+    highlight(m, true);
+
+    var copy = popups.getElementById('p-' + p.id).cloneNode(true);
+    copy.querySelector('h3').id = 'card-name';
+    cardBody.textContent = '';
+    while (copy.firstChild) cardBody.appendChild(copy.firstChild);
+    card.hidden = false;
+    card.focus({ preventScroll: true });
+
+    // Keep the pin visible above the card.
+    var pt = map.latLngToContainerPoint(m.getLatLng());
+    var mapBox = mapEl.getBoundingClientRect(), cardBox = card.getBoundingClientRect();
+    var cardTop = cardBox.top - mapBox.top, cardRight = cardBox.right - mapBox.left;
+    if (pt.y > cardTop - 12 && pt.x < cardRight + 20) {
+      map.panBy([0, pt.y - Math.max(cardTop - 24, 60)]);
+    }
+  }
+
+  function closeCard(refocus) {
+    if (card.hidden) return;
+    card.hidden = true;
+    var m = selected;
+    selected = null;
+    if (!m) return;
+    highlight(m, false);
+    var pinEl = m.getElement();
+    if (refocus && pinEl) pinEl.focus({ preventScroll: true });
+  }
+
+  document.getElementById('card-close').addEventListener('click', function () { closeCard(true); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeCard(true); });
+  map.on('click', function () { closeCard(false); });
+
+  viewBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (b.dataset.view === view) return;
+      setView(b.dataset.view);
+      setHash();
+    });
+  });
+  jumpBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      setCity(b.dataset.jump);
+      if (view === 'map') fit(true);
+      else {
+        listEl.scrollTop = 0;
+        // On phones the page scrolls: bring the top of the list back into view.
+        if (listEl.getBoundingClientRect().top < 0) listEl.scrollIntoView();
+      }
+      setHash();
+    });
+  });
+  typeBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      state.type = b.dataset.type;
+      typeBtns.forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+      apply();
+    });
+  });
+  if (findsBtn) findsBtn.addEventListener('click', function () {
+    state.finds = !state.finds;
+    findsBtn.setAttribute('aria-checked', String(state.finds));
+    apply();
+  });
+
+  // "Show on map" on a list card: switch to the map, zoom to the pin (opening its cluster if needed) and open its card.
+  listEl.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-show]');
+    if (!btn) return;
+    var m = byId[btn.dataset.show].marker;
+    setView('map');
+    map.setView(m.getLatLng(), 17, { animate: false });
+    cluster.zoomToShowLayer(m, function () { open(m); });
+    setHash();
+  });
+
+  // Discord: copy the username (there's no link for it).
+  [].slice.call(document.querySelectorAll('[data-copy]')).forEach(function (b) {
+    var label = b.textContent;
+    b.addEventListener('click', function () {
+      if (!navigator.clipboard) return;
+      navigator.clipboard.writeText(b.dataset.copy).then(function () {
+        b.textContent = 'Copied ' + b.dataset.copy;
+        setTimeout(function () { b.textContent = label; }, 1800);
+      }, function () {});
+    });
+  });
+
+  // The panel can change height (About opened, phone rotated), so keep Leaflet's idea of the map size current.
+  if (window.ResizeObserver) new ResizeObserver(function () { map.invalidateSize(); }).observe(mapEl);
+
+  // #gurgaon opens the map on a city; #list or #list-gurgaon opens the list.
+  var hash = location.hash.slice(1);
+  var startView = hash.indexOf('list') === 0 ? 'list' : 'map';
+  var hashCity = startView === 'list' ? hash.slice(5) : hash;
+  var known = jumpBtns.some(function (b) { return b.dataset.jump === hashCity; });
+  setCity(LOCKED ? START : known ? hashCity : startView === 'list' ? 'all' : START);
+  fit(false);
+  map.addLayer(cluster);
+  setView(startView);
+})();
+</script>
 </body>
 </html>

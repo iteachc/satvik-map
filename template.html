@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>The Satvik Map</title>
+<title>{{TITLE}}</title>
 <script>document.documentElement.dataset.view = location.hash.slice(1).indexOf('list') === 0 ? 'list' : 'map';</script>
 <meta name="description" content="{{DESCRIPTION}}">
-<link rel="canonical" href="{{SITE}}">
+<link rel="canonical" href="{{URL}}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Satvik Map">
-<meta property="og:title" content="The Satvik Map">
+<meta property="og:title" content="{{OG_TITLE}}">
 <meta property="og:description" content="{{DESCRIPTION}}">
-<meta property="og:url" content="{{SITE}}">
+<meta property="og:url" content="{{URL}}">
 <meta property="og:image" content="{{SITE}}og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#f3f6ee" media="(prefers-color-scheme: light)">
+{{HEAD_EXTRA}}<meta name="theme-color" content="#f3f6ee" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f1511" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 36'%3E%3Cpath d='M14 34.5C11 27.5 2 22 2 13.5a12 12 0 0 1 24 0C26 22 17 27.5 14 34.5z' fill='%232d6a38'/%3E%3Ccircle cx='14' cy='13.5' r='4.6' fill='%23f0c14b'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -97,6 +97,7 @@ h1 em { font-style: normal; color: var(--leaf); }
 .chiprow::-webkit-scrollbar { display: none; }
 .chiprow .label { flex: none; font-size: 14px; font-weight: 500; color: var(--muted); min-width: 40px; }
 .chip { flex: none; display: inline-flex; align-items: center; font: inherit; font-size: 14.5px; font-weight: 500; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 5px 12px; cursor: pointer; min-height: 36px; white-space: nowrap; }
+a.chip { text-decoration: none; }
 .chip .n { color: var(--muted); font-variant-numeric: tabular-nums; margin-left: 5px; }
 .chip[aria-pressed="true"] { background: var(--leaf); border-color: var(--leaf); color: var(--card); }
 .chip[aria-pressed="true"] .n { color: var(--card); opacity: .8; }
@@ -270,6 +271,7 @@ h1 em { font-style: normal; color: var(--leaf); }
         <li>In North India, and especially around Delhi and Gurgaon, many places serve food without onion and garlic during Navratri, in the run-up to Ram Navami and Dussehra. I always look forward to it.</li>
       </ul>
       {{FINDS_ABOUT}}
+      {{CITY_LINKS}}
       {{LINKS}}
     </details>
   </header>
@@ -296,6 +298,9 @@ h1 em { font-style: normal; color: var(--leaf); }
   var places = JSON.parse(document.getElementById('places').textContent);
   var PINS = JSON.parse(document.getElementById('pins').textContent);
   var START = '{{START}}';
+  // A city's own page (…/gurgaon/) only has that city; the other city buttons there are links to their pages.
+  var LOCKED = {{LOCKED}};
+  var navLinks = [].slice.call(document.querySelectorAll('a[data-nav-map]'));
   var state = { type: 'all', finds: true };
   var view = 'map';
   var root = document.documentElement;
@@ -418,6 +423,7 @@ h1 em { font-style: normal; color: var(--leaf); }
     mapEl.inert = v === 'list';
     closeCard(false);
     window.scrollTo(0, 0);
+    navLinks.forEach(function (a) { a.setAttribute('href', v === 'list' ? a.dataset.navList : a.dataset.navMap); });
     if (v === 'list') {
       listEl.scrollTop = 0;
     } else {
@@ -427,8 +433,8 @@ h1 em { font-style: normal; color: var(--leaf); }
   }
 
   function setHash() {
-    var h = view === 'list' ? (current === 'all' ? 'list' : 'list-' + current) : current;
-    try { history.replaceState(null, '', '#' + h); } catch (e) {}
+    var h = LOCKED ? (view === 'list' ? 'list' : '') : view === 'list' ? (current === 'all' ? 'list' : 'list-' + current) : current;
+    try { history.replaceState(null, '', h ? '#' + h : location.pathname + location.search); } catch (e) {}
   }
 
   function highlight(m, on) {
@@ -538,7 +544,7 @@ h1 em { font-style: normal; color: var(--leaf); }
   var startView = hash.indexOf('list') === 0 ? 'list' : 'map';
   var hashCity = startView === 'list' ? hash.slice(5) : hash;
   var known = jumpBtns.some(function (b) { return b.dataset.jump === hashCity; });
-  setCity(known ? hashCity : startView === 'list' ? 'all' : START);
+  setCity(LOCKED ? START : known ? hashCity : startView === 'list' ? 'all' : START);
   fit(false);
   map.addLayer(cluster);
   setView(startView);

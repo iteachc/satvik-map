@@ -14,18 +14,19 @@ It started as [The Satvik List](https://github.com/iteachc/satvik-list); that si
 
 `node build.js` writes `docs/index.html`. Commit and push `docs/` to update the website.
 
-**Sharing on WhatsApp:** apps never see the part of a link after `#`, so for a city preview share
-`…/satvik-map/gurgaon/` (or `bangalore/`, `bombay/`, `delhi/`, `baroda/`). It previews as "Satvik food in Gurgaon" and opens the
-map on that city. The build writes these pages too. The preview picture is `docs/og.jpg` (1200×630), a screenshot
-of the map you can swap for any picture.
+**City pages:** `…/satvik-map/gurgaon/` (and `bangalore/`, `bombay/`, `delhi/`, `baroda/`) is that city's own page: the same
+map and list with only its places, titled "Satvik food in Gurgaon". Share these on WhatsApp/Telegram (apps never see the
+part of a link after `#`, so `#gurgaon` links can't preview as a city), and they're the pages search engines can show for
+"satvik food in Gurgaon". On a city page the other city buttons go to those cities' pages; All India goes to the main page.
+The preview picture is `docs/og.jpg` (1200×630), a screenshot of the site you can swap for any picture.
 
 ## Files
 | File | What it is |
 |---|---|
 | `data/places.json` | Every place: city, area, coordinates, Google rating and review count, price, cuisine, `type` (meal / pizza / quick / sweet), `fullySatvik`, `pureVeg`, your `note`, and `hide` with a reason for places left off. |
 | `template.html` | Page design, the map (Leaflet 1.9.4 + Leaflet.markercluster 1.5.3 from cdnjs, OpenStreetMap tiles), the list, and the filters. |
-| `build.js` | `node build.js` → `docs/index.html`. Prints which places were left off and why, and any place without coordinates. |
-| `docs/index.html` | The website (generated, don't edit by hand). |
+| `build.js` | `node build.js` → `docs/index.html`, one page per city (`docs/<city>/index.html`) and `docs/sitemap.xml`. Prints which places were left off and why, and any place without coordinates. |
+| `docs/` | The website (generated, don't edit by hand), except `og.jpg`. |
 
 ## Rules
 - Only places from your Google Maps list "Satvik food (without onion and garlic)" plus the ones you've asked for by name.
@@ -69,73 +70,19 @@ One place per line. An example entry:
 | `hide` | Optional: a reason to leave the place off (closed, gone…). |
 | `keep` | Optional: a reason to show it even though it's rated below 3.6. |
 
-## TODO: places without a note
-**Bangalore**
-- [ ] Taaza Thindi (`taaza-thindi`)
-- [ ] Brik Oven — Forum Falcon City, Kanakapura Road (`brik-oven-kanakapura`)
-- [ ] Anand Sweets & Savouries — Jayanagar (`anand-sweets-jayanagar`)
-- [ ] Gramin — Koramangala (`gramin`)
-- [ ] Anand Sweets & Savouries — Koramangala (`anand-sweets-koramangala`)
-- [ ] Kailash Parbat — Indiranagar (`kailash-parbat-indiranagar`)
-- [ ] The Soya Chaap Co. — Arakere, Bannerghatta Road (`soya-chaap-co`)
-- [ ] Kota Kachori — Koramangala (`kota-kachori`)
-- [ ] Kapoor's Cafe — Jayanagar (`kapoors-cafe`)
-- [ ] Sterlings Mac Hotel — Old Airport Road (`sterlings-mac`)
-- [ ] MTR (`mtr`)
-- [ ] Kailash Parbat — Jayanagar (`kailash-parbat-jayanagar`)
-- [ ] Kesariya — Sadashivanagar (`kesariya-north`)
-- [ ] Bhartiya Jalpan (`bhartiya-jalpan`)
-- [ ] Kesariya — JP Nagar 2nd Phase (`kesariya-south`)
-- [ ] Kailash Parbat — Vega City Mall, BTM Layout (`kailash-parbat-vega`)
-- [ ] ParkView Vegetarian (`parkview`)
-
-**Bombay**
-- [ ] Ram Ashraya — Matunga East (`ram-ashraya`)
-- [ ] Joey's Pizza — D.N. Nagar, Andheri West (`joeys-pizza`)
-- [ ] Soam — Babulnath, Chowpatty (`soam`)
-- [ ] Udupi Shree Krishna — JP Road, Andheri West (`usk`)
-- [ ] Vithal's Family Restaurant — Fort, near CST (`vithals`)
-- [ ] Guru Da Dhaba — Lokhandwala, Andheri West (`guru-da-dhaba`)
-
-**Gurgaon**
-- [ ] Haldiram's — MGF Metropolitan Mall (`haldirams-mgf`)
-- [ ] Kulcha Kulture — AIPL Joy Street, Sector 66 (`kulcha-kulture-ggn`)
-- [ ] Copper Chimney — Cyber Hub (`copper-chimney-cyberhub`)
-- [ ] Pizzeria da Susy — Crosspoint Mall, DLF City IV (`pizzeria-da-susy`)
-- [ ] PizzaExpress — Ambience Mall (`pizzaexpress-ambience`)
-- [ ] Gulati — DT Mega Mall, Golf Course Road (`gulati-gurgaon`)
-- [ ] Sagar Ratna — Ambience Island (`sagar-ratna-ambience`)
-- [ ] Naivedyam — Vipul Square, Sushant Lok (`naivedyam-sushant-lok`)
-- [ ] Naivedyam — Suncity, Sector 54 (`naivedyam-suncity`)
-- [ ] Haldiram's — Ambience Mall (`haldirams-ambience`)
-- [ ] Kulcha Lal Parantha Das — Huda Market, Sector 46 (`kulcha-lal-parantha-das`)
-- [ ] Punjabi Angithi — DLF Phase 3 (`punjabi-angithi`)
-- [ ] Benne – Heritage Bangalore Dosa — Cyber Hub (`benne-cyberhub`)
-- [ ] Jay Bhavani Vadapav — DLF Phase IV (`jay-bhavani-vadapav`)
-- [ ] Om Chole Bhature Delhi Wale — Vyapar Kendra, Sushant Lok Phase I (`om-chole-bhature`)
-- [ ] Prem Bhature Wala — Sushant Lok (`prem-bhature-wala`)
-- [ ] Chaat Ka Chaska — MGF Metropolitan Mall (`chaat-ka-chaska-mgf`)
-
-**Delhi**
-- [ ] Kulcha Kulture — Lajpat Nagar II (`kulcha-kulture-ln`)
-- [ ] Sattvik — Select Citywalk, Saket (`sattvik-saket`)
-- [ ] Toscano — Select Citywalk, Saket (`toscano-saket`)
-- [ ] Karnataka Food Centre — Sector 12, RK Puram (`karnataka-food-centre`)
-- [ ] Veg Gulati — Pandara Road (`veg-gulati`)
-- [ ] Gulati — Pandara Road (`gulati-pandara`)
-- [ ] Veg Gulati — Green Park Market (`veg-gulati-green-park`)
-- [ ] A2B – Adyar Ananda Bhavan — Green Park Market (`a2b-green-park`)
-- [ ] Moolchand Parantha — Moolchand, Lajpat Nagar (`moolchand-parantha`)
-- [ ] Kake Di Hatti — Chandni Chowk (`kake-di-hatti`)
-- [ ] Bengali Sweet Centre — South Extension I (`bengali-sweet-centre`)
-- [ ] Old Famous Jalebi Wala — Dariba Kalan, Chandni Chowk (`old-famous-jalebi-wala`)
-- [ ] Krishna Di Kulfi — Pandara Market (`krishna-di-kulfi`)
-- [ ] Shri Hanuman Kachori — Hanuman Mandir, Connaught Place (`shri-hanuman-kachori`)
-- [ ] Softyboy Ice Cream — Central Market, Lajpat Nagar II (`softyboy`)
-
-**Baroda**
-- [ ] Pizza On The Rock — Old Padra Road (`pizza-on-the-rock`)
-- [ ] Sawan's Gravies — Race Course Road (`sawans-gravies`)
+## Search engines and AI assistants
+- **City pages** carry their own places, title and description, so a search like "food without onion and garlic in
+  Gurgaon" has a page to find.
+- **Structured data:** each city page has a hidden schema.org list of its places (name, area, city, location, cuisine,
+  price, your note, Google Maps link) that Google and AI assistants read. The main page lists the city pages. No ratings.
+- **Sitemap:** `docs/sitemap.xml` lists the main page and the city pages.
+- **Signing up (once, free):**
+  1. Google Search Console (search.google.com/search-console): Add property → "URL prefix" →
+     `https://iteachc.github.io/satvik-map/` → verify with "HTML tag". Copy the `content="…"` value into
+     `GOOGLE_VERIFY` in `build.js`, run `node build.js`, push, wait a minute, then press Verify.
+     Then Sitemaps → add `sitemap.xml`.
+  2. Bing Webmaster Tools (bing.com/webmasters): "Import from Google Search Console" (no code needed), or verify with
+     the HTML tag and paste its value into `BING_VERIFY`. Bing also feeds ChatGPT search and Copilot.
 
 ## Data notes
 - Added for this site and read from Google Maps on 7 Oct 2026: Om Chole Bhature Delhi Wale, Jumbo King Burgers,
