@@ -157,6 +157,8 @@ h1 em { font-style: normal; color: var(--leaf); }
 .badge.all { background: var(--leaf); color: var(--card); }
 .badge.veg { border-color: var(--line); color: var(--ink); }
 .note { margin: 0; font-size: 16px; line-height: 1.45; color: var(--ink); }
+/* Your notes are first-hand: a small label says so. */
+.note .by { display: block; font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--leaf); }
 /* margin-top: auto keeps the actions on the bottom edge, so they line up across a row of cards. */
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0 18px; margin-top: auto; }
 .maps { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; text-decoration: none; font-size: 15px; }
@@ -236,7 +238,7 @@ h1 em { font-style: normal; color: var(--leaf); }
 <body>
 <div class="app">
   <header class="panel">
-    <span class="eyebrow">No onion · No garlic · Just ask</span>
+    <span class="eyebrow">Places I've eaten at · No onion, no garlic</span>
     <div class="top">
       <h1>The Satvik <em>Map</em></h1>
       <div class="views" role="group" aria-label="View">
@@ -244,7 +246,7 @@ h1 em { font-style: normal; color: var(--leaf); }
         <button type="button" data-view="list" aria-pressed="false">List</button>
       </div>
     </div>
-    <p class="lede"><strong>Satvik food:</strong> no onion, no garlic, no caffeine. These are my picks: {{TOTAL}} places in {{CITY_NAMES}}. Unless marked <b>Fully satvik</b>, ask for no onion, no garlic when you order.</p>
+    <p class="lede"><strong>Satvik food:</strong> no onion, no garlic, no caffeine. {{EATEN}} Unless marked <b>Fully satvik</b>, ask for no onion, no garlic when you order.</p>
 
     <nav class="filters" aria-label="Filters">
       <div class="chiprow" role="group" aria-label="City"><span class="label">City</span>{{JUMP_CHIPS}}</div>
@@ -260,7 +262,7 @@ h1 em { font-style: normal; color: var(--leaf); }
     <details class="about" id="about">
       <summary>About these places</summary>
       <p>My focus is satvik food: no onion, no garlic, no caffeine. Jain food goes further and also leaves out root vegetables like potato, carrot and ginger, so if you eat Jain, check with the kitchen.</p>
-      <p class="lede">These are my picks: {{TOTAL}} places in {{CITY_NAMES}}. Unless marked <b>Fully satvik</b>, ask for no onion, no garlic when you order.</p>
+      <p class="lede">{{EATEN}} Unless marked <b>Fully satvik</b>, ask for no onion, no garlic when you order.</p>
       <p><b>Tips for ordering</b></p>
       <ul>
         <li>If they don't know "satvik", say "Jain, but potato and ginger are fine."</li>
