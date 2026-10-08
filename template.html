@@ -76,7 +76,7 @@ a { color: var(--leaf); }
 :focus-visible { outline: 3px solid var(--turmeric); outline-offset: 2px; }
 
 .app { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
-.panel { flex: none; position: relative; z-index: 2; min-width: 0; max-height: 72%; overflow-y: auto; display: grid; gap: 8px; align-content: start;
+.panel { flex: none; position: relative; z-index: 2; min-width: 0; max-height: 45%; overflow-y: auto; display: grid; gap: 8px; align-content: start;
   padding: max(12px, env(safe-area-inset-top)) 16px 10px; background: var(--bg); border-bottom: 1px solid var(--line); }
 .mapwrap { flex: 1 1 auto; position: relative; min-height: 0; }
 #map { position: absolute; inset: 0; }
@@ -193,6 +193,22 @@ h1 em { font-style: normal; color: var(--leaf); }
 .leaflet-container .leaflet-control-attribution { background: var(--card); opacity: .9; color: var(--muted); font-size: 11px; }
 .leaflet-container .leaflet-control-attribution a { color: var(--leaf); }
 
+/* Phones and tablets: the intro and your links fold into "About these places" to leave room
+   for the map. Wider screens show them in the panel, as before. */
+@media (max-width: 899px) {
+  .panel > .lede, .panel > .links { display: none; }
+}
+@media (min-width: 900px) {
+  .about .lede, .about .links { display: none; }
+}
+/* Phones and tablets, List view: one plain page scroll. The header scrolls away with the list. */
+@media (max-width: 899px) {
+  [data-view="list"] .app { height: auto; }
+  [data-view="list"] .panel { max-height: none; overflow: visible; }
+  [data-view="list"] .mapwrap { flex: none; }
+  [data-view="list"] #map { display: none; }
+  [data-view="list"] .listwrap { position: static; overflow: visible; }
+}
 /* Touch screens: 44px tap targets for controls that sit in tight rows. */
 @media (pointer: coarse) {
   .chip { min-height: 44px; }
@@ -243,6 +259,7 @@ h1 em { font-style: normal; color: var(--leaf); }
     <details class="about" id="about">
       <summary>About these places</summary>
       <p>My focus is satvik food: no onion, no garlic, no caffeine. Jain food goes further and also leaves out root vegetables like potato, carrot and ginger, so if you eat Jain, check with the kitchen.</p>
+      <p class="lede">These are my picks: {{TOTAL}} places in {{CITY_NAMES}}. Unless marked <b>Fully satvik</b>, ask for no onion, no garlic when you order.</p>
       <p><b>Tips for ordering</b></p>
       <ul>
         <li>If they don't know "satvik", say "Jain, but potato and ginger are fine."</li>
@@ -250,6 +267,7 @@ h1 em { font-style: normal; color: var(--leaf); }
         <li>In North India, many places serve food without onion and garlic during Navratri, in the run-up to Ram Navami and Dussehra.</li>
       </ul>
       {{FINDS_ABOUT}}
+      {{LINKS}}
     </details>
   </header>
 
@@ -392,6 +410,7 @@ h1 em { font-style: normal; color: var(--leaf); }
     viewBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === v)); });
     mapEl.inert = v === 'list';
     closeCard(false);
+    window.scrollTo(0, 0);
     if (v === 'list') {
       listEl.scrollTop = 0;
     } else {
@@ -460,7 +479,11 @@ h1 em { font-style: normal; color: var(--leaf); }
     b.addEventListener('click', function () {
       setCity(b.dataset.jump);
       if (view === 'map') fit(true);
-      else listEl.scrollTop = 0;
+      else {
+        listEl.scrollTop = 0;
+        // On phones the page scrolls: bring the top of the list back into view.
+        if (listEl.getBoundingClientRect().top < 0) listEl.scrollIntoView();
+      }
       setHash();
     });
   });
