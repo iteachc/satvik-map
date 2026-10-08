@@ -27,3 +27,15 @@ Lessons from getting the previews to work:
 - Reproduce the bug on the live version first, then show the fix passes the same test.
 - The cloud environment blocks cdnjs: for tests, serve libraries from npm (`npm pack`)
   through `page.route`, and strip the `integrity` attributes.
+
+## Writing the notes (Ashish's rules)
+
+- **Stay on satvik food.** Notes say what you *can* eat: no onion, no garlic, no caffeine.
+  Never mention egg, meat or other non-veg, not even as a warning; a place that isn't pure
+  veg just doesn't get the badge. Talking about it dilutes the point of the site.
+- **Only what Ashish said.** Badges (`pureVeg`, `fullySatvik`) and facts come from him,
+  never from a guess ("it's mostly desserts, so probably pure veg").
+- **No visit timelines** ("eight years", "ten years ago"): the repo is public. A place's own
+  history is fine ("started in the pandemic", "open since the 80s").
+- **Name people** (owners, captains, chefs) when Ashish gives the name; he wants them credited.
+- Don't compare two places in their notes (e.g. Prem vs Om Chole Bhature).
