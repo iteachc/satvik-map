@@ -193,6 +193,9 @@ const html = template
   .replaceAll('{{DESCRIPTION}}', esc(description))
   .replaceAll('{{TOTAL}}', String(shown.length))
   .replaceAll('{{CITY_NAMES}}', esc(cityNames))
+  .replaceAll('{{ASK}}', shown.some((p) => p.fullySatvik && !p.found)
+    ? 'Unless marked <b>Fully satvik</b>, ask for no onion, no garlic when you order.'
+    : 'Ask for no onion, no garlic when you order.')
   .replaceAll('{{EATEN}}', eaten.replace(cityNames, esc(cityNames)))
   .replace('{{JUMP_CHIPS}}', jumpChips)
   .replace('{{TYPE_CHIPS}}', typeChips)
