@@ -38,4 +38,5 @@ Lessons from getting the previews to work:
 - **No visit timelines** ("eight years", "ten years ago"): the repo is public. A place's own
   history is fine ("started in the pandemic", "open since the 80s").
 - **Name people** (owners, captains, chefs) when Ashish gives the name; he wants them credited.
-- Don't compare two places in their notes (e.g. Prem vs Om Chole Bhature).
+- Don't compare two places in their notes, or name one in another's note (e.g. Prem vs Om Chole Bhature).
+  Branches of the same owners are fine to mention together (Gulati and Veg Gulati).
