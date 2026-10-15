@@ -22,6 +22,7 @@ const CITIES = [
   { id: 'gurgaon', label: 'Gurgaon', locality: 'Gurugram', region: 'Haryana', match: (p) => p.city === 'Delhi NCR' && /Gurugram/.test(p.area), trim: /,\s*Gurugram$/ },
   { id: 'delhi', label: 'Delhi', locality: 'New Delhi', region: 'Delhi', match: (p) => p.city === 'Delhi NCR' && !/Gurugram/.test(p.area), trim: /,\s*New Delhi$/ },
   { id: 'baroda', label: 'Baroda', locality: 'Vadodara', region: 'Gujarat', match: (p) => p.city === 'Vadodara' },
+  { id: 'hyderabad', label: 'Hyderabad', locality: 'Hyderabad', region: 'Telangana', match: (p) => p.city === 'Hyderabad' },
 ];
 const START = 'gurgaon'; // where the map opens
 const SITE = 'https://iteachc.github.io/satvik-map/'; // for link previews

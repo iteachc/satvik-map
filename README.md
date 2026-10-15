@@ -92,3 +92,6 @@ One place per line. An example entry:
 - Added on 8 Oct 2026, read from Google Maps: Sagar Ratna (Ambience Island) and Gulati (DT Mega Mall) in Gurgaon; Gulati
   (Pandara Road), Veg Gulati and A2B (both Green Park Market) in Delhi. Koolchas (Ambience Mall) is back on with your note.
   Coordinates for the new finds were read the same day, ready for when they go on.
+- Added on 15 Oct 2026, read from Google Maps: Hyderabad, a new city, with Minerva Coffee Shop (Himayatnagar), Govinda's
+  (ISKCON Abids, fully satvik), Tewari Bros (Khairatabad, fully satvik), Gokul Chat (Koti), Jewel of Nizam at The Golkonda
+  Hotel (Masab Tank) and Chutneys (Jubilee Hills). Google lists no prices for them.
